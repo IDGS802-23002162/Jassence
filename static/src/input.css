@@ -1,0 +1,10 @@
+/* static/src/input.css */
+@import "tailwindcss";
+
+/* Configuramos Flowbite v4+ */
+@source "../../node_modules/flowbite";
+@plugin "flowbite/plugin";
+
+/* Aquí puedes agregar tus propios estilos si los necesitas */
+
+/* npx @tailwindcss/cli -i ./static/src/input.css -o ./static/dist/output.css --watch */
