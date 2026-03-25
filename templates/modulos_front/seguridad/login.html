@@ -1,0 +1,53 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Iniciar Sesión - Jassence{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col md:flex-row items-center justify-center gap-12 px-4 py-8">
+    
+    <div class="w-full max-w-md space-y-6">
+        
+        <div class="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+            <h1 class="text-5xl font-serif text-black mb-8">Bienvenido</h1>
+            
+            <form action="#" method="POST" class="space-y-6">
+                <div>
+                    <label for="usuario" class="block mb-2 text-sm font-medium text-gray-600">Usuario</label>
+                    <input type="text" name="usuario" id="usuario" 
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 placeholder-gray-400" 
+                        placeholder="Nombre de usuario" required>
+                </div>
+                
+                <div>
+                    <label for="password" class="block mb-2 text-sm font-medium text-gray-600">Contraseña</label>
+                    <input type="password" name="password" id="password" 
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 placeholder-gray-400" 
+                        placeholder="Contraseña" required>
+                </div>
+
+                <button type="submit" 
+                    class="w-full text-white bg-[#2D2D2D] hover:bg-black focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors">
+                    Iniciar Sesión
+                </button>
+
+                <div class="text-center">
+                    <a href="#" class="text-sm text-gray-500 hover:underline">¿Olvidaste la contraseña?</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 class="text-4xl font-serif text-black mb-6 text-center">¿Nuevo aquí?</h2>
+            <button type="button" 
+                class="w-full text-white bg-[#2D2D2D] hover:bg-black focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors">
+                Crear cuenta
+            </button>
+        </div>
+    </div>
+
+    <div class="hidden md:flex flex-col items-center justify-center w-full max-w-lg">
+        <img src="{{ url_for('static', filename='img/NF-Logo.png') }}" alt="Jassence Logo" class="w-full h-auto object-contain">
+        </div>
+
+</div>
+{% endblock %}
