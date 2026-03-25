@@ -3,15 +3,28 @@ from flask import flash
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from flask import g
-
-
 from models import db
+
+from modulos_routes.formulas import formulas_bp
  
+
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
+class UsuarioFalso:
+    nombre = "Erick"
+    rol = "Admin"
+
+@app.context_processor
+def inyectar_usuario():
+    # Esto envía el 'current_user' falso a TODOS los archivos HTML automáticamente
+    return dict(current_user=UsuarioFalso())
+
 csrf=CSRFProtect()
 db.init_app(app)
+
+
+app.register_blueprint(formulas_bp)
 
 @app.route('/')
 def index():
@@ -26,4 +39,4 @@ if __name__ == '__main__':
 	csrf.init_app(app)
 	with app.app_context():
 		db.create_all()
-	app.run()
+	app.run(debug=True)
