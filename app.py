@@ -6,12 +6,15 @@ from flask import g
 
 
 from models import db
+from modulos_routes.usuarios.routes import usuarios_bp
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
 csrf=CSRFProtect()
 db.init_app(app)
+
+app.register_blueprint(usuarios_bp)
 
 # Prueba usuario
 class Usuario:
