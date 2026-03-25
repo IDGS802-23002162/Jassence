@@ -23,13 +23,23 @@ def inyectar_usuario():
 csrf=CSRFProtect()
 db.init_app(app)
 
+<<<<<<< HEAD
 
 app.register_blueprint(formulas_bp)
+=======
+# Prueba usuario
+class Usuario:
+    def __init__(self, nombre, rol):
+        self.nombre = nombre
+        self.rol = rol
+>>>>>>> 4e72311424078a6a76d674243423bea69d54aa91
 
 @app.route('/')
 def index():
-    # ELIMINAR INDEX DE AQUI
-    return render_template("index.html", titulo="Panel Principal")
+    #Usuario de prueba aqui debe ir la consulta mysql
+    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
+    
+    return render_template('index.html', current_user=usuario_logueado)
 
 @app.errorhandler(404)
 def page_not_fount(e):
