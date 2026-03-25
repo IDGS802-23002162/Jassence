@@ -13,10 +13,18 @@ app.config.from_object(DevelopmentConfig)
 csrf=CSRFProtect()
 db.init_app(app)
 
+# Prueba usuario
+class Usuario:
+    def __init__(self, nombre, rol):
+        self.nombre = nombre
+        self.rol = rol
+
 @app.route('/')
 def index():
-    # ELIMINAR INDEX DE AQUI
-    return render_template("index.html", titulo="Panel Principal")
+    #Usuario de prueba aqui debe ir la consulta mysql
+    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
+    
+    return render_template('index.html', current_user=usuario_logueado)
 
 @app.errorhandler(404)
 def page_not_fount(e):

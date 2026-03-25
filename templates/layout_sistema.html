@@ -2,59 +2,145 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Jassence - Sistema de Perfumería</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jassence - {% block title %}Inicio{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+    <style>
+        /* Color de fondo crema basado en el diseño */
+        body { background-color: #F6F5F0; }
+    </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
-    
-    <nav class="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
-  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-    <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-        <span class="self-center text-2xl font-bold whitespace-nowrap dark:text-white text-purple-700">JASSENCE</span>
-    </a>
-    
-    <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-        <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-          <span class="sr-only">Abrir menú</span>
-          <div class="relative w-8 h-8 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-              <svg class="absolute w-10 h-10 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-          </div>
-        </button>
-        
-        <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
-          <div class="px-4 py-3">
-            <span class="block text-sm text-gray-900 dark:text-white">Erick</span>
-            <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">admin@jassence.com</span>
-          </div>
-          <ul class="py-2" aria-labelledby="user-menu-button">
-            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Perfil</a></li>
-            <li><a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Cerrar Sesión</a></li>
-          </ul>
-        </div>
-        
-        <button data-collapse-toggle="navbar-user" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-user" aria-expanded="false">
-          <span class="sr-only">Menú</span>
-          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-          </svg>
-        </button>
-    </div>
+<body class="font-sans antialiased">
 
-    <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
-      <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-800 dark:border-gray-700">
-        <li><a href="/dashboard" class="block py-2 px-3 text-white bg-purple-700 rounded md:bg-transparent md:text-purple-700 md:p-0 md:dark:text-purple-500" aria-current="page">Dashboard</a></li>
-        <li><a href="/inv_materias" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-purple-700 md:p-0 dark:text-white md:dark:hover:text-purple-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Inventario</a></li>
-        <li><a href="/ventas" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-purple-700 md:p-0 dark:text-white md:dark:hover:text-purple-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Ventas</a></li>
-        <li><a href="/usuarios" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-purple-700 md:p-0 dark:text-white md:dark:hover:text-purple-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Personal</a></li>
-      </ul>
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
+  <div class="px-3 py-3 lg:px-5 lg:pl-3">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center justify-start rtl:justify-end">
+        <img src="{{ url_for('static', filename='img/NFNL-Logo.png') }}" class="h-10 mr-4" alt="Logo Jassence">
+        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <span class="sr-only">Alternar menú lateral</span>
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+               <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+            </svg>
+         </button>
+
+        <a href="/" class="flex ms-2 md:me-24 items-center ml-4">
+          
+          <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.nombre  }}&background=random" alt="user photo">
+          <div class="hidden md:flex flex-col ml-3">
+              <span class="text-sm font-semibold text-gray-900">Bienvenido {{ current_user.nombre  }}</span>
+              <span class="text-xs text-gray-500">{{ current_user.rol }}</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="flex items-center">
+          <a href="/logout" class="flex items-center text-sm font-medium text-gray-700 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+              Cerrar sesión
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          </a>
+      </div>
     </div>
   </div>
 </nav>
 
-<div class="pt-20">
-    {% block content %}{% endblock %}
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200" aria-label="Sidebar">
+   <div class="h-full px-3 pb-4 overflow-y-auto bg-white flex flex-col justify-between">
+      <ul class="space-y-2 font-medium">
+         
+         <li>
+            <a href="/dashboard" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Dashboard</span>
+                   <span class="text-xs text-gray-400 font-normal">Administrador</span>
+               </div>
+            </a>
+         </li>
+
+         <li class="pt-6 mt-5 border-t border-gray-200">
+            <a href="/inventario-materias" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Inventario Materias Primas</span>
+                   <span class="text-xs text-gray-400 font-normal">Gestion</span>
+               </div>
+            </a>
+         </li>
+
+         <li>
+            <a href="/inventario-productos" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Inventario Productos</span>
+                   <span class="text-xs text-gray-400 font-normal">Gestion</span>
+               </div>
+            </a>
+         </li>
+
+         <li>
+            <a href="/proveedores" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Proveedores y Compras</span>
+                   <span class="text-xs text-gray-400 font-normal">Gestion</span>
+               </div>
+            </a>
+         </li>
+
+         <li>
+            <a href="/produccion" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Control de Producción</span>
+                   <span class="text-xs text-gray-400 font-normal">Producción</span>
+               </div>
+            </a>
+         </li>
+
+         <li class="pt-6 mt-10 border-t border-gray-200">
+            <a href="/usuarios" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Usuarios y Roles</span>
+                   <span class="text-xs text-gray-400 font-normal">Administrador</span>
+               </div>
+            </a>
+         </li>
+
+         <li>
+            <a href="/explosion-materiales" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Explosion de Materiales</span>
+                   <span class="text-xs text-gray-400 font-normal">Administrador</span>
+               </div>
+            </a>
+         </li>
+
+         <li>
+            <a href="/auditoria" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Auditoria y Trazabilidad</span>
+                   <span class="text-xs text-gray-400 font-normal">Administrador</span>
+               </div>
+            </a>
+         </li>
+
+      </ul>
+   </div>
+</aside>
+
+<div class="p-4 sm:ml-64">
+   <div class="p-4 mt-20">
+      <br><br>
+      {% block content %}
+      
+      {% endblock %}
+   </div>
 </div>
 
-    <script src="{{ url_for('static', filename='../node_modules/flowbite/dist/flowbite.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 </body>
 </html>
