@@ -6,12 +6,15 @@ from flask import g
 
 
 from models import db
+from modulos_routes.auditoria.routes import auditorias_bp
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
 csrf=CSRFProtect()
 db.init_app(app)
+
+app.register_blueprint(auditorias_bp)
 
 # Prueba usuario
 class Usuario:
