@@ -1,0 +1,60 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Fórmulas{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Fórmulas
+        </h1>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <a href="/formulas/nueva" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Gestión de fórmulas
+        </a>
+
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Perfume</th>
+                    <th scope="col" class="px-6 py-4">Inspiración</th>
+                    <th scope="col" class="px-6 py-4">Presentación</th>
+                    <th scope="col" class="px-6 py-4 text-center">Ver</th>
+                    <th scope="col" class="px-6 py-4 text-center">Editar</th>
+                    <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Jassence Night</td>
+                    <td class="px-6 py-4">Dior Sauvage</td>
+                    <td class="px-6 py-4">100 ml</td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark"><a href="#" class="font-medium text-gray-300 hover:text-white">Ver</a></td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark"><a href="#" class="font-medium text-gray-300 hover:text-white">Modificar</a></td>
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button type="button" 
+                                onclick="prepararEliminarFormula('1', 'Jassence Night')" 
+                                data-modal-target="modal-eliminar-formula" 
+                                data-modal-toggle="modal-eliminar-formula" 
+                                class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    </div> 
+
+{% include 'modulos_front/formulas/eliminar.html' %}
+
+{% endblock %}
