@@ -7,7 +7,6 @@ from flask import g
 
 from models import db
 #Importe de rutas 
-from modulos_routes.seguridad.routes import seguridad_bp
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -17,7 +16,6 @@ db.init_app(app)
 
 
 #Registro de rutas 
-app.register_blueprint(seguridad_bp)
 
 
 # Prueba usuario
