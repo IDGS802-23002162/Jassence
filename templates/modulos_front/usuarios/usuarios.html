@@ -1,0 +1,67 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Usuarios
+        </h1>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <a href="/roles" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300">
+            Gestion de roles
+        </a>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Nombre</th>
+                    <th scope="col" class="px-6 py-4">Apellidos</th>
+                    <th scope="col" class="px-6 py-4">Teléfono</th>
+                    <th scope="col" class="px-6 py-4">Correo</th>
+                    <th scope="col" class="px-6 py-4">Rol</th>
+                    <th scope="col" class="px-6 py-4 text-center">Editar</th>
+                    <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(5) %}
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Ejemplo</td>
+                    <td class="px-6 py-4">Apellido</td>
+                    <td class="px-6 py-4">555-0000</td>
+                    <td class="px-6 py-4">correo@ejemplo.com</td>
+                    <td class="px-6 py-4">Administrador</td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark"><a href="/modificarUsuario" class="font-medium text-gray-300 hover:text-white">Modificar</a></td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button type="button" 
+                                onclick="prepararEliminar('{{ i }}', 'Usuario Ejemplo {{ i }}')" 
+                                data-modal-target="modal-eliminar-global" 
+                                data-modal-toggle="modal-eliminar-global" 
+                                class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex justify-end mt-6">
+        <a href="/insertarUsuario" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 text-center transition-colors shadow-lg">
+            Agregar
+        </a>
+    </div>
+
+</div>
+    {% include 'modulos_front/usuarios/eliminar.html' %}
+
+    {% endblock %}
