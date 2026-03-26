@@ -3,12 +3,13 @@ from flask import flash
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from flask import g
-
+from modulos_routes.inv_materias import invMP_bp
 
 from models import db
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
+app.register_blueprint(invMP_bp)
 
 csrf=CSRFProtect()
 db.init_app(app)
@@ -29,6 +30,11 @@ def index():
 @app.errorhandler(404)
 def page_not_fount(e):
 	return render_template("404.html"),404
+
+@app.context_processor
+def inject_user():
+    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
+    return dict(current_user=usuario_logueado)
 
 if __name__ == '__main__':
 	csrf.init_app(app)

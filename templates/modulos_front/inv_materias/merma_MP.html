@@ -1,0 +1,303 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Control de Mermas{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('inv_materias.inventario') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Materias Primas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Mermas
+        </h1>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('inv_materias.historial') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Historial
+        </a>
+    </div>
+
+    <div class="relative flex-1">
+            
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+    
+    <div class="relative flex-1 w-full">
+        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div>
+        <input type="text" 
+            class="block w-full p-2.5 ps-10 text-sm text-black border border-gray-300 rounded-base bg-white focus:ring-black focus:border-black outline-none transition-all" 
+            placeholder="Buscar por ítem, motivo o etapa...">
+    </div>
+
+    <div class="w-full md:w-auto">
+        <select class="w-full bg-white border border-gray-300 text-black text-sm rounded-base p-2.5 focus:ring-black focus:border-black outline-none cursor-pointer">
+            <option selected>Todas las mermas</option>
+            <option>Materia Prima</option>
+            <option>Producto en Proceso</option>
+            <option>Por Caducidad</option>
+            <option>Por Daño/Derrame</option>
+        </select>
+    </div>
+
+    <div class="w-full md:w-auto">
+        <button onclick="abrirModalRegistrarMerma()"
+            class="w-full bg-black text-white px-6 py-2.5 rounded-base hover:bg-gray-800 transition-colors shadow-sm font-medium flex items-center justify-center gap-2 whitespace-nowrap">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Registrar Nueva Merma
+        </button>
+    </div>
+</div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-gray-700">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th class="px-6 py-4">Fecha</th>
+                    <th class="px-6 py-4">Ítem / Tipo</th>
+                    <th class="px-6 py-4">Etapa</th>
+                    <th class="px-6 py-4">Cant. Perdida</th>
+                    <th class="px-6 py-4">Motivo</th>
+                    <th class="px-6 py-4 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-white bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400">2026-03-26</td>
+                    <td class="px-6 py-4 font-medium">
+                        Harina Integral
+                        <span class="text-xs text-gray-400 block italic">Materia Prima</span>
+                    </td>
+                    <td class="px-6 py-4">Almacenaje</td>
+                    <td class="px-6 py-4 text-red-400 font-bold">-5.50 Kg</td>
+                    <td class="px-6 py-4 truncate max-w-[150px]">Caducidad</td>
+                    <td class="px-6 py-4 text-center space-x-3">
+                        <button
+                            onclick="verDetallesMerma('1', 'Harina Integral', 'Materia Prima', 'Almacenaje', '5.50 Kg', 'Vencimiento de lote por humedad', 'OP-000')"
+                            class="text-yellow-400 hover:text-yellow-200 font-medium">
+                            Detalles
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="text-white bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400">2026-03-25</td>
+                    <td class="px-6 py-4 font-medium">
+                        Masa de Hojaldre
+                        <span class="text-xs text-gray-400 block italic">Producto en Proceso</span>
+                    </td>
+                    <td class="px-6 py-4">Laminado</td>
+                    <td class="px-6 py-4 text-red-400 font-bold">-12.00 Unidades</td>
+                    <td class="px-6 py-4 truncate max-w-[150px]">Error de temperatura</td>
+                    <td class="px-6 py-4 text-center space-x-3">
+                        <button
+                            onclick="verDetallesMerma('2', 'Masa de Hojaldre', 'Producto en Proceso', 'Laminado', '12.00 Unidades', 'Falla en el enfriador durante el reposo', 'OP-552')"
+                            class="text-yellow-400 hover:text-yellow-200 font-medium">
+                            Detalles
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="text-white bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400">2026-03-25</td>
+                    <td class="px-6 py-4 font-medium">
+                        Aceite Vegetal
+                        <span class="text-xs text-gray-400 block italic">Materia Prima</span>
+                    </td>
+                    <td class="px-6 py-4">Producción</td>
+                    <td class="px-6 py-4 text-red-400 font-bold">-2.00 Litros</td>
+                    <td class="px-6 py-4 truncate max-w-[150px]">Derrame accidental</td>
+                    <td class="px-6 py-4 text-center space-x-3">
+                        <button
+                            onclick="verDetallesMerma('3', 'Aceite Vegetal', 'Materia Prima', 'Producción', '2.00 Litros', 'Se rompió el envase durante el traslado', 'OP-101')"
+                            class="text-yellow-400 hover:text-yellow-200 font-medium">
+                            Detalles
+                        </button>
+                      
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal-detalles" class="hidden fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
+    <div class="relative w-full max-w-2xl">
+        <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6 text-black">
+            <div class="flex items-center justify-between border-b border-default pb-4">
+                <h3 class="text-lg font-bold">Detalles Completos de Merma</h3>
+                <button type="button" onclick="cerrarModal('modal-detalles')" class="text-gray-500 hover:text-black">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="py-6 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold">ID Registro</p>
+                    <p id="det_id" class="font-medium"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold">Fecha y Hora</p>
+                    <p id="det_fecha" class="font-medium"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold">Tipo de Ítem</p>
+                    <p id="det_tipo" class="font-medium"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold">Etapa del Proceso</p>
+                    <p id="det_etapa" class="font-medium"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold">Cantidad de Merma</p>
+                    <p id="det_cantidad" class="font-bold text-red-600"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold">Orden de Producción</p>
+                    <p id="det_orden" class="font-medium"></p>
+                </div>
+                <div class="col-span-2">
+                    <p class="text-gray-500 uppercase text-xs font-bold">Motivo Principal</p>
+                    <p id="det_motivo" class="font-medium bg-gray-50 p-2 rounded border"></p>
+                </div>
+                <div class="col-span-2">
+                    <p class="text-gray-500 uppercase text-xs font-bold">Descripción Adicional</p>
+                    <p id="det_desc" class="italic text-gray-700"></p>
+                </div>
+            </div>
+
+            <div class="flex justify-end border-t border-default pt-4">
+                <button onclick="cerrarModal('modal-detalles')"
+                    class="bg-black text-white px-6 py-2 rounded-base">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-registrar-merma" class="hidden fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
+
+    <div class="relative w-full max-w-2xl max-h-full">
+
+        <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6 text-black">
+            <div class="relative flex-1">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+            <input type="text" class="block w-full p-2.5 ps-10 text-sm text-black border border-gray-300 rounded-base bg-white focus:ring-black focus:border-black" placeholder="Buscar por insumo, usuario o acción...">
+        </div>
+            <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
+                <h3 class="text-lg font-medium">Registrar Nueva Merma</h3>
+                <button type="button" class="text-gray-400 hover:text-black transition-colors"
+                    onclick="cerrarModal('modal-registrar-merma')">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="py-4 md:py-6">
+                <form id="form-nueva-merma" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div>
+                            <label class="block mb-1 text-sm font-medium">Tipo de Ítem</label>
+                            <select class="w-full border border-default rounded-base p-2.5 bg-white">
+                                <option value="materia_prima">Materia Prima</option>
+                                <option value="producto_proceso">Producto en Proceso</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm font-medium">ID del Ítem / Producto</label>
+                            <input type="number" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="Ej. 102">
+                        </div>
+
+                        <div>
+                            <label class="block mb-1 text-sm font-medium">Etapa del Proceso</label>
+                            <input type="text" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="Ej. Mezclado, Horneado...">
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm font-medium">Orden de Producción ID</label>
+                            <input type="number" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="Opcional">
+                        </div>
+
+                        <div>
+                            <label class="block mb-1 text-sm font-medium">Cantidad Perdida</label>
+                            <input type="number" step="0.01" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm font-medium">Unidad de Medida</label>
+                            <input type="text" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="Kg, Lts, Pz...">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block mb-1 text-sm font-medium">Motivo de la Merma</label>
+                            <input type="text" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="Ej. Caducidad, Error de pesaje, Derrame...">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block mb-1 text-sm font-medium">Descripción Detallada</label>
+                            <textarea rows="3" class="w-full border border-default rounded-base p-2.5"
+                                placeholder="Escribe aquí los detalles de lo sucedido..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="flex items-center border-t border-default space-x-4 pt-4 md:pt-5">
+                <button type="summit", form="form-nueva-merma"
+                    class="flex-1 text-white bg-black hover:bg-gray-800 font-medium rounded-base text-sm px-4 py-2.5 transition-colors">
+                    Guardar Registro
+                </button>
+                <button type="button" onclick="cerrarModal('modal-registrar-merma')"
+                    class="flex-1 text-black bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-base text-sm px-4 py-2.5 transition-colors">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function abrirModalRegistrarMerma() {
+        document.getElementById('modal-registrar-merma').classList.remove('hidden');
+    }
+
+    function verDetallesMerma(mermaJson) {
+        const merma = JSON.parse(mermaJson);
+        document.getElementById('det_id').textContent = merma.id;
+        document.getElementById('det_fecha').textContent = merma.fecha;
+        document.getElementById('det_tipo').textContent = merma.tipo_item;
+        document.getElementById('det_etapa').textContent = merma.etapa;
+        document.getElementById('det_cantidad').textContent = `${merma.cantidad_perdida} ${merma.unidad_medida}`;
+        document.getElementById('det_orden').textContent = merma.orden_produccion_id || 'N/A';
+        document.getElementById('det_motivo').textContent = merma.motivo;
+        document.getElementById('det_desc').textContent = merma.descripcion || 'Sin descripción adicional.';
+
+        document.getElementById('modal-detalles').classList.remove('hidden');
+    }
+
+    function cerrarModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+</script>
+{% endblock %}
