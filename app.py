@@ -3,16 +3,21 @@ from flask import flash
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from flask import g
+
+
+
 from models import db
 #Importe de rutas 
 from modulos_routes.seguridad.routes import seguridad_bp
 from modulos_routes.usuarios.routes import usuarios_bp
 from modulos_routes.formulas import formulas_bp
 from modulos_routes.auditoria.routes import auditorias_bp
+from modulos_routes.inv_productos import inventarioP_bp
  
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
+app.register_blueprint(inventarioP_bp) 
 
 class UsuarioFalso:
     nombre = "Erick"
@@ -51,6 +56,11 @@ def index():
 @app.errorhandler(404)
 def page_not_fount(e):
 	return render_template("404.html"),404
+
+@app.context_processor
+def inject_user():
+    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
+    return dict(current_user=usuario_logueado)
 
 if __name__ == '__main__':
 	csrf.init_app(app)
