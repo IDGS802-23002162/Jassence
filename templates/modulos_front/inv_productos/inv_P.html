@@ -13,64 +13,72 @@
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
 
         <a href="{{ url_for('inventarioP.inventario_PM') }}"
-            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1">
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1 transition-colors duration-300">
             Mermas
         </a>
 
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
 
         <a href="{{ url_for('inventarioP.historial_P') }}"
-            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1">
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1 transition-colors duration-300">
             Historial
         </a>
     </div>
 
-    <!-- BUSCADOR -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
-        <div class="relative flex-1 w-full">
-            <input type="text"
-                class="w-full p-2 border rounded"
-                placeholder="Buscar perfume...">
+    <div class="mb-6 relative w-full">
+        <input type="text" id="buscador" 
+            class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm" 
+            placeholder="Buscar perfume...">
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
         </div>
     </div>
 
-    <!-- TABLA -->
-    <div class="overflow-x-auto shadow-xl rounded-lg border border-gray-700">
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
         <table class="w-full text-sm text-left text-gray-300">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
-                    <th class="px-6 py-4">Perfume</th>
-                    <th class="px-6 py-4">Presentación</th>
-                    <th class="px-6 py-4">Stock</th>
-                    <th class="px-6 py-4">Precio</th>
-                    <th class="px-6 py-4 text-center">Detalles</th>
-                    <th class="px-6 py-4 text-center">Mermas</th>
-                    <th class="px-6 py-4 text-center">Eliminar</th>
+                    <th scope="col" class="px-6 py-4">Perfume</th>
+                    <th scope="col" class="px-6 py-4">Presentación</th>
+                    <th scope="col" class="px-6 py-4">Stock</th>
+                    <th scope="col" class="px-6 py-4">Precio</th>
+                    <th scope="col" class="px-6 py-4 text-center">Detalles</th>
+                    <th scope="col" class="px-6 py-4 text-center">Mermas</th>
+                    <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for i in range(5) %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-bold">Perfume {{ i }}</td>
+                    
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Perfume {{ i }}</td>
+                    
                     <td class="px-6 py-4">50 ml</td>
                     <td class="px-6 py-4">24</td>
                     <td class="px-6 py-4">$450</td>
 
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <a href="{{ url_for('inventarioP.detalle_P', id=i) }}">
-                            detalles
+                        <a href="{{ url_for('inventarioP.detalle_P', id=i) }}" 
+                           class="font-medium text-gray-300 hover:text-white transition-colors">
+                            Ver
                         </a>
                     </td>
 
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <button onclick="abrirModalMerma('{{ i }}','Perfume {{ i }}')">
+                        <button type="button" 
+                                onclick="abrirModalMerma('{{ i }}','Perfume {{ i }}')"
+                                class="font-medium text-gray-300 hover:text-yellow-400 transition-colors focus:outline-none cursor-pointer">
                             Mermar
                         </button>
                     </td>
 
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <button onclick="abrirModalEliminar('{{ i }}','Perfume {{ i }}')">
+                        <button type="button" 
+                                onclick="abrirModalEliminar('{{ i }}','Perfume {{ i }}')"
+                                class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
                             Eliminar
                         </button>
                     </td>
@@ -81,7 +89,6 @@
     </div>
 </div>
 
-<!-- 🔥 AQUI LLAMAS LOS MODALES -->
 {% include 'modulos_front/inv_productos/merma_Pmodel.html' %}
 {% include 'modulos_front/inv_productos/eliminar_P.html' %}
 

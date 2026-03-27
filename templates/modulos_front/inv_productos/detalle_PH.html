@@ -1,68 +1,96 @@
 {% extends "layout_sistema.html" %}
 
-{% block title %}Detalle de Log{% endblock %}
+{% block title %}Detalle de Log - EcoDev{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto py-10">
+<br>
+<div class="max-w-5xl mx-auto px-4 animate-fade-in text-black">
 
-     <div class="flex items-center gap-4">
-            <a href="{{ url_for('inventarioP.historial_P') }}" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
-            <h1 class="font-elegant text-5xl">Volver</h1>
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">
+                Detalle del Log
+            </h1>
         </div>
-
-    <div class="bg-white p-8 rounded-base mt-6">
-
-        <h2 class="text-2xl font-bold mb-6">Detalle del Movimiento</h2>
-
-        <!-- DATOS GENERALES -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-
-            <div>
-                <p class="text-gray-400 text-xs">Fecha</p>
-                <p>26/03/2026</p>
-            </div>
-
-            <div>
-                <p class="text-gray-400 text-xs">Usuario</p>
-                <p>Admin</p>
-            </div>
-
-            <div>
-                <p class="text-gray-400 text-xs">Acción</p>
-                <p class="font-bold">MERMA</p>
-            </div>
-
-        </div>
-
-        <!-- DETALLE DESCOMPUESTO -->
-        <div class="border-t pt-6">
-
-            <p class="text-gray-400 text-xs">Producto</p>
-            <p class="mb-3 font-bold">Perfume Aqua 50ml</p>
-
-            <p class="text-gray-400 text-xs">Cantidad</p>
-            <p class="mb-3 text-red-600 font-bold">-2 botellas</p>
-
-            <p class="text-gray-400 text-xs">Motivo</p>
-            <p class="mb-3">Ruptura</p>
-
-            <p class="text-gray-400 text-xs">Etapa</p>
-            <p class="mb-3">Tienda</p>
-
-            <p class="text-gray-400 text-xs">Lote</p>
-            <p class="mb-3">L-2024-01</p>
-
-            <p class="text-gray-400 text-xs">Descripción</p>
-            <p class="italic text-gray-600">
-                Se rompió durante el acomodo
-            </p>
-
-        </div>
-
+        
+        <a href="{{ url_for('inventarioP.historial_P') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Regresar al Historial
+        </a>
     </div>
+
+    <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-8 md:p-12 mb-6">
+        
+        <div class="space-y-10">
+            
+            <div class="border-b border-gray-100 pb-8 flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-2 font-bold">Producto Afectado</p>
+                    <h2 class="font-elegant text-4xl text-black">Perfume Aqua 50ml</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-400 uppercase font-bold mb-1">Acción Realizada</p>
+                    <span class="px-4 py-1 bg-black text-white text-xs font-bold uppercase tracking-tighter rounded-full">
+                        MERMA
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12">
+                
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Fecha y Hora</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono">26/03/2026</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Usuario Responsable</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">@Admin</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Cantidad</p>
+                    <p class="text-2xl font-bold text-red-600 border-l-2 border-red-600 pl-4">-2 <span class="text-sm font-normal text-gray-400 uppercase">botellas</span></p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Motivo</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 italic">Ruptura</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Etapa / Ubicación</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">Tienda</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Referencia de Lote</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono uppercase tracking-widest">L-2024-01</p>
+                </div>
+
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-100 mt-4">
+                <h3 class="font-elegant text-xl text-black mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Observaciones del Movimiento
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed italic">
+                    "Se rompió durante el acomodo"
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center">
+        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">Este registro de auditoría es inalterable conforme a las políticas de EcoDev</p>
+    </div>
+
 </div>
+<br>
 {% endblock %}

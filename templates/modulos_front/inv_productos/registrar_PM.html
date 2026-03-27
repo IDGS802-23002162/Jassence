@@ -3,92 +3,92 @@
 {% block title %}Registrar Merma{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 py-10 text-black animate-fade-in">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in">
 
-    <!-- HEADER -->
-    <div class="flex items-center gap-4 mb-8 border-b pb-6">
-        <a href="{{ url_for('inventarioP.inventario_PM') }}" class="p-2 hover:bg-gray-100 rounded-full"
-            class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">
+                Registrar Merma
+            </h1>
+            <p class="text-gray-500 mt-2 text-sm">Define la cantidad, etapa y motivo para registrar la pérdida de producto.</p>
+        </div>
+        
+        <a href="{{ url_for('inventarioP.inventario_PM') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Regresar
         </a>
-        <h1 class="font-elegant text-5xl">Registrar Merma</h1>
     </div>
 
-    <!-- FORM CARD -->
-    <div class="bg-white border border-gray-200 rounded-base shadow-sm p-8">
+    <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
 
-        <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form class="space-y-8" action="#" method="POST">
 
-            <!-- PRODUCTO -->
-            <div class="md:col-span-2">
-                <label class="text-sm font-bold text-gray-500 uppercase">Producto</label>
-                <input class="w-full border p-3 rounded-base bg-gray-100"
-                    placeholder="Selecciona o viene desde inventario">
+            <div class="relative z-0 w-full group">
+                <input type="text" name="producto" id="producto" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                <label for="producto" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Producto (Selecciona o escanea)</label>
             </div>
 
-            <!-- ETAPA -->
-            <div>
-                <label class="text-sm font-bold text-gray-500 uppercase">Etapa</label>
-                <select class="w-full border p-3 rounded-base">
-                    <option>Almacén</option>
-                    <option>Producción</option>
-                    <option>Transporte</option>
-                    <option>Punto de Venta</option>
-                </select>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+                
+                <div class="relative z-0 w-full group">
+                    <select name="etapa" id="etapa" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
+                        <option value="Almacén">Almacén</option>
+                        <option value="Producción">Producción</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Venta">Punto de Venta</option>
+                    </select>
+                    <label for="etapa" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Etapa</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <input type="number" step="0.01" name="cantidad_perdida" id="cantidad_perdida" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="cantidad_perdida" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Cantidad Perdida</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <input type="text" name="unidad" id="unidad" value="Botellas" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none peer cursor-not-allowed" placeholder=" " readonly />
+                    <label for="unidad" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Unidad</label>
+                </div>
+
             </div>
 
-            <!-- CANTIDAD -->
-            <div>
-                <label class="text-sm font-bold text-gray-500 uppercase">Cantidad perdida</label>
-                <input type="number" class="w-full border p-3 rounded-base">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                
+                <div class="relative z-0 w-full group">
+                    <input type="text" name="lote" id="lote" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="lote" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Orden / Lote (Ej. L-2024-001)</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <select name="motivo" id="motivo" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
+                        <option value="Ruptura">Ruptura</option>
+                        <option value="Caducidad">Caducidad</option>
+                        <option value="Defecto">Defecto</option>
+                        <option value="Robo">Robo</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                    <label for="motivo" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Motivo</label>
+                </div>
+
             </div>
 
-            <!-- UNIDAD -->
-            <div>
-                <label class="text-sm font-bold text-gray-500 uppercase">Unidad</label>
-                <input value="Botellas" class="w-full border p-3 rounded-base bg-gray-100">
+            <div class="relative z-0 w-full group pt-4">
+                <textarea name="descripcion" id="descripcion" rows="3" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none" placeholder=" "></textarea>
+                <label for="descripcion" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Descripción (Explica qué pasó...)</label>
             </div>
 
-            <!-- LOTE -->
-            <div>
-                <label class="text-sm font-bold text-gray-500 uppercase">Orden / Lote</label>
-                <input class="w-full border p-3 rounded-base" placeholder="Ej. L-2024-001">
-            </div>
-
-            <!-- MOTIVO -->
-            <div class="md:col-span-2">
-                <label class="text-sm font-bold text-gray-500 uppercase">Motivo</label>
-                <select class="w-full border p-3 rounded-base">
-                    <option>Ruptura</option>
-                    <option>Caducidad</option>
-                    <option>Defecto</option>
-                    <option>Robo</option>
-                    <option>Otro</option>
-                </select>
-            </div>
-
-            <!-- DESCRIPCIÓN -->
-            <div class="md:col-span-2">
-                <label class="text-sm font-bold text-gray-500 uppercase">Descripción</label>
-                <textarea rows="3" class="w-full border p-3 rounded-base"
-                    placeholder="Describe qué pasó..."></textarea>
+            <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
+                <a href="{{ url_for('inventarioP.inventario_PM') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
+                    Guardar
+                </button>
             </div>
 
         </form>
-
-        <!-- BOTONES -->
-        <div class="flex gap-4 mt-8 pt-6 border-t">
-            <button class="flex-1 bg-black text-white py-3 rounded-base hover:bg-gray-800">
-                Guardar Merma
-            </button>
-
-            <a href="{{ url_for('inventarioP.inventario_PM') }}"
-                class="flex-1 text-center border py-3 rounded-base hover:bg-gray-100">
-                Cancelar
-            </a>
-        </div>
 
     </div>
 </div>
