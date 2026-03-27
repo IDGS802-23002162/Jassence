@@ -13,6 +13,7 @@ from modulos_routes.usuarios.routes import usuarios_bp
 from modulos_routes.formulas import formulas_bp
 from modulos_routes.auditoria.routes import auditorias_bp
 from modulos_routes.inv_productos import inventarioP_bp
+from modulos_routes.produccion import produccion_bp
  
 
 app = Flask(__name__)
@@ -22,7 +23,6 @@ app.register_blueprint(inventarioP_bp)
 class UsuarioFalso:
     nombre = "Erick"
     rol = "Admin"
-
 @app.context_processor
 def inyectar_usuario():
     # Esto envía el 'current_user' falso a TODOS los archivos HTML automáticamente
@@ -38,6 +38,7 @@ app.register_blueprint(seguridad_bp)
 app.register_blueprint(usuarios_bp)
 app.register_blueprint(formulas_bp)
 app.register_blueprint(auditorias_bp)
+app.register_blueprint(produccion_bp)
 
 # Prueba usuario
 class Usuario:
@@ -46,12 +47,14 @@ class Usuario:
         self.rol = rol
 
 
+
+
 @app.route('/')
 def index():
     #Usuario de prueba aqui debe ir la consulta mysql
     usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     
-    return render_template('index.html', current_user=usuario_logueado)
+    return render_template('index.html')
 
 @app.errorhandler(404)
 def page_not_fount(e):
