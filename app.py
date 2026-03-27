@@ -8,6 +8,7 @@ from models import db
 from modulos_routes.seguridad.routes import seguridad_bp
 from modulos_routes.usuarios.routes import usuarios_bp
 from modulos_routes.formulas import formulas_bp
+from modulos_routes.auditoria.routes import auditorias_bp
  
 
 app = Flask(__name__)
@@ -31,6 +32,8 @@ db.init_app(app)
 app.register_blueprint(seguridad_bp)
 app.register_blueprint(usuarios_bp)
 app.register_blueprint(formulas_bp)
+app.register_blueprint(auditorias_bp)
+
 # Prueba usuario
 class Usuario:
     def __init__(self, nombre, rol):
