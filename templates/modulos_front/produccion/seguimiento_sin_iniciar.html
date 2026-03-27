@@ -1,0 +1,46 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Seguimiento - Sin Iniciar{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-2 border-b border-gray-300 pb-4">
+        <a href="/produccion/solicitudes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="/produccion/ordenes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Órdenes</a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">Seguimiento</h1>
+    </div>
+
+    <div class="flex items-end mb-10 pl-10">
+        <h2 class="font-elegant text-4xl text-black cursor-default">Sin Iniciar</h2>
+        
+        <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
+        
+        <a href="/produccion/seguimiento/para-finalizar" class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Para finalizar</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white p-8 rounded-xl shadow-inner border border-gray-100 min-h-[500px]">
+        
+        {% for i in range(3) %}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-black text-center mb-6">Orden: --</h3>
+            
+            <div class="space-y-4 text-sm text-gray-600 flex-grow">
+                <p>Producto: -- <br> Cantidad: --</p>
+                <p>Responsable: <br> --</p>
+                <p>Estado: <br> --</p>
+                <p>Fecha inicio <br> -- / -- / ----</p>
+            </div>
+
+            <button class="w-full bg-[#2A2A2A] text-white py-2.5 rounded-lg mt-6 hover:bg-black transition-colors">
+                Iniciar produccion
+            </button>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div> 
+{% endblock %}

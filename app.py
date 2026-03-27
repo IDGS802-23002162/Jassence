@@ -6,6 +6,7 @@ from flask import g
 from models import db
 
 from modulos_routes.formulas import formulas_bp
+from modulos_routes.produccion import produccion_bp
  
 
 app = Flask(__name__)
@@ -14,7 +15,6 @@ app.config.from_object(DevelopmentConfig)
 class UsuarioFalso:
     nombre = "Erick"
     rol = "Admin"
-
 @app.context_processor
 def inyectar_usuario():
     # Esto envía el 'current_user' falso a TODOS los archivos HTML automáticamente
@@ -23,16 +23,11 @@ def inyectar_usuario():
 csrf=CSRFProtect()
 db.init_app(app)
 
-<<<<<<< HEAD
 
 app.register_blueprint(formulas_bp)
-=======
-# Prueba usuario
-class Usuario:
-    def __init__(self, nombre, rol):
-        self.nombre = nombre
-        self.rol = rol
->>>>>>> 4e72311424078a6a76d674243423bea69d54aa91
+app.register_blueprint(produccion_bp)
+
+
 
 @app.route('/')
 def index():
