@@ -50,28 +50,21 @@
                         <option value="" disabled selected>Seleccionar</option>
                         <option value="reabasto">Pedido en linea</option>
                         <option value="reabasto">Pedido en tienda</option>
-                        <option value="lanzamiento">Suscripción activa</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block mb-2 text-sm font-medium text-gray-800">Fecha solicitada</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" name="dia" placeholder="DD" class="bg-white border border-gray-200 rounded-lg p-3 text-center focus:ring-black focus:border-black shadow-sm" required>
-                        <input type="number" name="mes" placeholder="MM" class="bg-white border border-gray-200 rounded-lg p-3 text-center focus:ring-black focus:border-black shadow-sm" required>
-                        <input type="number" name="anio" placeholder="YYYY" class="bg-white border border-gray-200 rounded-lg p-3 text-center focus:ring-black focus:border-black shadow-sm" required>
+                    <div class="grid grid-cols-3 gap-3">
+                        <input type="date" name="fecha" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                            Registrar solicitud
+                        </button>
+                        <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                            Cancelar Registro
+                        </button>
                     </div>
                 </div>
-
-                <div class="flex flex-col gap-4 pt-4">
-                    <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
-                        Registrar solicitud
-                    </button>
-                    <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
-                        Cancelar Registro
-                    </button>
-                </div>
-
             </form>
         </div>
 

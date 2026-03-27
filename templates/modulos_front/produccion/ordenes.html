@@ -47,18 +47,15 @@
                 </div>
 
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800">Fecha solicitada</label>
-                    <div class="grid grid-cols-3 gap-2 w-1/2">
-                        <input type="number" name="dia" placeholder="DD" class="bg-white border border-gray-200 rounded-lg p-3 text-center focus:ring-black focus:border-black shadow-sm" required>
-                        <input type="number" name="mes" placeholder="MM" class="bg-white border border-gray-200 rounded-lg p-3 text-center focus:ring-black focus:border-black shadow-sm" required>
-                        <input type="number" name="anio" placeholder="YYYY" class="bg-white border border-gray-200 rounded-lg p-3 text-center focus:ring-black focus:border-black shadow-sm" required>
+                    <label class="block mb-2 text-sm font-medium text-gray-800 ">Fecha solicitada</label>
+                    <div class="grid grid-cols-3 gap-3 w-2/2">
+                        <input type="date" name="fecha" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Crear orden</button>
+                        <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Cancelar</button>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-4 pt-4 w-1/2">
-                    <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Crear orden</button>
-                    <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Cancelar</button>
-                </div>
+                
             </form>
         </div>
 

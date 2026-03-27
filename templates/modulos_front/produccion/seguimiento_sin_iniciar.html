@@ -34,13 +34,14 @@
                 <p>Fecha inicio <br> -- / -- / ----</p>
             </div>
 
-            <button class="w-full bg-[#2A2A2A] text-white py-2.5 rounded-lg mt-6 hover:bg-black transition-colors">
+            <button onclick="prepararCambioEstado('1', 'iniciar')" data-modal-target="modal-confirmar-estado" data-modal-toggle="modal-confirmar-estado" class="w-full bg-[#2A2A2A] text-white py-2.5 rounded-lg mt-6 hover:bg-black transition-colors">
                 Iniciar produccion
             </button>
         </div>
         {% endfor %}
 
     </div>
-
+    
 </div> 
+{% include 'modulos_front/produccion/modal_confirmacion.html' %}
 {% endblock %}
