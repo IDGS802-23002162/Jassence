@@ -1,0 +1,75 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Registrar Fórmula{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        
+        <a href="/explosion-materiales" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Fórmulas
+        </a>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Gestión de fórmulas
+        </h1>
+        
+    </div>
+
+    <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100 mt-4">
+        <p class="text-gray-500 mb-8 text-sm">Define las proporciones y la presentación del frasco para guardar una nueva fórmula.</p>
+        
+        <form class="space-y-8" action="#" method="POST">
+            
+            <div class="relative z-0 w-full group">
+                <input type="text" name="nombre" id="nombre" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                <label for="nombre" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nombre del Perfume</label>
+            </div>
+
+            <div class="relative z-0 w-full group">
+                <input type="text" name="inspiracion" id="inspiracion" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                <label for="inspiracion" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Inspiración (Ej. Dior, Chanel)</label>
+            </div>
+
+            <div class="relative z-0 w-full group">
+                <select name="presentacion" id="presentacion" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required>
+                    <option value="" disabled selected></option>
+                    <option value="30">30 ml</option>
+                    <option value="50">50 ml</option>
+                    <option value="100">100 ml</option>
+                </select>
+                <label for="presentacion" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Presentación del Frasco</label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="relative z-0 w-full group">
+                    <input type="number" name="esencia" id="esencia" min="40" max="40" value="40" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="esencia" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Esencia (%) - Fijo 40</label>
+                </div>
+                
+                <div class="relative z-0 w-full group">
+                    <input type="number" name="etanol" id="etanol" min="55" max="55" value="55" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="etanol" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Etanol (%) - Fijo 55</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <input type="number" name="fijador" id="fijador" min="5" max="5" value="5" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="fijador" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Fijador (%) - Fijo 5</label>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 mt-6 border-t border-gray-100">
+                <a href="/explosion-materiales" class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

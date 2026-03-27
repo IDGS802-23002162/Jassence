@@ -1,0 +1,97 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Producción - Órdenes{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="/produccion/solicitudes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <h1 class="font-elegant text-6xl text-black cursor-default">Órdenes</h1>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="/produccion/seguimiento" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Seguimiento</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        
+        <div>
+            <form action="#" method="POST" class="space-y-6">
+                
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Solicitud</label>
+                    <select name="id_solicitud" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option value="1">SOL-001</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Producto</label>
+                    <input type="text" name="producto" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" readonly>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Cantidad</label>
+                    <input type="number" name="cantidad" value="0" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Responsable</label>
+                    <select name="responsable" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option value="1">Erick (Admin)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800 ">Fecha solicitada</label>
+                    <div class="grid grid-cols-3 gap-3 w-2/2">
+                        <input type="date" name="fecha" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Crear orden</button>
+                        <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Cancelar</button>
+                    </div>
+                </div>
+
+                
+            </form>
+        </div>
+
+        <div>
+            <div class="w-full flex justify-start mb-6">
+                <span class="px-8 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-bold bg-white shadow-sm">
+                    Lista de solicitudes
+                </span>
+            </div>
+            
+            <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-white bg-[#3B3B3B] border-b border-table-dark">
+                        <tr>
+                            <th scope="col" class="px-6 py-4">ID</th>
+                            <th scope="col" class="px-6 py-4">Producto</th>
+                            <th scope="col" class="px-6 py-4">Cantidad</th>
+                            <th scope="col" class="px-6 py-4">Fecha</th>
+                            <th scope="col" class="px-6 py-4">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(5) %}
+                        <tr class="bg-[#3B3B3B] border-b border-table-dark h-12">
+                            <td class="px-6 py-4 border-r border-table-dark"></td>
+                            <td class="px-6 py-4 border-r border-table-dark"></td>
+                            <td class="px-6 py-4 border-r border-table-dark"></td>
+                            <td class="px-6 py-4 border-r border-table-dark"></td>
+                            <td class="px-6 py-4"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div> 
+{% endblock %}
