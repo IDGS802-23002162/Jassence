@@ -17,6 +17,30 @@
         </h1>
     </div>
 
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        
+        <div class="relative flex-1 w-full">
+            <input type="text" id="busquedaRol"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <a href="/insertarRol"
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Crear Rol
+            </a>
+        </div>
+    </div>
+
     <div class="relative overflow-x-auto shadow-xl rounded-lg">
         <table class="w-full text-sm text-left text-gray-300">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
@@ -49,12 +73,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
-    <div class="flex justify-end mt-6">
-        <a href="/insertarRol" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 text-center transition-colors shadow-lg">
-            Agregar
-        </a>
     </div>
 
 </div> {% include 'modulos_front/usuarios/roles/eliminar.html' %}

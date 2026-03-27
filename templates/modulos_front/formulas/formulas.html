@@ -11,12 +11,31 @@
             Fórmulas
         </h1>
         
-        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        
-        <a href="/formulas/nueva" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Crear de formula
-        </a>
+    </div>
 
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        
+        <div class="relative flex-1 w-full">
+            <input type="text" id="busquedaFormula"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <a href="/formulas/nueva"
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Registrar Formula
+            </a>
+        </div>
     </div>
 
     <div class="relative overflow-x-auto shadow-xl rounded-lg">
