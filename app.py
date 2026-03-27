@@ -7,6 +7,7 @@ from flask import g
 
 from models import db
 #Importe de rutas 
+from modulos_routes.ecommerce.routes import ecommerce_bp
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -14,6 +15,7 @@ app.config.from_object(DevelopmentConfig)
 csrf=CSRFProtect()
 db.init_app(app)
 
+app.register_blueprint(ecommerce_bp)
 
 #Registro de rutas 
 
