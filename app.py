@@ -7,6 +7,7 @@ from flask import g
 
 from models import db
 #Importe de rutas 
+from modulos_routes.pos.routes import pos_bp
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -14,22 +15,24 @@ app.config.from_object(DevelopmentConfig)
 csrf=CSRFProtect()
 db.init_app(app)
 
+app.register_blueprint(pos_bp)
 
 #Registro de rutas 
 
 
-# Prueba usuario
-class Usuario:
-    def __init__(self, nombre, rol):
-        self.nombre = nombre
-        self.rol = rol
+class UsuarioFalso:
+    nombre = "Erick"
+    rol = "Admin"
+
+@app.context_processor
+def inyectar_usuario():
+    # Esto envía el 'current_user' falso a TODOS los archivos HTML automáticamente
+    return dict(current_user=UsuarioFalso())
 
 @app.route('/')
 def index():
-    #Usuario de prueba aqui debe ir la consulta mysql
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     
-    return render_template('index.html', current_user=usuario_logueado)
+    return render_template('index.html')
 
 @app.errorhandler(404)
 def page_not_fount(e):
