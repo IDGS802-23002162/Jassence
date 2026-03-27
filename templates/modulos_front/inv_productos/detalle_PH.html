@@ -1,0 +1,68 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Detalle de Log{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-10">
+
+     <div class="flex items-center gap-4">
+            <a href="{{ url_for('inventarioP.historial_P') }}" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="font-elegant text-5xl">Volver</h1>
+        </div>
+
+    <div class="bg-white p-8 rounded-base mt-6">
+
+        <h2 class="text-2xl font-bold mb-6">Detalle del Movimiento</h2>
+
+        <!-- DATOS GENERALES -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+
+            <div>
+                <p class="text-gray-400 text-xs">Fecha</p>
+                <p>26/03/2026</p>
+            </div>
+
+            <div>
+                <p class="text-gray-400 text-xs">Usuario</p>
+                <p>Admin</p>
+            </div>
+
+            <div>
+                <p class="text-gray-400 text-xs">Acción</p>
+                <p class="font-bold">MERMA</p>
+            </div>
+
+        </div>
+
+        <!-- DETALLE DESCOMPUESTO -->
+        <div class="border-t pt-6">
+
+            <p class="text-gray-400 text-xs">Producto</p>
+            <p class="mb-3 font-bold">Perfume Aqua 50ml</p>
+
+            <p class="text-gray-400 text-xs">Cantidad</p>
+            <p class="mb-3 text-red-600 font-bold">-2 botellas</p>
+
+            <p class="text-gray-400 text-xs">Motivo</p>
+            <p class="mb-3">Ruptura</p>
+
+            <p class="text-gray-400 text-xs">Etapa</p>
+            <p class="mb-3">Tienda</p>
+
+            <p class="text-gray-400 text-xs">Lote</p>
+            <p class="mb-3">L-2024-01</p>
+
+            <p class="text-gray-400 text-xs">Descripción</p>
+            <p class="italic text-gray-600">
+                Se rompió durante el acomodo
+            </p>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

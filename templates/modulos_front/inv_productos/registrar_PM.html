@@ -1,0 +1,95 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Registrar Merma{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-10 text-black animate-fade-in">
+
+    <!-- HEADER -->
+    <div class="flex items-center gap-4 mb-8 border-b pb-6">
+        <a href="{{ url_for('inventarioP.inventario_PM') }}" class="p-2 hover:bg-gray-100 rounded-full"
+            class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+        </a>
+        <h1 class="font-elegant text-5xl">Registrar Merma</h1>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="bg-white border border-gray-200 rounded-base shadow-sm p-8">
+
+        <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- PRODUCTO -->
+            <div class="md:col-span-2">
+                <label class="text-sm font-bold text-gray-500 uppercase">Producto</label>
+                <input class="w-full border p-3 rounded-base bg-gray-100"
+                    placeholder="Selecciona o viene desde inventario">
+            </div>
+
+            <!-- ETAPA -->
+            <div>
+                <label class="text-sm font-bold text-gray-500 uppercase">Etapa</label>
+                <select class="w-full border p-3 rounded-base">
+                    <option>Almacén</option>
+                    <option>Producción</option>
+                    <option>Transporte</option>
+                    <option>Punto de Venta</option>
+                </select>
+            </div>
+
+            <!-- CANTIDAD -->
+            <div>
+                <label class="text-sm font-bold text-gray-500 uppercase">Cantidad perdida</label>
+                <input type="number" class="w-full border p-3 rounded-base">
+            </div>
+
+            <!-- UNIDAD -->
+            <div>
+                <label class="text-sm font-bold text-gray-500 uppercase">Unidad</label>
+                <input value="Botellas" class="w-full border p-3 rounded-base bg-gray-100">
+            </div>
+
+            <!-- LOTE -->
+            <div>
+                <label class="text-sm font-bold text-gray-500 uppercase">Orden / Lote</label>
+                <input class="w-full border p-3 rounded-base" placeholder="Ej. L-2024-001">
+            </div>
+
+            <!-- MOTIVO -->
+            <div class="md:col-span-2">
+                <label class="text-sm font-bold text-gray-500 uppercase">Motivo</label>
+                <select class="w-full border p-3 rounded-base">
+                    <option>Ruptura</option>
+                    <option>Caducidad</option>
+                    <option>Defecto</option>
+                    <option>Robo</option>
+                    <option>Otro</option>
+                </select>
+            </div>
+
+            <!-- DESCRIPCIÓN -->
+            <div class="md:col-span-2">
+                <label class="text-sm font-bold text-gray-500 uppercase">Descripción</label>
+                <textarea rows="3" class="w-full border p-3 rounded-base"
+                    placeholder="Describe qué pasó..."></textarea>
+            </div>
+
+        </form>
+
+        <!-- BOTONES -->
+        <div class="flex gap-4 mt-8 pt-6 border-t">
+            <button class="flex-1 bg-black text-white py-3 rounded-base hover:bg-gray-800">
+                Guardar Merma
+            </button>
+
+            <a href="{{ url_for('inventarioP.inventario_PM') }}"
+                class="flex-1 text-center border py-3 rounded-base hover:bg-gray-100">
+                Cancelar
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

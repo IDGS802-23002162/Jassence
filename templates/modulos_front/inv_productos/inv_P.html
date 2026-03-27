@@ -1,0 +1,88 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Inventario de Productos Terminados{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <h1 class="font-elegant text-6xl text-black">
+            Productos Terminados
+        </h1>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="{{ url_for('inventarioP.inventario_PM') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1">
+            Mermas
+        </a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="{{ url_for('inventarioP.historial_P') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1">
+            Historial
+        </a>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text"
+                class="w-full p-2 border rounded"
+                placeholder="Buscar perfume...">
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="overflow-x-auto shadow-xl rounded-lg border border-gray-700">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th class="px-6 py-4">Perfume</th>
+                    <th class="px-6 py-4">Presentación</th>
+                    <th class="px-6 py-4">Stock</th>
+                    <th class="px-6 py-4">Precio</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
+                    <th class="px-6 py-4 text-center">Mermas</th>
+                    <th class="px-6 py-4 text-center">Eliminar</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for i in range(5) %}
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-bold">Perfume {{ i }}</td>
+                    <td class="px-6 py-4">50 ml</td>
+                    <td class="px-6 py-4">24</td>
+                    <td class="px-6 py-4">$450</td>
+
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="{{ url_for('inventarioP.detalle_P', id=i) }}">
+                            detalles
+                        </a>
+                    </td>
+
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button onclick="abrirModalMerma('{{ i }}','Perfume {{ i }}')">
+                            Mermar
+                        </button>
+                    </td>
+
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button onclick="abrirModalEliminar('{{ i }}','Perfume {{ i }}')">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 🔥 AQUI LLAMAS LOS MODALES -->
+{% include 'modulos_front/inv_productos/merma_Pmodel.html' %}
+{% include 'modulos_front/inv_productos/eliminar_P.html' %}
+
+{% endblock %}
