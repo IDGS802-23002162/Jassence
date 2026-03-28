@@ -1,0 +1,93 @@
+<!-- compras.html -->
+{% extends "layout_sistema.html" %}
+
+{% block title %}Historial de Compras - EcoDev{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('compras.proveedores') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Proveedores
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Historial de Compras
+        </h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center justify-between">
+        <div class="relative flex-1 w-full">
+            <input type="text" id="buscador"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar por fecha o proveedor...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <a href="{{ url_for('compras.registrar_C') }}"
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Registrar Nueva Compra
+            </a>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Fecha</th>
+                    <th scope="col" class="px-6 py-4">Proveedor</th>
+                    <th scope="col" class="px-6 py-4">Usuario</th>
+                    <th scope="col" class="px-6 py-4">Total (Calculado)</th>
+                    <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Detalle</th>
+                    <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Editar</th>
+                    <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Cancelar</th>
+                    <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Comprobante</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap font-mono">2026-03-27</td>
+                    <td class="px-6 py-4">Envases de Vidrio S.A.</td>
+                    <td class="px-6 py-4">@Admin</td>
+                    <td class="px-6 py-4 text-green-400 font-bold">$1,250.00</td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
+                        <a href="{{ url_for('compras.detalle_C', id=1) }}"
+                            class="font-medium text-400 hover:text-green-300 transition-colors">Ver Detalle</a>
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
+                        <a href="{{ url_for('compras.editar_C', id=1) }}"
+                            class="font-medium text-400 hover:text-green-300 transition-colors">Editar</a>
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
+                        <button onclick="abrirModalEliminarC(1, '2026-03-27', 'Envases de Vidrio S.A.')"
+                            class="font-medium text-red-400 hover:text-red-300 transition-colors">
+                            Cancelar compra
+                        </button>
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="#"
+                            class="font-medium text-gray-300 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4">Ver
+                            Factura</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'modulos_front/compras/modal_Celiminar.html' %}
+
+{% endblock %}

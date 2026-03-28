@@ -1,0 +1,91 @@
+<!-- detalle_C.html -->
+{% extends "layout_sistema.html" %}
+
+{% block title %}Detalle de Compra - EcoDev{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 border-b border-gray-300 pb-4 gap-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">
+                Folio Compra: <span class="text-gray-600">#00124</span>
+            </h1>
+            <p class="text-gray-500 mt-2 text-sm">Registrada el 28 de Marzo, 2026</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ url_for('compras.compras') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Volver a Compras
+            </a>
+            <a href="#" target="_blank" class="py-2.5 px-6 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 shadow-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Ver Factura
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Proveedor</h3>
+            <p class="text-lg font-medium text-gray-900">Envases de Vidrio S.A.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Usuario Registrador</h3>
+            <p class="text-lg font-medium text-gray-900">@Admin</p>
+        </div>
+        <div class="bg-black p-6 rounded-lg shadow-lg border border-gray-800 text-white">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Pagado</h3>
+            <p class="text-3xl font-elegant font-bold text-green-400">$1,250.00</p>
+        </div>
+    </div>
+
+    <h2 class="font-elegant text-3xl text-black mb-4">Desglose de Insumos</h2>
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Materia Prima</th>
+                    <th scope="col" class="px-6 py-4">Cant. Comprada</th>
+                    <th scope="col" class="px-6 py-4">Unidad Original</th>
+                    <th scope="col" class="px-6 py-4 bg-[#1a1a1a] border-l border-gray-600">Cant. Convertida (Stock)</th>
+                    <th scope="col" class="px-6 py-4 text-right border-l border-table-dark">Precio Unitario</th>
+                    <th scope="col" class="px-6 py-4 text-right">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        Esencia Cítrica
+                    </td>
+                    <td class="px-6 py-4">2</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-gray-700 text-gray-300 rounded-md text-xs">Cajas</span>
+                    </td>
+                    <td class="px-6 py-4 bg-[#232323] border-l border-gray-600 text-blue-300 font-medium">
+                        20,000 Gramos
+                    </td>
+                    <td class="px-6 py-4 text-right">$500.00</td>
+                    <td class="px-6 py-4 text-right font-medium text-white">$1,000.00</td>
+                </tr>
+
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        Conservador Natural
+                    </td>
+                    <td class="px-6 py-4">1</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-gray-700 text-gray-300 rounded-md text-xs">Bultos</span>
+                    </td>
+                    <td class="px-6 py-4 bg-[#232323] border-l border-gray-600 text-blue-300 font-medium">
+                        5,000 Gramos
+                    </td>
+                    <td class="px-6 py-4 text-right">$250.00</td>
+                    <td class="px-6 py-4 text-right font-medium text-white">$250.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}
