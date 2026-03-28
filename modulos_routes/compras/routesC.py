@@ -57,3 +57,13 @@ def registrar_C():
 @compras_bp.route('/modal_Celiminar')
 def modal_Celiminar():
     return render_template('modulos_front/compras/modal_Celiminar.html')
+
+# ///////////////////////////////////////////////////////////////////
+
+@compras_bp.route('/historial_PC')
+def historial_PC():
+    return render_template('modulos_front/compras/historial_PC.html')
+
+@compras_bp.route('/detalle_H')
+def detalle_H():
+    return render_template('modulos_front/compras/detalle_H.html')
