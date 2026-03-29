@@ -15,20 +15,24 @@
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="flex items-center justify-between">
+      
       <div class="flex items-center justify-start rtl:justify-end">
-        <img src="{{ url_for('static', filename='img/NFNL-Logo.png') }}" class="h-10 mr-4" alt="Logo Jassence">
-        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+        
+        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 mr-3 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
             <span class="sr-only">Alternar menú lateral</span>
             <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
             </svg>
          </button>
 
-        <a href="/" class="flex ms-2 md:me-24 items-center ml-4">
-          
-          <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.nombre  }}&background=random" alt="user photo">
+        <a href="/inicio" class="flex items-center shrink-0 relative z-10 cursor-pointer">
+            <img src="{{ url_for('static', filename='img/NFNL-Logo.png') }}" class="h-10 mr-4" alt="Logo Jassence">
+        </a>
+
+        <a href="/inicio" class="flex ms-2 md:me-24 items-center ml-4 relative z-10">
+          <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.nombre }}&background=random" alt="user photo">
           <div class="hidden md:flex flex-col ml-3">
-              <span class="text-sm font-semibold text-gray-900">Bienvenido {{ current_user.nombre  }}</span>
+              <span class="text-sm font-semibold text-gray-900">Bienvenido {{ current_user.nombre }}</span>
               <span class="text-xs text-gray-500">{{ current_user.rol }}</span>
           </div>
         </a>
@@ -40,6 +44,7 @@
               <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           </a>
       </div>
+      
     </div>
   </div>
 </nav>

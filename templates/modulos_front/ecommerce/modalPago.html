@@ -1,0 +1,44 @@
+<div id="modal-pago" class="hidden fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
+    <div class="relative w-full max-w-md max-h-full animate-fade-in">
+        <div class="relative bg-white p-8 rounded-lg shadow-sm border border-gray-100 text-black">
+            
+            <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+                <div>
+                    <h1 class="font-elegant text-4xl text-black cursor-default">Nueva Tarjeta</h1>
+                    <p class="text-gray-500 mt-2 text-sm">Tus datos están protegidos.</p>
+                </div>
+                <button onclick="cerrarModal('modal-pago')" class="text-gray-500 hover:text-black transition-colors focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form class="space-y-6">
+                <div class="relative z-0 w-full group">
+                    <input type="text" id="tar_nombre" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer uppercase" placeholder=" " required />
+                    <label for="tar_nombre" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nombre del Titular</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <input type="text" id="tar_numero" maxlength="19" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer tracking-widest" placeholder=" " required />
+                    <label for="tar_numero" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Número de Tarjeta</label>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="relative z-0 w-full group">
+                        <input type="text" id="tar_exp" maxlength="5" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                        <label for="tar_exp" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">MM/AA</label>
+                    </div>
+                    <div class="relative z-0 w-full group">
+                        <input type="password" id="tar_cvv" maxlength="4" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer tracking-widest" placeholder=" " required />
+                        <label for="tar_cvv" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">CVV</label>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
+                    <button type="button" onclick="cerrarModal('modal-pago')" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">Cancelar</button>
+                    <button type="button" onclick="cerrarModal('modal-pago')" class="text-white bg-black hover:bg-gray-800 font-medium rounded-lg text-sm px-8 py-2.5 shadow-lg transition-colors">Guardar Tarjeta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

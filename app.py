@@ -18,12 +18,11 @@ from modulos_routes.dashboard import dashboard_bp
 from modulos_routes.pos.routes import pos_bp
 from modulos_routes.compras import compras_bp
 from modulos_routes.inv_materias import invMP_bp
+from modulos_routes.ecommerce.routes import ecommerce_bp
  
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
-app.register_blueprint(invMP_bp)
-
 
 class UsuarioFalso:
     nombre = "Erick"
@@ -37,10 +36,10 @@ def inyectar_usuario():
 csrf=CSRFProtect()
 db.init_app(app)
 
-
-
 #Registro de rutas 
 
+app.register_blueprint(ecommerce_bp)
+app.register_blueprint(invMP_bp)
 app.register_blueprint(seguridad_bp)
 app.register_blueprint(usuarios_bp)
 app.register_blueprint(formulas_bp)
@@ -52,7 +51,8 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(pos_bp)
 
 
-@app.route('/')
+# Ahora el index del sistema es /inicio
+@app.route('/inicio')
 def index():
     
     return render_template('index.html')
