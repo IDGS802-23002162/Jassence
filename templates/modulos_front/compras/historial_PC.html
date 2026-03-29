@@ -1,0 +1,101 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Auditoría - Historial de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('compras.proveedores') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Proveedores
+        </a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="{{ url_for('compras.compras') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Compras
+        </a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Historial
+        </h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar por factura, proveedor o usuario...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <select class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black shadow-sm outline-none cursor-pointer">
+                <option selected>Todos los proveedores</option>
+                <option>Envases de Vidrio S.A.</option>
+                <option>Esencias Naturales S.A.</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">ID / Fecha</th>
+                    <th scope="col" class="px-6 py-4">Usuario</th>
+                    <th scope="col" class="px-6 py-4">Proveedor Afectado</th>
+                    <th scope="col" class="px-6 py-4">Acción</th>
+                    <th scope="col" class="px-6 py-4">Documento</th>
+                    <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        <span class="block text-[10px] text-gray-400 italic">#1024</span>
+                        2026-03-28 15:30
+                    </td>
+                    <td class="px-6 py-4 text-gray-300">@Admin</td>
+                    <td class="px-6 py-4 font-bold text-white">Envases de Vidrio S.A.</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold">
+                            Nueva Compra
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-xs font-mono text-gray-400">FAC-9928.pdf</td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="{{ url_for('compras.detalle_H', id=1) }}" class="font-medium text-gray-300 hover:text-white transition-colors">Ver</a>
+                    </td>
+                </tr>
+                
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        <span class="block text-[10px] text-gray-400 italic">#1025</span>
+                        2026-03-28 12:10
+                    </td>
+                    <td class="px-6 py-4 text-gray-300">@Manager</td>
+                    <td class="px-6 py-4 font-bold text-white">Químicos del Norte</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded-full text-[10px] uppercase font-bold">
+                            Edición Proveedor
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-xs text-gray-500 italic">N/A</td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="#" class="font-medium text-gray-300 hover:text-white transition-colors">Ver</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
