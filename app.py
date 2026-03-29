@@ -4,7 +4,6 @@ from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from flask import g
   
-from modulos_routes.compras import compras_bp
 
 
 from models import db
@@ -17,10 +16,13 @@ from modulos_routes.inv_productos import inventarioP_bp
 from modulos_routes.produccion import produccion_bp
 from modulos_routes.dashboard import dashboard_bp
 from modulos_routes.pos.routes import pos_bp
+from modulos_routes.compras import compras_bp
+from modulos_routes.inv_materias import invMP_bp
  
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
+app.register_blueprint(invMP_bp)
 
 
 class UsuarioFalso:
