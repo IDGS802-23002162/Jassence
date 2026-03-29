@@ -24,3 +24,16 @@ def pagar():
 def ticket():
 
     return render_template("modulos_front/ecommerce/ticket.html")
+
+    
+@ecommerce_bp.route("/nosotros")
+def nosotros():
+
+    return render_template("modulos_front/ecommerce/nosotros.html")
+
+@ecommerce_bp.route("/sucursales")
+def sucursales():
+    # Redirige directamente a una vista general de León, Guanajuato en Google Maps
+    url_google_maps = "https://www.google.com/maps/search/León,+Guanajuato"
+    
+    return redirect(url_google_maps)

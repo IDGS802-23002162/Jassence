@@ -9,6 +9,11 @@
         body { background-color: #F6F5F0; }
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
         .font-elegant { font-family: 'Playfair Display', serif; }
+        
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 65px; 
+        }
     </style>
 </head>
 <body class="font-sans antialiased text-gray-900">
@@ -32,7 +37,7 @@
                 <div class="hidden lg:flex space-x-6">
                     <a href="/" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Inicio</a>
                     <a href="/nosotros" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Sobre nosotros</a>
-                    <a href="/tienda" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Tienda</a>
+                    <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Tienda</a>
                 </div>
             </div>
 
@@ -83,7 +88,7 @@
                     <a href="/nosotros" class="block py-2 px-3 text-gray-800 rounded hover:bg-gray-100 font-medium transition-colors">Sobre nosotros</a>
                 </li>
                 <li>
-                    <a href="/tienda" class="block py-2 px-3 text-gray-800 rounded hover:bg-gray-100 font-medium transition-colors">Tienda</a>
+                    <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="block py-2 px-3 text-gray-800 rounded hover:bg-gray-100 font-medium transition-colors">Tienda</a>
                 </li>
                 <li class="sm:hidden pt-2 border-t border-gray-100">
                     <a href="/login" class="block text-center py-2.5 px-3 text-white bg-black rounded-md font-medium transition-colors mt-2">Iniciar Sesión</a>
@@ -93,7 +98,6 @@
 
     </div>
 </nav>
-
 
     <div id="drawer-cart" class="fixed top-0 right-0 z-[60] h-screen p-4 overflow-y-auto transition-transform translate-x-full bg-white w-80 md:w-96 shadow-2xl" tabindex="-1" aria-labelledby="drawer-right-label">
         <div class="flex items-center justify-between border-b pb-4">
@@ -139,10 +143,10 @@
                 <div>
                     <h3 class="text-white font-bold tracking-wider uppercase mb-6 text-sm">Categorías</h3>
                     <ul class="space-y-3 text-sm">
-                        <li><a href="/mujer" class="hover:text-white transition-colors">Dama</a></li>
-                        <li><a href="/hombre" class="hover:text-white transition-colors">Caballero</a></li>
-                        <li><a href="/categorias" class="hover:text-white transition-colors">Perfumes</a></li>
-                        <li><a href="/novedades" class="hover:text-white transition-colors">Novedades</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'mujer')" class="hover:text-white transition-colors">Dama</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'hombre')" class="hover:text-white transition-colors">Caballero</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="hover:text-white transition-colors">Perfumes</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'novedades-seccion', '')" class="hover:text-white transition-colors">Novedades</a></li>
                     </ul>
                 </div>
 
@@ -150,8 +154,7 @@
                     <h3 class="text-white font-bold tracking-wider uppercase mb-6 text-sm">Conócenos</h3>
                     <ul class="space-y-3 text-sm">
                         <li><a href="/nosotros" class="hover:text-white transition-colors">Nosotros</a></li>
-                        <li><a href="/sucursales" class="hover:text-white transition-colors">Sucursales</a></li>
-                        <li><a href="/privacidad" class="hover:text-white transition-colors">Aviso de privacidad</a></li>
+                        <li><a href="{{ url_for('ecommerce.sucursales') }}" target="_blank" class="hover:text-white transition-colors">Sucursales</a></li>
                     </ul>
                 </div>
 
@@ -171,6 +174,55 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        function navegarYFiltrar(event, idSeccion, filtroGenero) {
+            // Verifica si estamos en la página principal ('/')
+            if (window.location.pathname === '/ecommerce' || window.location.pathname === '') {
+                event.preventDefault(); // Evita recargar la página
+                
+                const seccion = document.getElementById(idSeccion);
+                if (seccion) {
+                    seccion.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Aplica el filtro si se envió uno y la sección es la tienda
+                if (idSeccion === 'tienda-seccion') {
+                    const selectGenero = document.getElementById('filter-gender');
+                    if (selectGenero) {
+                        selectGenero.value = filtroGenero || ""; // Selecciona el valor o vuelve a 'Género' si está vacío
+                    }
+                }
+            } else {
+                // Si estamos en OTRA página (ej. /nosotros), redirige al index y pasa parámetros por URL
+                window.location.href = `/ecommerce?seccion=${idSeccion}&genero=${filtroGenero}`;
+            }
+        }
+
+        // Ejecutar al cargar la página por si venimos redirigidos con parámetros en la URL
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const seccionParam = urlParams.get('seccion');
+            const generoParam = urlParams.get('genero');
+
+            if (seccionParam) {
+                // Pequeño timeout para dar tiempo a que renderice todo antes del scroll
+                setTimeout(() => {
+                    const seccion = document.getElementById(seccionParam);
+                    if (seccion) {
+                        seccion.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    
+                    if (seccionParam === 'tienda-seccion' && generoParam !== null) {
+                        const select = document.getElementById('filter-gender');
+                        if (select) {
+                            select.value = generoParam;
+                        }
+                    }
+                }, 100);
+            }
+        });
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 </body>

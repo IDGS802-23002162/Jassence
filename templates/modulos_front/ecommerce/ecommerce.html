@@ -7,10 +7,11 @@
     <div class="bg-[#8A8A8A] w-full shadow-sm z-40 relative">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-center space-x-8 h-10">
-                <a href="/categorias" class="text-white font-medium text-sm hover:underline transition-colors">Categorias</a>
-                <a href="/hombre" class="text-white font-medium text-sm hover:underline transition-colors">Hombre</a>
-                <a href="/mujer" class="text-white font-medium text-sm hover:underline transition-colors">Mujer</a>
-                <a href="/sucursales" class="text-white font-medium text-sm hover:underline transition-colors">Sucursales</a>
+                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="text-white font-medium text-sm hover:underline transition-colors">Categorias</a>
+                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'hombre')" class="text-white font-medium text-sm hover:underline transition-colors">Hombre</a>
+                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'mujer')" class="text-white font-medium text-sm hover:underline transition-colors">Mujer</a>
+                <a href="#" onclick="navegarYFiltrar(event, 'novedades-seccion', '')" class="text-white font-medium text-sm hover:underline transition-colors hidden sm:block">Novedades</a>
+                <a href="{{ url_for('ecommerce.sucursales') }}" target="_blank" class="text-white font-medium text-sm hover:underline transition-colors">Sucursales</a>
             </div>
         </div>
     </div>
@@ -22,7 +23,7 @@
 
 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-fade-in">
 
-    <div class="mb-16 sm:mb-20">
+    <div id="novedades-seccion" class="mb-16 sm:mb-20 pt-8">
 
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
             <h1 class="font-elegant text-4xl sm:text-5xl md:text-7xl text-black cursor-default mb-4 md:mb-0 text-center md:text-left w-full">
@@ -185,7 +186,7 @@
 
     <hr class="border-gray-100 mb-16">
 
-    <div id="tienda-seccion">
+    <div id="tienda-seccion" class="pt-8">
         <div class="flex flex-col xl:flex-row xl:items-center justify-between mb-8 sm:mb-12 gap-6">
             <h2 class="font-elegant text-4xl sm:text-5xl md:text-6xl text-black cursor-default text-center xl:text-left">Nuestra Colección</h2>
 
