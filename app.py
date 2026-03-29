@@ -16,6 +16,7 @@ from modulos_routes.auditoria.routes import auditorias_bp
 from modulos_routes.inv_productos import inventarioP_bp
 from modulos_routes.produccion import produccion_bp
 from modulos_routes.dashboard import dashboard_bp
+from modulos_routes.pos.routes import pos_bp
  
 
 app = Flask(__name__)
@@ -35,6 +36,7 @@ csrf=CSRFProtect()
 db.init_app(app)
 
 
+
 #Registro de rutas 
 
 app.register_blueprint(seguridad_bp)
@@ -45,21 +47,11 @@ app.register_blueprint(produccion_bp)
 app.register_blueprint(inventarioP_bp) 
 app.register_blueprint(compras_bp)
 app.register_blueprint(dashboard_bp)
-
-# Prueba usuario
-class Usuario:
-    def __init__(self, nombre, rol):
-        self.nombre = nombre
-        self.rol = rol
-
-
-
+app.register_blueprint(pos_bp)
 
 
 @app.route('/')
 def index():
-    #Usuario de prueba aqui debe ir la consulta mysql
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     
     return render_template('index.html')
 
@@ -67,10 +59,6 @@ def index():
 def page_not_fount(e):
 	return render_template("404.html"),404
 
-@app.context_processor
-def inject_user():
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
-    return dict(current_user=usuario_logueado)
 
 if __name__ == '__main__':
 	csrf.init_app(app)
