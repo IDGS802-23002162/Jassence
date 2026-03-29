@@ -4,6 +4,17 @@
 
 {% block content %}
 
+    <div class="bg-[#8A8A8A] w-full shadow-sm z-40 relative">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center space-x-8 h-10">
+                <a href="/categorias" class="text-white font-medium text-sm hover:underline transition-colors">Categorias</a>
+                <a href="/hombre" class="text-white font-medium text-sm hover:underline transition-colors">Hombre</a>
+                <a href="/mujer" class="text-white font-medium text-sm hover:underline transition-colors">Mujer</a>
+                <a href="/sucursales" class="text-white font-medium text-sm hover:underline transition-colors">Sucursales</a>
+            </div>
+        </div>
+    </div>
+
 <div class="w-full h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden relative group">
     <img src="{{ url_for('static', filename='img/headerPerfume.jpg') }}" alt="Banner Jassence"
         class="w-full h-full object-cover object-center animate-fade-in transition-transform duration-700 group-hover:scale-105">
