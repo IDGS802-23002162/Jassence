@@ -11,7 +11,7 @@
             Materias Primas
         </a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        <a href="{{ url_for('inv_materias.merma') }}" 
+        <a href="{{ url_for('inv_materias.mermas') }}" 
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
             Mermas
         </a>
@@ -21,140 +21,68 @@
         </h1>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
-        <div class="relative flex-1">
-            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text" 
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all" 
+                placeholder="Buscar por insumo, usuario o acción...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                 </svg>
             </div>
-            <input type="text" class="block w-full p-2.5 ps-10 text-sm text-black border border-gray-300 rounded-base bg-white focus:ring-black focus:border-black" placeholder="Buscar por insumo, usuario o acción...">
         </div>
-        <select class="bg-white border border-gray-300 text-black text-sm rounded-base p-2.5 focus:ring-black outline-none">
-            <option selected>Todos los movimientos</option>
-            <option>Entradas</option>
-            <option>Mermas/Salidas</option>
-            <option>Ajustes de Auditoría</option>
-        </select>
+        <div class="w-full md:w-auto">
+            <select class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option selected>Todos los movimientos</option>
+                <option>Entradas</option>
+                <option>Mermas/Salidas</option>
+                <option>Ajustes de Auditoría</option>
+            </select>
+        </div>
     </div>
 
-    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-gray-700">
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark bg-[#2A2A2A]">
         <table class="w-full text-sm text-left text-gray-300">
-            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+            <thead class="text-xs text-gray-200 uppercase">
                 <tr>
                     <th class="px-6 py-4">Fecha y Hora</th>
                     <th class="px-6 py-4">Usuario</th>
                     <th class="px-6 py-4">Acción</th>
                     <th class="px-6 py-4">Insumo / Ítem</th>
                     <th class="px-6 py-4">Variación</th>
-                    <th class="px-6 py-4 text-center">Acciones</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="text-white bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                <tr class="text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
                     <td class="px-6 py-4 text-gray-400 font-mono">2026-03-26 14:20</td>
                     <td class="px-6 py-4">Admin_Perfume</td>
                     <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold">Entrada Stock</span>
+                        <span class="px-2 py-1 bg-green-900/50 text-green-400 rounded-full text-[10px] uppercase font-bold border border-green-800">Entrada Stock</span>
                     </td>
                     <td class="px-6 py-4 font-medium">Esencia de Lavanda</td>
                     <td class="px-6 py-4 text-green-400 font-bold">+10.00 Lts</td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="verDetallesHistorial('1', '2026-03-26 14:20', 'Admin_Perfume', 'Entrada de Mercancía', 'Esencia de Lavanda', '+10.00 Lts', 'Compra a proveedor certificado. Lote #998', 'Óptimo')" 
-                                class="text-yellow-400 hover:text-yellow-200 font-medium">Ver Detalles</button>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_historial', id=1) }}" 
+                           class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">Ver</a>
                     </td>
                 </tr>
-
-                <tr class="text-white bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                <tr class="text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
                     <td class="px-6 py-4 text-gray-400 font-mono">2026-03-26 12:10</td>
                     <td class="px-6 py-4">Prod_User_01</td>
                     <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-red-900 text-red-300 rounded-full text-[10px] uppercase font-bold">Registro Merma</span>
+                        <span class="px-2 py-1 bg-red-900/50 text-red-400 rounded-full text-[10px] uppercase font-bold border border-red-800">Registro Merma</span>
                     </td>
                     <td class="px-6 py-4 font-medium">Alcohol Etílico</td>
                     <td class="px-6 py-4 text-red-400 font-bold">-2.50 Lts</td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="verDetallesHistorial('2', '2026-03-26 12:10', 'Prod_User_01', 'Merma / Derrame', 'Alcohol Etílico', '-2.50 Lts', 'Derrame accidental en área de mezclado', 'Bajo')" 
-                                class="text-yellow-400 hover:text-yellow-200 font-medium">Ver Detalles</button>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_historial', id=2) }}" 
+                           class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">Ver</a>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
-
-<div id="modal-detalles-historial" class="hidden fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
-    <div class="relative w-full max-w-2xl">
-        <div class="relative bg-white border border-default rounded-base shadow-sm p-4 md:p-6 text-black">
-            <div class="flex items-center justify-between border-b border-default pb-4">
-                <h3 class="text-lg font-bold uppercase tracking-tight">Detalle de Auditoría</h3>
-                <button type="button" onclick="cerrarModal('modal-detalles-historial')" class="text-gray-500 hover:text-black">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <div class="py-6 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                <div>
-                    <p class="text-gray-500 uppercase text-xs font-bold">Fecha del Evento</p>
-                    <p id="h_fecha" class="font-medium"></p>
-                </div>
-                <div>
-                    <p class="text-gray-500 uppercase text-xs font-bold">Usuario Responsable</p>
-                    <p id="h_usuario" class="font-medium italic"></p>
-                </div>
-                <div>
-                    <p class="text-gray-500 uppercase text-xs font-bold">Tipo de Acción</p>
-                    <p id="h_accion" class="font-bold text-black"></p>
-                </div>
-                <div>
-                    <p class="text-gray-500 uppercase text-xs font-bold">Insumo Afectado</p>
-                    <p id="h_insumo" class="font-medium"></p>
-                </div>
-                <div>
-                    <p class="text-gray-500 uppercase text-xs font-bold">Variación de Stock</p>
-                    <p id="h_cantidad" class="font-bold text-lg"></p>
-                </div>
-                <div>
-                    <p class="text-gray-500 uppercase text-xs font-bold">Estado Post-Movimiento</p>
-                    <p id="h_estado" class="font-medium"></p>
-                </div>
-                <div class="col-span-2">
-                    <p class="text-gray-500 uppercase text-xs font-bold border-t pt-2">Notas de Auditoría / Justificación</p>
-                    <p id="h_notas" class="bg-gray-50 p-3 rounded border border-dashed border-gray-300 mt-1 text-gray-700"></p>
-                </div>
-            </div>
-
-            <div class="flex justify-end border-t border-default pt-4">
-                <button onclick="cerrarModal('modal-detalles-historial')"
-                    class="bg-black text-white px-8 py-2.5 rounded-base hover:bg-gray-800 transition-colors uppercase text-xs font-bold">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    function verDetallesHistorial(id, fecha, usuario, accion, insumo, cantidad, notas, estado) {
-        document.getElementById('h_fecha').textContent = fecha;
-        document.getElementById('h_usuario').textContent = usuario;
-        document.getElementById('h_accion').textContent = accion;
-        document.getElementById('h_insumo').textContent = insumo;
-        document.getElementById('h_cantidad').textContent = cantidad;
-        document.getElementById('h_notas').textContent = notas;
-        document.getElementById('h_estado').textContent = estado;
-
-        // Color dinámico para la cantidad
-        const cantElem = document.getElementById('h_cantidad');
-        if (cantidad.includes('+')) {
-            cantElem.className = "font-bold text-lg text-green-600";
-        } else {
-            cantElem.className = "font-bold text-lg text-red-600";
-        }
-
-        document.getElementById('modal-detalles-historial').classList.remove('hidden');
-    }
-
-    function cerrarModal(id) {
-        document.getElementById(id).classList.add('hidden');
-    }
-</script>
 {% endblock %}
