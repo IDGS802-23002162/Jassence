@@ -1,0 +1,138 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Historial de Ventas{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('pos.index_formulas') }}" class="text-gray-500 font-elegant text-3xl mb-1 italic">
+            Perfumes
+        </a>
+        <div class="w-px h-12 bg-gray-400 mx-8 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Historial de Ventas
+        </h1>
+        <div hidden class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar por ID, vendedor, canal...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto flex gap-2">
+            <input type="date"
+                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black shadow-sm outline-none cursor-pointer">
+            <select
+                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black shadow-sm outline-none cursor-pointer">
+                <option selected>Todos los canales</option>
+                <option>Física</option>
+                <option>Online</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-gray-800">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">ID Venta</th>
+                    <th scope="col" class="px-6 py-4">Fecha / Hora</th>
+                    <th scope="col" class="px-6 py-4">Vendedor</th>
+                    <th scope="col" class="px-6 py-4">Canal</th>
+                    <th scope="col" class="px-6 py-4">Método</th>
+                    <th scope="col" class="px-6 py-4 text-right">Total</th>
+                    <th scope="col" class="px-6 py-4 text-center border-l border-gray-700">Acción</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr class="bg-[#1A1A1A] border-b border-gray-800 hover:bg-[#252525] transition-colors">
+                    <td class="px-6 py-4 font-mono font-bold text-blue-400 whitespace-nowrap">
+                        #VEN-00042
+                    </td>
+                    <td class="px-6 py-4 text-white">
+                        28/03/2026 <span class="text-gray-500 text-xs ml-1">15:45</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-[10px] font-bold text-white">
+                                JD</div>
+                            <span class="text-gray-300">Juan Delgado</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span
+                            class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold">
+                            Física
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-400 italic">
+                        Efectivo
+                    </td>
+                    <td class="px-6 py-4 text-right font-black text-white text-base">
+                        $590.00
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-gray-700">
+                        <a href="{{ url_for('pos.detalle_V') }}"
+                            class="font-medium text-blue-400 hover:text-white transition-colors">
+                            Ver Detalle
+                        </a>
+                    </td>
+                </tr>
+
+                <tr class="bg-[#1A1A1A] border-b border-gray-800 hover:bg-[#252525] transition-colors">
+                    <td class="px-6 py-4 font-mono font-bold text-blue-400 whitespace-nowrap">
+                        #VEN-00041
+                    </td>
+                    <td class="px-6 py-4 text-white">
+                        28/03/2026 <span class="text-gray-500 text-xs ml-1">12:10</span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 italic">
+                        Sistema (Auto)
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded-full text-[10px] uppercase font-bold">
+                            Online
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-400 italic">
+                        Tarjeta
+                    </td>
+                    <td class="px-6 py-4 text-right font-black text-white text-base">
+                        $1,250.00
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-gray-700">
+                        <a href="{{ url_for('pos.detalle_V') }}"
+                            class="font-medium text-blue-400 hover:text-white transition-colors">
+                            Ver Detalle
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6 flex justify-between items-center text-sm">
+        <span class="text-gray-500 font-elegant italic">Mostrando registros de auditoría permanente</span>
+        <div class="inline-flex gap-2">
+            <button
+                class="bg-[#1A1A1A] text-white border border-gray-800 px-4 py-2 rounded hover:bg-black transition-all">Anterior</button>
+            <button
+                class="bg-[#1A1A1A] text-white border border-gray-800 px-4 py-2 rounded hover:bg-black transition-all">Siguiente</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
