@@ -33,77 +33,42 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-8">
 
-            <div
-                class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-                <div class="h-40 bg-gray-50 rounded-lg mb-4 flex items-center justify-center">
-                    <span class="text-4xl">🧴</span>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900">Perfume 30ml</h3>
-                <p class="text-sm text-gray-500 mb-4">Frasco estándar de bolsillo</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xl font-bold text-black">$150.00</span>
-                    <button class="bg-black text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
+                    {% for i in range(6) %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
+        
+        <div>
+            <div class="overflow-hidden rounded-lg mb-4 text-center sm:text-left">
+                <h3 class="font-elegant text-2xl text-black group-hover:text-gray-700 transition-colors">Fragancia Prueba {{ i + 1 }}</h3>
+                <p class="text-xs text-gray-400 italic">cítrico - amaderado</p>
             </div>
 
-            <div
-                class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <div class="h-40 bg-gray-50 rounded-lg mb-4 flex items-center justify-center">
-                    <span class="text-5xl">🧴</span>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900">Perfume 50ml</h3>
-                <p class="text-sm text-gray-500 mb-4">Tamaño medio ideal</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xl font-bold text-black">$220.00</span>
-                    <button class="bg-black text-white p-2 rounded-lg hover:bg-gray-800">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
+            <div class="flex justify-center mb-6 h-56 relative overflow-hidden">
+                <img src="{{ url_for('static', filename='img/ejemploPerfume.jpg') }}" alt="Perfume de prueba"
+                    class="h-full object-contain transition-transform duration-500 group-hover:scale-110">
             </div>
+        </div>
 
-            <div
-                class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <div class="h-40 bg-gray-50 rounded-lg mb-4 flex items-center justify-center">
-                    <span class="text-6xl">🧴</span>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900">Perfume 100ml</h3>
-                <p class="text-sm text-gray-500 mb-4">Frasco familiar / Larga duración</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xl font-bold text-black">$380.00</span>
-                    <button class="bg-black text-white p-2 rounded-lg hover:bg-gray-800">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
+        <div>
+            <label class="block text-[10px] uppercase tracking-tighter text-gray-400 mb-1">Seleccionar Presentación</label>
+            <div class="flex items-center gap-2 w-full">
+                <select class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
+                     <option value="30">30 ml</option>
+                                        <option value="50">50 ml</option>
+                                        <option value="100">100 ml</option>
+                    
+                </select>
+                
+                <button type="button" class="text-white bg-black hover:bg-gray-800 p-2.5 rounded-md transition-all shrink-0 active:scale-95">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                </button>
             </div>
+        </div>
 
-            <div class="bg-black border border-gray-800 rounded-xl p-6 shadow-lg cursor-pointer">
-                <div
-                    class="h-40 bg-gray-900 rounded-lg mb-4 flex items-center justify-center border border-yellow-600/30">
-                    <span class="text-6xl">✨</span>
-                </div>
-                <h3 class="text-lg font-bold text-gold-500 text-white">Edición Premium</h3>
-                <p class="text-sm text-gray-400 mb-4">Esencias exclusivas</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xl font-bold text-white">$550.00</span>
-                    <button class="bg-white text-black p-2 rounded-lg hover:bg-gray-200">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+    </div>
+    {% endfor %}
 
         </div>
     </div>
