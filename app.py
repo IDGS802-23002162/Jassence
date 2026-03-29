@@ -15,6 +15,7 @@ from modulos_routes.formulas import formulas_bp
 from modulos_routes.auditoria.routes import auditorias_bp
 from modulos_routes.inv_productos import inventarioP_bp
 from modulos_routes.produccion import produccion_bp
+from modulos_routes.dashboard import dashboard_bp
  
 
 app = Flask(__name__)
@@ -43,12 +44,14 @@ app.register_blueprint(auditorias_bp)
 app.register_blueprint(produccion_bp)
 app.register_blueprint(inventarioP_bp) 
 app.register_blueprint(compras_bp)
+app.register_blueprint(dashboard_bp)
 
 # Prueba usuario
 class Usuario:
     def __init__(self, nombre, rol):
         self.nombre = nombre
         self.rol = rol
+
 
 
 

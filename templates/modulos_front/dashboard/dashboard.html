@@ -1,0 +1,286 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<br>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in">
+    
+    <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-8 border-b border-gray-300 pb-4 gap-6">
+        <h1 class="font-elegant text-6xl text-black cursor-default">Dashboard</h1>
+        
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-800 whitespace-nowrap">Día exacto:</label>
+                <input type="date" class="w-full bg-white border border-gray-200 rounded-lg p-2 focus:ring-black focus:border-black shadow-sm">
+            </div>
+
+            <span class="text-gray-400 text-sm font-bold px-2">Ó</span>
+
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-800 whitespace-nowrap">Lapso:</label>
+                <select id="lapso-select" onchange="mostrarSubfiltro()" class="bg-[#EDEDED] text-gray-700 border-0 text-xs rounded-lg p-2 pr-8 focus:ring-black focus:border-black cursor-pointer shadow-sm">
+                    <option value="" disabled selected>Seleccionar lapso</option>
+                    <option value="semana"> Semana</option>
+                    <option value="mes"> Mes</option>
+                    <option value="anio"> Año</option>
+                </select>
+            </div>
+
+            <div id="contenedor-subfiltros" class="hidden flex items-center transition-all duration-300">
+                <input type="week" id="input-semana" class="hidden w-full bg-white border border-gray-200 rounded-lg p-2 focus:ring-black focus:border-black shadow-sm">
+                <input type="month" id="input-mes" class="hidden w-full bg-white border border-gray-200 rounded-lg p-2 focus:ring-black focus:border-black shadow-sm">
+                <input type="number" id="input-anio" min="2020" max="2050" placeholder="Ej. 2026" class="hidden w-full bg-white border border-gray-200 rounded-lg p-2 focus:ring-black focus:border-black shadow-sm">
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-10 w-full relative group">
+        <div id="dashboard-carousel" class="relative w-full" data-carousel="static">
+            <div class="relative overflow-hidden rounded-xl h-[180px]"> <div class="hidden duration-700 ease-in-out px-12" data-carousel-item="active">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                            <h3 class="text-sm font-medium text-gray-800 mb-2">Total Bruto (Ingresos):</h3>
+                            <span class="font-elegant text-4xl text-black tracking-wide">$ 17,200.00</span>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                            <h3 class="text-sm font-medium text-gray-800 mb-2">Total Neto (Ingresos - Impuestos):</h3>
+                            <span class="font-elegant text-4xl text-black tracking-wide">$ 14,827.58</span>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                            <h3 class="text-sm font-bold text-gray-900 mb-2">Utilidad Neta (Ganancia Real):</h3>
+                            <span class="font-elegant text-4xl text-green-600 tracking-wide">$ 8,450.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden duration-700 ease-in-out px-12" data-carousel-item>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                            <h3 class="text-sm font-medium text-gray-800 mb-2">Compra Promedio:</h3>
+                            <span class="font-elegant text-4xl text-black tracking-wide">$ 250.00</span>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                            <h3 class="text-sm font-medium text-gray-800 mb-2">Nuevos Clientes:</h3>
+                            <span class="font-elegant text-4xl text-black tracking-wide">33</span>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                            <h3 class="text-sm font-medium text-gray-800 mb-2">Productos Vendidos:</h3>
+                            <span class="font-elegant text-4xl text-black tracking-wide">145</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-2 cursor-pointer group focus:outline-none" data-carousel-prev>
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/80 shadow-sm border border-gray-200 group-hover:bg-white transition-colors">
+                    <svg class="w-4 h-4 text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+                    </svg>
+                    <span class="sr-only">Anterior</span>
+                </span>
+            </button>
+            <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-2 cursor-pointer group focus:outline-none" data-carousel-next>
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/80 shadow-sm border border-gray-200 group-hover:bg-white transition-colors">
+                    <svg class="w-4 h-4 text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                    </svg>
+                    <span class="sr-only">Siguiente</span>
+                </span>
+            </button>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
+        
+        <div class="space-y-10 flex flex-col">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-sm font-medium text-gray-800 mb-4">Meta Mensual de Utilidad: 20,000.00</h3>
+                <div class="w-full bg-[#EDEDED] rounded-full h-8 relative">
+                    <div class="bg-black h-8 rounded-full" style="width: 42%;"></div> <div class="absolute top-1/2 right-[58%] transform translate-x-1/2 -translate-y-1/2 w-4 h-12 bg-black rounded-full border-2 border-white cursor-pointer shadow-lg"></div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex-grow flex flex-col justify-between">
+                <h3 class="text-sm font-medium text-gray-800 mb-6">Tendencia Semanal de Ventas</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-xs text-gray-600 font-medium">Semana 1</span>
+                        <div class="w-full bg-[#EDEDED] rounded-full h-4 relative">
+                            <div class="bg-black h-4 rounded-full" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-xs text-gray-600 font-medium">Semana 2</span>
+                        <div class="w-full bg-[#EDEDED] rounded-full h-4 relative">
+                            <div class="bg-black h-4 rounded-full" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-xs text-gray-600 font-medium">Semana 3</span>
+                        <div class="w-full bg-[#EDEDED] rounded-full h-4 relative">
+                            <div class="bg-black h-4 rounded-full" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-xs text-gray-600 font-medium">Semana 4</span>
+                        <div class="w-full bg-[#EDEDED] rounded-full h-4 relative">
+                            <div class="bg-black h-4 rounded-full" style="width: 70%;"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-xs text-gray-600 font-medium">Semana 5</span>
+                        <div class="w-full bg-[#EDEDED] rounded-full h-4 relative">
+                            <div class="bg-black h-4 rounded-full" style="width: 30%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 pt-2 mt-2 border-t border-gray-100">
+                        <div class="w-20 flex-shrink-0"></div>
+                        <div class="w-full flex justify-between text-[10px] sm:text-xs text-gray-500 font-medium">
+                            <span>$0</span>
+                            <span>$100.00</span>
+                            <span>$200.00</span>
+                            <span>$300.00</span>
+                            <span>$400.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+            
+            <div class="flex items-center justify-between mb-6 pb-2">
+                <h3 class="text-sm font-medium text-gray-800">Productos Mas Vendidos</h3>
+                <select id="filtro-top-productos" onchange="cambiarFiltroProductos()" class="bg-[#EDEDED] text-black border-0 text-xs font-medium rounded-lg p-2 focus:ring-black focus:border-black cursor-pointer shadow-sm">
+                    <option value="" disabled selected>Seleccionar opcion</option>
+                    <option value="cantidad">   Cantidad   </option>
+                    <option value="ganancia">   Ganancia   </option>
+                </select>
+            </div>
+            
+            <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark flex-grow">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                        <tr>
+                            <th scope="col" class="px-4 py-4">Producto</th>
+                            <th scope="col" class="px-4 py-4 text-center">Cant</th>
+                            <th scope="col" class="px-4 py-4 text-center">Total Bruto</th>
+                            <th scope="col" class="px-4 py-4 text-center">Utilidad</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody id="tbody-cantidad">
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">AquaDiGio (30ml)</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">85</td>
+                            <td class="px-4 py-4 text-center">$ 4,250.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-medium">$ 2,125.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">BornInRoma (50ml)</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">62</td>
+                            <td class="px-4 py-4 text-center">$ 6,200.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-medium">$ 3,000.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">SalvajeDior (100ml)</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">31</td>
+                            <td class="px-4 py-4 text-center">$ 9,300.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-medium">$ 4,650.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">ChanelBlue (30ml)</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">24</td>
+                            <td class="px-4 py-4 text-center">$ 1,440.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-medium">$ 600.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">MojabeGhost (50ml)</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">14</td>
+                            <td class="px-4 py-4 text-center">$ 1,200.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-medium">$ 750.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark h-12"><td></td><td></td><td></td><td></td></tr>
+                    </tbody>
+
+                    <tbody id="tbody-ganancia" class="hidden">
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">SalvajeDior (100ml)</td>
+                            <td class="px-4 py-4 text-center">31</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">$ 9,300.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-bold">$ 4,650.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">BornInRoma (50ml)</td>
+                            <td class="px-4 py-4 text-center">62</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">$ 6,200.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-bold">$ 3,000.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">AquaDiGio (30ml)</td>
+                            <td class="px-4 py-4 text-center">85</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">$ 4,250.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-bold">$ 2,125.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">MojabeGhost (50ml)</td>
+                            <td class="px-4 py-4 text-center">14</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">$ 1,200.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-bold">$ 750.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                            <td class="px-4 py-4 truncate max-w-[120px]">ChanelBlue (100ml)</td>
+                            <td class="px-4 py-4 text-center">10</td>
+                            <td class="px-4 py-4 text-center text-white font-bold">$ 3,500.00</td>
+                            <td class="px-4 py-4 text-center text-green-400 font-bold">$ 1,500.00</td>
+                        </tr>
+                        <tr class="bg-table-dark border-b border-table-dark h-12"><td></td><td></td><td></td><td></td></tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div> 
+
+<script>
+    function mostrarSubfiltro() {
+        const lapso = document.getElementById('lapso-select').value;
+        const contenedor = document.getElementById('contenedor-subfiltros');
+        
+        // Ocultar todos primero
+        document.getElementById('input-semana').classList.add('hidden');
+        document.getElementById('input-mes').classList.add('hidden');
+        document.getElementById('input-anio').classList.add('hidden');
+        
+        // Mostrar el contenedor y el input correspondiente
+        contenedor.classList.remove('hidden');
+        
+        if (lapso === 'semana') document.getElementById('input-semana').classList.remove('hidden');
+        if (lapso === 'mes') document.getElementById('input-mes').classList.remove('hidden');
+        if (lapso === 'anio') document.getElementById('input-anio').classList.remove('hidden');
+    }
+
+    function cambiarFiltroProductos() {
+        const filtro = document.getElementById('filtro-top-productos').value;
+        const tbodyCantidad = document.getElementById('tbody-cantidad');
+        const tbodyGanancia = document.getElementById('tbody-ganancia');
+
+        if (filtro === 'cantidad') {
+            tbodyGanancia.classList.add('hidden');
+            tbodyCantidad.classList.remove('hidden');
+        } else {
+            tbodyCantidad.classList.add('hidden');
+            tbodyGanancia.classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}
