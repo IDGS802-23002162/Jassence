@@ -19,7 +19,7 @@ from modulos_routes.pos.routes import pos_bp
 from modulos_routes.compras import compras_bp
 from modulos_routes.inv_materias import invMP_bp
 from modulos_routes.ecommerce.routes import ecommerce_bp
- 
+from modulos_routes.finanzas import finanzas_bp 
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -49,6 +49,7 @@ app.register_blueprint(inventarioP_bp)
 app.register_blueprint(compras_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(pos_bp)
+app.register_blueprint(finanzas_bp)
 
 
 # Ahora el index del sistema es /inicio
