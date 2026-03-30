@@ -1,0 +1,130 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Corte de Caja{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-8 border-b border-gray-300 pb-4 gap-6">
+        <h1 class="font-elegant text-6xl text-black cursor-default">Corte de Caja</h1>
+    </div>
+
+    <form action="#" method="POST">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-3 text-sm font-medium text-gray-800">Apertura</label>
+                <input type="number" name="apertura" value="1000" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-3 text-sm font-medium text-gray-800">Ventas Totales</label>
+                <input type="number" name="ventas_totales" value="2300" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-3 text-sm font-medium text-gray-800">Egresos/Gastos</label>
+                <input type="number" name="egresos" value="200" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-3 text-sm font-medium text-gray-800">Utilidad Neta Diaria</label>
+                <input type="number" name="utilidad" value="1200" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 items-stretch">
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                <h3 class="text-xl font-medium text-gray-800 mb-6">Ingresos</h3>
+                <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark flex-grow">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                            <tr>
+                                <th scope="col" class="px-6 py-4">Metodo de Pago</th>
+                                <th scope="col" class="px-6 py-4 text-center">Transacciones</th>
+                                <th scope="col" class="px-6 py-4 text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-6 py-4">Efectivo</td>
+                                <td class="px-6 py-4 text-center">3</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ 800.00</td>
+                            </tr>
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-6 py-4">Tarjeta</td>
+                                <td class="px-6 py-4 text-center">4</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ 1,200.00</td>
+                            </tr>
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-6 py-4">Transferencia</td>
+                                <td class="px-6 py-4 text-center">2</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ 300.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                <h3 class="text-xl font-medium text-gray-800 mb-6">Egresos</h3>
+                <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark flex-grow">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                            <tr>
+                                <th scope="col" class="px-6 py-4">Categoria</th>
+                                <th scope="col" class="px-6 py-4 text-center">Cantidad</th>
+                                <th scope="col" class="px-6 py-4 text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-6 py-4">Envios</td>
+                                <td class="px-6 py-4 text-center">4</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ 200.00</td>
+                            </tr>
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-6 py-4">Escencias</td>
+                                <td class="px-6 py-4 text-center">0</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ 0.00</td>
+                            </tr>
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-6 py-4">Varios</td>
+                                <td class="px-6 py-4 text-center">0</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ 0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-3 text-sm font-medium text-gray-800">Efectivo Esperado</label>
+                <input type="number" name="efectivo_esperado" value="800" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-md border-2 border-black"> <label class="block mb-3 text-sm font-bold text-black">Efectivo Real</label>
+                <input type="number" name="efectivo_real" value="800" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm font-bold" required>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-3 text-sm font-medium text-gray-800">Diferencia</label>
+                <input type="number" name="diferencia" value="0" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-200 mt-8">
+            <div class="md:col-start-2">
+                <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                    Cerrar Caja
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div> 
+{% endblock %}

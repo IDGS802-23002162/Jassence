@@ -6,6 +6,11 @@ from flask import g
 
 
 from models import db
+
+from modulos_routes.formulas import formulas_bp
+from modulos_routes.produccion import produccion_bp
+from modulos_routes.dashboard import dashboard_bp
+from modulos_routes.finanzas import finanzas_bp
  
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -13,11 +18,13 @@ app.config.from_object(DevelopmentConfig)
 csrf=CSRFProtect()
 db.init_app(app)
 
-# Prueba usuario
-class Usuario:
-    def __init__(self, nombre, rol):
-        self.nombre = nombre
-        self.rol = rol
+
+app.register_blueprint(formulas_bp)
+app.register_blueprint(produccion_bp)
+app.register_blueprint(dashboard_bp)
+app.register_blueprint(finanzas_bp)
+
+
 
 @app.route('/')
 def index():
