@@ -63,31 +63,65 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap font-mono">2026-03-27</td>
-                    <td class="px-6 py-4">Envases de Vidrio S.A.</td>
-                    <td class="px-6 py-4">@Admin</td>
-                    <td class="px-6 py-4 text-green-400 font-bold">$1,250.00</td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
-                        <a href="{{ url_for('compras.detalle_C', id=1) }}"
-                            class="font-medium text-400 hover:text-green-300 transition-colors">Ver Detalle</a>
+                {% for compra in compras %}
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors {% if compra.estado == 'cancelado' %} opacity-50 {% endif %}">
+                    
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap font-mono">
+                        {{ compra.fecha.strftime('%Y-%m-%d') if compra.fecha else 'Sin fecha' }}
                     </td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
-                        <a href="{{ url_for('compras.editar_C', id=1) }}"
-                            class="font-medium text-400 hover:text-green-300 transition-colors">Editar</a>
+                    
+                    <td class="px-6 py-4 text-gray-300">{{ compra.proveedor.nombre_empresa }}</td>
+                    
+                    <td class="px-6 py-4 text-gray-300">Usuario #{{ compra.usuario_id }}</td>
+                    
+                    <td class="px-6 py-4 text-green-400 font-bold font-mono">
+                        $ {{ "%.2f"|format(compra.total) }}
                     </td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
-                        <button onclick="abrirModalEliminarC(1, '2026-03-27', 'Envases de Vidrio S.A.')"
-                            class="font-medium hover:text-red-300 transition-colors">
-                            Cancelar compra
-                        </button>
-                    </td>
+                    
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <a href="#"
-                            class="font-medium text-gray-300 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4">Ver
-                            Factura</a>
+                        <a href="{{ url_for('compras.detalle_C', id=compra.id) }}" class="font-medium text-gray-400 hover:text-blue-300 transition-colors underline decoration-gray-500 underline-offset-4">
+                            Ver Detalle
+                        </a>
+                    </td>
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        {% if compra.estado != 'cancelado' %}
+                        <a href="{{ url_for('compras.editar_C', id=compra.id) }}" class="font-medium text-gray-400 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4">
+                            Editar
+                        </a>
+                        {% else %}
+                        <span class="text-gray-500 italic text-xs">No editable</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        {% if compra.estado != 'cancelado' %}
+                        <button onclick="abrirModalEliminarC('{{ compra.id }}', '{{ compra.fecha.strftime('%Y-%m-%d') if compra.fecha else '' }}', '{{ compra.proveedor.nombre_empresa }}')" class="font-medium text-gray-400 hover:text-red-400 transition-colors underline decoration-gray-500 underline-offset-4">
+                            Cancelar
+                        </button>
+                        {% else %}
+                        <span class="text-red-500 font-bold text-xs uppercase tracking-widest">Anulada</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        {% if compra.archivo_factura %}
+                        <a href="{{ url_for('static', filename='uploads/facturas/' ~ compra.archivo_factura) }}" target="_blank" class="font-medium text-gray-300 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4">
+                            Ver Factura
+                        </a>
+                        {% else %}
+                        <span class="text-gray-500 text-xs">Sin archivo</span>
+                        {% endif %}
+                    </td>
+                    
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-400">
+                        Aún no hay compras registradas en el historial. ¡Agrega la primera!
                     </td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
