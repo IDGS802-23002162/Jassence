@@ -11,7 +11,7 @@ def registrar_P():
     return render_template('modulos_front/compras/registrar_P.html')
 
 
-@compras_bp.route('/detalle_P') 
+@compras_bp.route('/detalle_proveedor') 
 def detalle_P():
    
     proveedor_ficticio = {
