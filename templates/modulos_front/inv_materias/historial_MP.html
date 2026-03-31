@@ -1,0 +1,88 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Historial de Auditoría - Inventario{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('inv_materias.inventario') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Materias Primas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('inv_materias.mermas') }}" 
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Mermas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Historial
+        </h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text" 
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all" 
+                placeholder="Buscar por insumo, usuario o acción...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="w-full md:w-auto">
+            <select class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 pr-8 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option selected>Todos los movimientos</option>
+                <option>Entradas</option>
+                <option>Mermas/Salidas</option>
+                <option>Ajustes de Auditoría</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark bg-[#2A2A2A]">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase">
+                <tr>
+                    <th class="px-6 py-4">Fecha y Hora</th>
+                    <th class="px-6 py-4">Usuario</th>
+                    <th class="px-6 py-4">Acción</th>
+                    <th class="px-6 py-4">Insumo / Ítem</th>
+                    <th class="px-6 py-4">Variación</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400 font-mono">2026-03-26 14:20</td>
+                    <td class="px-6 py-4">Admin_Perfume</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-green-900/50 text-green-400 rounded-full text-[10px] uppercase font-bold border border-green-800">Entrada Stock</span>
+                    </td>
+                    <td class="px-6 py-4 font-medium">Esencia de Lavanda</td>
+                    <td class="px-6 py-4 text-green-400 font-bold">+10.00 Lts</td>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_historial', id=1) }}" 
+                           class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">Ver</a>
+                    </td>
+                </tr>
+                <tr class="text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400 font-mono">2026-03-26 12:10</td>
+                    <td class="px-6 py-4">Prod_User_01</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-red-900/50 text-red-400 rounded-full text-[10px] uppercase font-bold border border-red-800">Registro Merma</span>
+                    </td>
+                    <td class="px-6 py-4 font-medium">Alcohol Etílico</td>
+                    <td class="px-6 py-4 text-red-400 font-bold">-2.50 Lts</td>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_historial', id=2) }}" 
+                           class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">Ver</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

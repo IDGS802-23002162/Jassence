@@ -1,0 +1,49 @@
+<div id="modal-eliminar-proveedor" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-[60] justify-center items-center w-full md:inset-0 h-modal h-full bg-black/50">
+    <div class="relative p-4 w-full max-w-md h-auto">
+        <div class="relative bg-white rounded-lg shadow-xl border border-gray-100">
+            
+            <button type="button" onclick="cerrarModal()" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+            </button>
+            
+            <div class="p-6 text-center">
+                <div class="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-red-100 sm:h-14 sm:w-14">
+                    <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                </div>
+                
+                <h3 class="mb-2 text-xl font-elegant text-gray-900">¿Eliminar proveedor?</h3>
+                <p class="mb-6 text-sm text-gray-500">Estás a punto de eliminar a <strong id="nombre-proveedor-eliminar" class="text-black"></strong>.</p>
+                
+                <form id="form-eliminar-proveedor" action="#" method="POST" class="flex justify-center gap-3">
+                    <button onclick="cerrarModal()" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const modal = document.getElementById('modal-eliminar-proveedor');
+    const nombreTxt = document.getElementById('nombre-proveedor-eliminar');
+    const formulario = document.getElementById('form-eliminar-proveedor');
+
+    function abrirModalEliminar(id, nombre) {
+        // Rellenar datos
+        nombreTxt.textContent = nombre;
+        formulario.action = '/eliminar-proveedor/' + id; // Ajusta tu URL aquí
+        
+        // Mostrar modal
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function cerrarModal() {
+        // Ocultar modal
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+</script>
