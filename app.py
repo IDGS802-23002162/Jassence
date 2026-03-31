@@ -4,7 +4,8 @@ from config import DevelopmentConfig
 from flask_security import Security, SQLAlchemyUserDatastore
 from forms import CustomRegisterForm, CustomLoginForm
 from flask_mailman import Mail
-from flask_security import auth_required, current_user
+from flask_security import auth_required, current_user, roles_required, roles_accepted
+from initRoles import inicializar_roles
 
 from models import db, Usuario, Rol
 
@@ -49,13 +50,10 @@ app.register_blueprint(finanzas_bp)
 
 # Rutas principales
 @app.route('/inicio')
+@roles_accepted('admin', 'ventas', 'produccion', 'inventario')
 def index():
     return render_template('index.html')
 
-@app.route('/test-2fa')
-@auth_required()
-def test_2fa():
-    return f"Hola {current_user.email}, si ves esto es porque el 2FA funcionó o se saltó."
 
 @app.errorhandler(404)
 def page_not_found(e): 
@@ -64,5 +62,6 @@ def page_not_found(e):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        inicializar_roles()
     print("Tablas creadas con éxito.")
     app.run()

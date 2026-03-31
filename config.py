@@ -13,11 +13,10 @@ class Config(object):
     SECURITY_POST_LOGIN_VIEW = '/'
     
 
-    # LOGOUT
+    # REGISTER
     SECURITY_REGISTERABLE = True 
     SECURITY_REGISTER_USER_TEMPLATE = 'modulos_front/seguridad/registrar.html'
     SECURITY_POST_REGISTER_VIEW = '/login'
-    
     SECURITY_POST_LOGOUT_VIEW = '/'
 
     # ==========================================
@@ -59,6 +58,15 @@ class Config(object):
     SECURITY_TOTP_SECRETS = {"1": "0e9302c2c754a48cdbbe112326ecaf789ccb7c52d967dc2f3bb496efb72736d2"} 
     SECURITY_TOTP_ISSUER = "Jassence"
 
+    # ==========================================
+    # CONFIGURACIÓN DE RECUPERACION CONTRASEÑA
+    # ==========================================
+
+    SECURITY_RECOVERABLE = True
+    SECURITY_RESET_PASSWORD_WITHIN = "1 hours"
+    SECURITY_EMAIL_SUBJECT_PASSWORD_RESET = "Recupera tu acceso a Jassence"
+    SECURITY_FORGOT_PASSWORD_TEMPLATE = 'modulos_front/seguridad/olvidar_password.html'
+    SECURITY_RESET_PASSWORD_TEMPLATE = 'modulos_front/seguridad/resetear_password.html'
 
 class DevelopmentConfig(Config):
     DEBUG = True
