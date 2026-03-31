@@ -46,7 +46,7 @@
         proveedorTxt.textContent = proveedor;
         
         // Construir la URL de eliminación
-        formularioC.action = "{{ url_for('compras.modal_Celiminar', id=0) }}".replace('0', id);
+        formularioC.action = "{{ url_for('compras.cancelar_C', id=0) }}".replace('0', id);
         
         // Mostrar modal con animación
         modalC.classList.remove('hidden');
