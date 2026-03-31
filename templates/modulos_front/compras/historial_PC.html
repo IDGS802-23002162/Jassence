@@ -59,41 +59,43 @@
                 </tr>
             </thead>
             <tbody>
+                {% for log in logs %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    
                     <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
-                        <span class="block text-[10px] text-gray-400 italic">#1024</span>
-                        2026-03-28 15:30
+                        <span class="block text-[10px] text-gray-400 italic">#{{ "%05d"|format(log.id) }}</span>
+                        {{ log.fecha.strftime('%Y-%m-%d %H:%M') if log.fecha else 'N/A' }}
                     </td>
-                    <td class="px-6 py-4 text-gray-300">@Admin</td>
-                    <td class="px-6 py-4 font-bold text-white">Envases de Vidrio S.A.</td>
+                    
+                    <td class="px-6 py-4 text-gray-300">ID Usuario: {{ log.usuario_id }}</td>
+                    
+                    <td class="px-6 py-4 font-bold text-white">{{ log.proveedor.nombre_empresa }}</td>
+                    
                     <td class="px-6 py-4">
+                        {% if log.estado == 'cancelado' %}
+                        <span class="px-2 py-1 bg-red-900 text-red-300 rounded-full text-[10px] uppercase font-bold">
+                            Compra Anulada
+                        </span>
+                        {% else %}
                         <span class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold">
                             Nueva Compra
                         </span>
+                        {% endif %}
                     </td>
-                    <td class="px-6 py-4 text-xs font-mono text-gray-400">FAC-9928.pdf</td>
+                    
+                    <td class="px-6 py-4 text-xs font-mono text-gray-400">
+                        {{ log.archivo_factura if log.archivo_factura else 'Sin archivo' }}
+                    </td>
+                    
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <a href="{{ url_for('compras.detalle_H', id=1) }}" class="font-medium text-gray-300 hover:text-white transition-colors">Ver</a>
+                        <a href="{{ url_for('compras.detalle_H', id=log.id) }}" class="font-medium text-gray-300 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4">Ver</a>
                     </td>
                 </tr>
-                
-                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
-                        <span class="block text-[10px] text-gray-400 italic">#1025</span>
-                        2026-03-28 12:10
-                    </td>
-                    <td class="px-6 py-4 text-gray-300">@Manager</td>
-                    <td class="px-6 py-4 font-bold text-white">Químicos del Norte</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded-full text-[10px] uppercase font-bold">
-                            Edición Proveedor
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-xs text-gray-500 italic">N/A</td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <a href="#" class="font-medium text-gray-300 hover:text-white transition-colors">Ver</a>
-                    </td>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">No hay registros en la auditoría.</td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

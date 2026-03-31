@@ -8,7 +8,7 @@
 
     <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
         <div>
-            <h1 class="font-elegant text-5xl text-black cursor-default">Auditoría de Compra</h1>
+            <h1 class="font-elegant text-5xl text-black cursor-default">Auditoría de Operación</h1>
         </div>
         <a href="{{ url_for('compras.historial_PC') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,48 +23,60 @@
             
             <div class="border-b border-gray-100 pb-8 flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-2 font-bold">Proveedor Registrado</p>
-                    <h2 class="font-elegant text-4xl text-black">Envases de Vidrio S.A.</h2>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-2 font-bold">Proveedor Afectado</p>
+                    <h2 class="font-elegant text-4xl text-black">{{ log.proveedor.nombre_empresa }}</h2>
                 </div>
                 <div class="text-right">
                     <p class="text-xs text-gray-400 uppercase font-bold mb-1">Tipo de Evento</p>
+                    {% if log.estado == 'cancelado' %}
+                    <span class="px-4 py-1 bg-red-600 text-white text-xs font-bold uppercase tracking-tighter rounded-full">
+                        ANULACIÓN DE COMPRA
+                    </span>
+                    {% else %}
                     <span class="px-4 py-1 bg-black text-white text-xs font-bold uppercase tracking-tighter rounded-full">
                         REGISTRO DE COMPRA
                     </span>
+                    {% endif %}
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12">
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Fecha y Hora de Operación</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono">28/03/2026 15:30</p>
-                </div>
-
-                <div class="space-y-1">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Usuario Responsable</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">@Admin_Jassence</p>
-                </div>
-
-                <div class="space-y-1">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Archivo Factura (DB)</p>
-                    <p class="text-sm font-medium border-l-2 border-blue-600 pl-4 text-blue-600 underline cursor-pointer">
-                        factura_vidrio_032026.pdf
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono">
+                        {{ log.fecha.strftime('%d/%m/%Y %H:%M') if log.fecha else 'N/A' }}
                     </p>
                 </div>
 
                 <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Usuario Responsable</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">ID: {{ log.usuario_id }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Archivo Factura (DB)</p>
+                    {% if log.archivo_factura %}
+                    <a href="{{ url_for('static', filename='uploads/facturas/' ~ log.archivo_factura) }}" target="_blank" class="text-sm font-medium border-l-2 border-blue-600 pl-4 text-blue-600 underline cursor-pointer truncate block">
+                        {{ log.archivo_factura }}
+                    </a>
+                    {% else %}
+                    <p class="text-sm font-medium border-l-2 border-gray-300 pl-4 text-gray-400 italic">No aplicable</p>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Contacto Proveedor</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">+52 477 123 4567</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">{{ log.proveedor.telefono }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Ubicación Empresa</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">León, Gto. México</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 truncate" title="{{ log.proveedor.direccion }}">{{ log.proveedor.direccion }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">ID Único de Log</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono uppercase tracking-widest">LOG-C-1024</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono uppercase tracking-widest">LOG-C-{{ "%05d"|format(log.id) }}</p>
                 </div>
             </div>
 
@@ -76,7 +88,11 @@
                     Resumen del Sistema
                 </h3>
                 <p class="text-gray-600 text-sm leading-relaxed italic">
-                    "Transacción registrada correctamente. El archivo adjunto ha sido verificado y se ha actualizado el vínculo con el ID de proveedor #1. No se detectaron anomalías en el proceso de carga."
+                    {% if log.estado == 'cancelado' %}
+                    "Operación revertida. Se descontaron los insumos del inventario y la transacción quedó anulada en el sistema para el proveedor ID #{{ log.proveedor_id }}."
+                    {% else %}
+                    "Transacción registrada correctamente. El archivo adjunto ha sido verificado y se ha actualizado el vínculo con el proveedor ID #{{ log.proveedor_id }}. Inventario sumado con éxito."
+                    {% endif %}
                 </p>
             </div>
         </div>

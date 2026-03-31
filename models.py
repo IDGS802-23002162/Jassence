@@ -127,9 +127,9 @@ class DetalleCompra(db.Model):
     unidad_compra = db.Column(db.String(50))
     cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
-
+    
     subtotal = db.Column(db.Float)
-
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
 
 # ///////////////////////////////////////
 # PRODUCCION 
