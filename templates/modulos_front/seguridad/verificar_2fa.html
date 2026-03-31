@@ -1,0 +1,48 @@
+{% extends "layout_tienda.html" %}
+
+{% block title %}Verificación de Seguridad - Jassence{% endblock %}
+
+{% from "_macros.html" import render_field %}
+
+{% block content %}
+<br>
+<div class="min-h-[80vh] flex flex-col md:flex-row items-center justify-center gap-12">
+    
+    <div class="w-full max-w-md space-y-6">
+        
+        <div class="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+            <h1 class="text-4xl text-center font-serif italic text-black mb-4">Paso de Seguridad</h1>
+            <p class="text-center text-gray-600 mb-8 text-sm">
+                Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación para continuar.
+            </p>
+            
+            <form action="{{ url_for('security.two_factor_token_validation') }}" method="POST" class="space-y-6">
+                
+                {{ two_factor_verify_code_form.hidden_tag() }}
+
+                {{ render_field(two_factor_verify_code_form.code, 
+                    class="bg-white border border-gray-300 text-gray-900 text-center text-2xl tracking-widest rounded-lg focus:ring-black focus:border-black block w-full p-4", 
+                    placeholder="000000",
+                    autocomplete="one-time-code") 
+                }}
+
+                <button type="submit" 
+                    class="w-full text-white bg-[#2D2D2D] hover:bg-black focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors mt-4">
+                    Verificar Código
+                </button>
+
+            </form>
+        </div>
+
+    </div>  
+
+    <div class="hidden md:flex flex-col items-center justify-center w-full max-w-lg">
+        <img src="{{ url_for('static', filename='img/NF-Logo.png') }}" alt="Jassence Logo" class="w-full h-auto object-contain">
+    </div>
+
+</div>
+
+<script>
+    document.body.style.overflow = 'hidden';
+</script>
+{% endblock %}
