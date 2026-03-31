@@ -15,6 +15,7 @@
                 <p class="mb-6 text-sm text-gray-500">Estás a punto de eliminar a <strong id="nombre-proveedor-eliminar" class="text-black"></strong>.</p>
                 
                 <form id="form-eliminar-proveedor" action="#" method="POST" class="flex justify-center gap-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button onclick="cerrarModal()" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100">
                         Cancelar
                     </button>
@@ -36,6 +37,8 @@
         nombreTxt.textContent = nombre;
         formulario.action = '/eliminar-proveedor/' + id; // Ajusta tu URL aquí
         
+        formulario.action = "{{ url_for('compras.baja_P', id=0) }}".replace('0', id);
+
         // Mostrar modal
         modal.classList.remove('hidden');
         modal.classList.add('flex');
