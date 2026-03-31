@@ -27,7 +27,7 @@
 
     <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
         <div class="relative flex-1 w-full">
-            <input type="text"
+            <input type="text" id="buscador"
                 class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
                 placeholder="Buscar por factura, proveedor o usuario...">
             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -38,10 +38,11 @@
         </div>
 
         <div class="w-full md:w-auto">
-            <select class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black shadow-sm outline-none cursor-pointer">
-                <option selected>Todos los proveedores</option>
-                <option>Envases de Vidrio S.A.</option>
-                <option>Esencias Naturales S.A.</option>
+            <select id="filtro-proveedor" class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black shadow-sm outline-none cursor-pointer">
+                <option value="todos" selected>Todos los proveedores</option>
+                {% for prov in proveedores %}
+                    <option value="{{ prov.nombre_empresa }}">{{ prov.nombre_empresa }}</option>
+                {% endfor %}
             </select>
         </div>
     </div>
@@ -50,11 +51,11 @@
         <table class="w-full text-sm text-left text-gray-300">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
-                    <th scope="col" class="px-6 py-4">ID / Fecha</th>
+                    <th scope="col" class="px-6 py-4">Fecha</th>
                     <th scope="col" class="px-6 py-4">Usuario</th>
                     <th scope="col" class="px-6 py-4">Proveedor Afectado</th>
                     <th scope="col" class="px-6 py-4">Acción</th>
-                    <th scope="col" class="px-6 py-4">Documento</th>
+                    <th scope="col" class="px-6 py-4">Factura</th>
                     <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Detalle</th>
                 </tr>
             </thead>
@@ -63,11 +64,11 @@
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
                     
                     <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
-                        <span class="block text-[10px] text-gray-400 italic">#{{ "%05d"|format(log.id) }}</span>
+                        <span class="block text-[10px] text-gray-400 italic"></span>
                         {{ log.fecha.strftime('%Y-%m-%d %H:%M') if log.fecha else 'N/A' }}
                     </td>
                     
-                    <td class="px-6 py-4 text-gray-300">ID Usuario: {{ log.usuario_id }}</td>
+                    <td class="px-6 py-4 text-gray-300"> {{ log.usuario.nombre }}</td>
                     
                     <td class="px-6 py-4 font-bold text-white">{{ log.proveedor.nombre_empresa }}</td>
                     
@@ -100,4 +101,38 @@
         </table>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscador = document.getElementById('buscador');
+        const filtroProveedor = document.getElementById('filtro-proveedor');
+        const filasTabla = document.querySelectorAll('tbody tr');
+
+        function filtrarTabla() {
+            const terminoBusqueda = buscador.value.toLowerCase();
+            const proveedorSeleccionado = filtroProveedor.value;
+
+            filasTabla.forEach(fila => {
+                if(fila.cells.length === 1) return;
+
+                const textoFila = fila.textContent.toLowerCase();
+                
+                // Extraemos específicamente el texto de la columna de proveedor (columna 3, índice 2)
+                const proveedorFila = fila.cells[2].textContent.trim();
+
+                // Revisamos si cumple las dos condiciones
+                const coincideTexto = textoFila.includes(terminoBusqueda);
+                const coincideProveedor = (proveedorSeleccionado === 'todos') || (proveedorFila === proveedorSeleccionado);
+
+                if(coincideTexto && coincideProveedor) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        }
+
+        if (buscador) buscador.addEventListener('keyup', filtrarTabla);
+        if (filtroProveedor) filtroProveedor.addEventListener('change', filtrarTabla);
+    });
+</script>
 {% endblock %}

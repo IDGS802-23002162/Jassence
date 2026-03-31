@@ -235,7 +235,8 @@ def cancelar_C(id):
 def historial_PC():
     # Traemos todas las transacciones ordenadas por fecha
     logs = Compra.query.order_by(Compra.fecha.desc()).all()
-    return render_template('modulos_front/compras/historial_PC.html', logs=logs)
+    proveedores = Proveedor.query.filter_by(activo=True).all()
+    return render_template('modulos_front/compras/historial_PC.html', logs=logs, proveedores=proveedores)
 
 
 @compras_bp.route('/detalle_H/<int:id>')
