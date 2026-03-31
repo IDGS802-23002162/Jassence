@@ -13,12 +13,12 @@
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('compras.compras') }}"
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Historial de Compras
+            Compras
         </a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('compras.historial_PC') }}"
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Logs
+            Historial
         </a>
     </div>
 
@@ -100,5 +100,28 @@
 </div>
 
 {% include 'modulos_front/compras/modal_Peliminar.html' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscador = document.getElementById('buscador');
+        
+        if (buscador) {
+            buscador.addEventListener('keyup', function(e) {
+                const terminoBusqueda = e.target.value.toLowerCase();
+                
+                const filasTabla = document.querySelectorAll('tbody tr');
 
+                filasTabla.forEach(fila => {
+                    const textoFila = fila.textContent.toLowerCase();
+                    
+                    // Si la fila contiene el texto buscado, la mostramos. Si no, la ocultamos.
+                    if(textoFila.includes(terminoBusqueda)) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}
