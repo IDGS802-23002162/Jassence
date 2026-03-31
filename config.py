@@ -10,7 +10,7 @@ class Config(object):
     # LOGIN
     SECURITY_LOGIN_USER_TEMPLATE = 'modulos_front/seguridad/login.html'
     SECURITY_AUTO_LOGIN_AFTER_REGISTER = False
-    SECURITY_POST_LOGIN_VIEW = '/'
+    SECURITY_POST_LOGIN_VIEW = '/check-role'
     
 
     # REGISTER
