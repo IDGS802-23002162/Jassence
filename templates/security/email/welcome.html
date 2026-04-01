@@ -1,0 +1,22 @@
+{% extends "security/email/_base.html" %}
+
+{% block content %}
+    <h2 style="color: #000; font-family: 'Georgia', serif; font-style: italic;">Bienvenido al mundo Jassence</h2>
+    <p>Hola <strong>{{ user.nombre if user.nombre else user.email }}</strong>,</p>
+    <p>Es un placer darte la bienvenida a nuestra comunidad. Tu cuenta ha sido creada con éxito y ahora tienes acceso a nuestra selección exclusiva de perfumería fina.</p>
+    
+    <p>Con tu cuenta podrás:</p>
+    <ul style="color: #4b5563; font-size: 14px;">
+        <li>Realizar pedidos de forma rápida y segura.</li>
+        <li>Gestionar tus direcciones de entrega.</li>
+        <li>Seguir el estado de tu producción artesanal en tiempo real.</li>
+    </ul>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ url_for('security.login', _external=True) }}" class="button">Explorar Catálogo</a>
+    </div>
+
+    <p style="margin-top: 30px; font-size: 13px; color: #6b7280;">
+        Si tienes alguna duda sobre nuestros procesos de maceración o envío, nuestro equipo de soporte está listo para ayudarte.
+    </p>
+{% endblock %}

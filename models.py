@@ -37,6 +37,8 @@ class Usuario(db.Model, UserMixin):
     tf_phone_number = db.Column(db.String(128), nullable=True)
 
     nombre = db.Column(db.String(150), nullable=True) 
+    apellidos = db.Column(db.String(150), nullable=True) 
+    telefono = db.Column(db.String(20), nullable=True)
     roles = db.relationship('Rol', secondary=roles_users, backref=db.backref('usuarios', lazy='dynamic'))
 
 class LogAuditoria(db.Model):

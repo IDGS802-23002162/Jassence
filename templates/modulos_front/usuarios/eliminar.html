@@ -11,15 +11,25 @@
                     <svg class="w-6 h-6 text-red-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                 </div>
                 
-                <h3 class="mb-2 text-xl font-elegant text-gray-900">¿Eliminar registro?</h3>
-                <p class="mb-6 text-sm text-gray-500">Estás a punto de eliminar a <strong id="nombre-a-eliminar" class="text-black"></strong>. Esta acción no se puede deshacer.</p>
+                <h3 class="mb-2 text-xl font-elegant text-gray-900">¿Desactivar usuario?</h3>
+                <p class="mb-6 text-sm text-gray-500">
+                    Estás a punto de desactivar a <strong id="nombre-a-eliminar" class="text-black"></strong>. 
+                    El usuario ya no podrá acceder al sistema, pero su historial se mantendrá.
+                </p>
                 
-                <form id="form-eliminar-usuario" action="#" method="POST" class="flex justify-center gap-3">
+                {# Acción apuntando a tu Blueprint de usuarios #}
+                <form id="form-eliminar-usuario" action="{{ url_for('usuarios.eliminar_usuario') }}" method="POST" class="flex justify-center gap-3">
+                    {# Agregamos el token de seguridad #}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    {# Input oculto para enviar el ID al backend #}
+                    <input type="hidden" name="id" id="usuario-id-eliminar" value="">
+
                     <button data-modal-hide="modal-eliminar-global" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
                         Cancelar
                     </button>
                     <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors">
-                        Sí, eliminar
+                        Sí, desactivar
                     </button>
                 </form>
             </div>
@@ -29,8 +39,8 @@
 
 <script>
     function prepararEliminar(id, nombre) {
-        // Actualiza el action del formulario y el nombre
-        document.getElementById('form-eliminar-usuario').action = '/eliminarUsuario/' + id;
+        // En lugar de cambiar el action, simplemente ponemos el ID en el input oculto
+        document.getElementById('usuario-id-eliminar').value = id;
         document.getElementById('nombre-a-eliminar').textContent = nombre;
     }
 </script>

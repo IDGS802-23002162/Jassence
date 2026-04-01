@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background-color: #F6F5F0; font-family: 'Helvetica', Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #000000; padding: 30px; text-align: center; }
+        .content { padding: 40px; color: #1f2937; line-height: 1.6; }
+        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #000000; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+        .logo-text { color: #ffffff; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="logo-text">Jassence</span>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="footer">
+            &copy; 2026 Jassence Perfumería. Todos los derechos reservados.<br>
+            Este es un correo automático, por favor no respondas a este mensaje.
+        </div>
+    </div>
+</body>
+</html>
