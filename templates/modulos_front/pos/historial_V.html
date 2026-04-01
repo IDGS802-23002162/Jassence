@@ -6,7 +6,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
 
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
-        <a href="{{ url_for('pos.index_formulas') }}" class="text-gray-500 font-elegant text-3xl mb-1 italic">
+        <a href="{{ url_for('pos.pos') }}" class="text-gray-500 font-elegant text-3xl mb-1 italic">
             Perfumes
         </a>
         <div class="w-px h-12 bg-gray-400 mx-8 mb-2"></div>
@@ -56,77 +56,84 @@
                 </tr>
             </thead>
 
-            <tbody>
-                <tr class="bg-[#1A1A1A] border-b border-gray-800 hover:bg-[#252525] transition-colors">
-
-                    <td class="px-6 py-4 text-white">
-                        28/03/2026 <span class="text-gray-500 text-xs ml-1">15:45</span>
+            <tbody id="tabla-ventas">
+                {% for venta in ventas %}
+                <tr class="bg-[#1A1A1A] border-b border-gray-800 hover:bg-[#252525] transition-colors fila-venta">
+                    
+                    <td class="px-6 py-4 text-white font-mono text-xs">
+                        <span class="text-gray-500 block text-[10px] mb-1">#VEN-{{ "%05d"|format(venta.id) }}</span>
+                        {{ venta.fecha.strftime('%d/%m/%Y') if venta.fecha else 'N/A' }} 
+                        <span class="text-gray-500 text-xs ml-1">{{ venta.fecha.strftime('%H:%M') if venta.fecha else '' }}</span>
                     </td>
+                    
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
-                            <div
-                                class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-[10px] font-bold text-white">
-                                JD</div>
-                            <span class="text-gray-300">Juan Delgado</span>
+                            <div class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                                {{ venta.usuario.nombre[0] if venta.usuario and venta.usuario.nombre else 'U' }}
+                            </div>
+                            <span class="text-gray-300">{{ venta.usuario.nombre if venta.usuario else 'Usuario ' ~ venta.usuario_id }}</span>
                         </div>
                     </td>
+                    
                     <td class="px-6 py-4">
-                        <span
-                            class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold">
-                            Física
+                        <span class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold tracking-widest">
+                            {{ venta.canal_venta }}
                         </span>
                     </td>
+                    
                     <td class="px-6 py-4 text-gray-400 italic">
-                        Efectivo
+                        {{ venta.metodo_pago_fisico|capitalize if venta.metodo_pago_fisico else 'N/A' }}
                     </td>
+                    
                     <td class="px-6 py-4 text-right font-black text-white text-base">
-                        $590.00
+                        ${{ "%.2f"|format(venta.total_venta) }}
                     </td>
+                    
                     <td class="px-6 py-4 text-center border-l border-gray-700">
-                        <a href="{{ url_for('pos.detalle_V') }}"
-                            class="font-medium text-blue-400 hover:text-white transition-colors">
+                        <a href="{{ url_for('pos.detalle_V', id=venta.id) }}" class="font-medium text-blue-400 hover:text-white transition-colors underline decoration-blue-900 underline-offset-4">
                             Ver Detalle
                         </a>
                     </td>
                 </tr>
-
-                <tr class="bg-[#1A1A1A] border-b border-gray-800 hover:bg-[#252525] transition-colors">
-                    <td class="px-6 py-4 text-white">
-                        28/03/2026 <span class="text-gray-500 text-xs ml-1">12:10</span>
-                    </td>
-                    <td class="px-6 py-4 text-gray-500 italic">
-                        Sistema (Auto)
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded-full text-[10px] uppercase font-bold">
-                            Online
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-gray-400 italic">
-                        Tarjeta
-                    </td>
-                    <td class="px-6 py-4 text-right font-black text-white text-base">
-                        $1,250.00
-                    </td>
-                    <td class="px-6 py-4 text-center border-l border-gray-700">
-                        <a href="{{ url_for('pos.detalle_V') }}"
-                            class="font-medium text-blue-400 hover:text-white transition-colors">
-                            Ver Detalle
-                        </a>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500 italic">
+                        No hay ventas registradas en el Punto de Venta local.
                     </td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 
     <div class="mt-6 flex justify-between items-center text-sm">
         <span class="text-gray-500 font-elegant italic">Mostrando registros de auditoría permanente</span>
-        <div class="inline-flex gap-2">
-            <button
-                class="bg-[#1A1A1A] text-white border border-gray-800 px-4 py-2 rounded hover:bg-black transition-all">Anterior</button>
-            <button
-                class="bg-[#1A1A1A] text-white border border-gray-800 px-4 py-2 rounded hover:bg-black transition-all">Siguiente</button>
+        <div class="inline-flex gap-2 opacity-50 cursor-not-allowed">
+            <button disabled class="bg-[#1A1A1A] text-white border border-gray-800 px-4 py-2 rounded transition-all">Anterior</button>
+            <button disabled class="bg-[#1A1A1A] text-white border border-gray-800 px-4 py-2 rounded transition-all">Siguiente</button>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscador = document.querySelector('input[placeholder="Buscar por ID, vendedor, canal..."]');
+        const filasTabla = document.querySelectorAll('.fila-venta');
+
+        if (buscador) {
+            buscador.addEventListener('keyup', function(e) {
+                const termino = e.target.value.toLowerCase();
+                
+                filasTabla.forEach(fila => {
+                    const textoFila = fila.textContent.toLowerCase();
+                    if(textoFila.includes(termino)) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}

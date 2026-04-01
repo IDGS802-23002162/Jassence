@@ -138,6 +138,8 @@ class Receta(db.Model):
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
 
+    productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
+
 
 class DetalleReceta(db.Model):
     __tablename__ = 'detalle_recetas'
@@ -153,6 +155,8 @@ class Presentacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
+
+    productos_terminados = db.relationship('ProductoTerminado', backref='presentacion', lazy=True)
 
 
 class ProductoTerminado(db.Model):
@@ -226,6 +230,8 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
+    detalles = db.relationship('DetalleVenta', backref='venta_asociada', lazy=True, cascade="all, delete-orphan")
+
 
 class DetalleVenta(db.Model):
     __tablename__ = 'detalle_ventas'
@@ -233,6 +239,8 @@ class DetalleVenta(db.Model):
     producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'), primary_key=True)
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
+
+    producto_terminado = db.relationship('ProductoTerminado', backref='detalles_venta', lazy=True)
 
 
 # ///////////////////////////////////////
