@@ -1,0 +1,108 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Comprobante de Venta - {{ "%05d"|format(venta.id) }}{% endblock %}
+
+{% block content %}
+<br>
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] animate-fade-in">
+    
+    <div class="bg-white border border-gray-200 shadow-2xl p-8 w-full max-w-md rounded-sm font-mono text-sm text-gray-800">
+        
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-black uppercase tracking-tighter mb-1">Perfumería Jassence</h1>
+            <p class="text-xs text-gray-500">RFC: PERF123456-ABC</p>
+            <p class="text-xs text-gray-500">Blvd. Adolfo López Mateos, León, Gto.</p>
+            <div class="border-b-2 border-dashed border-gray-300 my-4"></div>
+        </div>
+
+        <div class="flex justify-between mb-2">
+            <span>ID Venta:</span>
+            <span class="font-bold">#VEN-{{ "%05d"|format(venta.id) }}</span>
+        </div>
+        <div class="flex justify-between mb-4">
+            <span>Fecha:</span>
+            <span>{{ venta.fecha.strftime('%d/%m/%Y %H:%M') if venta.fecha else 'N/A' }}</span>
+        </div>
+        
+        <div class="flex justify-between mb-4 text-xs text-gray-500">
+            <span>Le atiende:</span>
+            <span>Usuario ID: {{ venta.usuario_id }}</span>
+        </div>
+
+        <div class="border-b border-gray-200 mb-4"></div>
+
+        <table class="w-full mb-6">
+            <thead>
+                <tr class="text-left border-b border-gray-100">
+                    <th class="pb-2">Cant/Prod</th>
+                    <th class="pb-2 text-right">Precio</th>
+                    <th class="pb-2 text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                {% for detalle in venta.detalles %}
+                <tr class="py-2">
+                    <td class="py-3 pr-2">
+                        <span class="block text-xs">
+                            {{ detalle.cantidad }}x 
+                            {{ detalle.producto_terminado.receta.nombre_perfume if detalle.producto_terminado and detalle.producto_terminado.receta else 'Perfume' }} 
+                            ({{ detalle.producto_terminado.presentacion.mililitros }}ml)
+                        </span>
+                    </td>
+                    <td class="py-3 text-right text-xs">${{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                    <td class="py-3 text-right font-bold text-xs">${{ "%.2f"|format(detalle.cantidad * detalle.precio_unitario) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="text-center py-2 text-red-500">Error: Ticket sin detalles.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="space-y-2 border-t border-gray-200 pt-4">
+            <div class="flex justify-between">
+                <span>Subtotal (Sin IVA):</span>
+                <span>${{ "%.2f"|format(venta.total_venta / 1.16) }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span>IVA (16%):</span>
+                <span>${{ "%.2f"|format(venta.total_venta - (venta.total_venta / 1.16)) }}</span>
+            </div>
+            <div class="flex justify-between text-lg font-black border-t-2 border-double border-gray-800 pt-2 mt-2">
+                <span>TOTAL:</span>
+                <span>${{ "%.2f"|format(venta.total_venta) }}</span>
+            </div>
+        </div>
+
+        <div class="mt-6 p-2 bg-gray-50 text-center rounded">
+            <span class="text-xs uppercase font-bold text-gray-500">Método de Pago:</span>
+            <span class="ml-2 font-bold uppercase">{{ venta.metodo_pago_fisico }}</span>
+        </div>
+
+        <div class="text-center mt-8 space-y-2">
+            <p class="text-xs uppercase font-bold">¡Gracias por su compra!</p>
+            <p class="text-[10px] text-gray-400 italic">Este no es un comprobante fiscal</p>
+        </div>
+
+    </div>
+
+    <div class="mt-8 flex gap-4 no-print">
+        <button onclick="window.print()" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-bold transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Imprimir Ticket
+        </button>
+        <a href="{{ url_for('pos.pos') }}" class="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-bold transition-all shadow-lg">
+            Nueva Venta
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+        </a>
+    </div>
+
+</div>
+
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; }
+        .animate-fade-in { animation: none !important; }
+    }
+</style>
+{% endblock %}
