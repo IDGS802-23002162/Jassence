@@ -24,7 +24,8 @@ class Usuario(db.Model):
 
     rol = db.relationship('Rol')
 
-<<<<<<< HEAD
+
+
 class LogAuditoria(db.Model):
     __tablename__ = 'log_auditoria'
     id = db.Column(db.Integer, primary_key=True)
@@ -33,15 +34,6 @@ class LogAuditoria(db.Model):
     accion = db.Column(db.String(50))  # CREATE, UPDATE, DELETE
     tabla_afectada = db.Column(db.String(100))
     registro_id = db.Column(db.Integer)
-=======
-
-class LogAuditoria(db.Model):
-    __tablename__ = 'logs_auditoria'
-    id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    accion = db.Column(db.String(255))
-    tabla_afectada = db.Column(db.String(100))
->>>>>>> origin/develop
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
 
