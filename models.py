@@ -25,7 +25,7 @@ class Usuario(db.Model):
     rol = db.relationship('Rol')
 
 class LogAuditoria(db.Model):
-    __tablename__ = 'logs_auditoria'
+    __tablename__ = 'log_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     usuario = db.relationship('Usuario')
