@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_security import roles_required, hash_password, current_user
 from models import db, Usuario, Rol
+from modulos_routes.auditoria.utils import registrar_log
 
 usuarios_bp = Blueprint('usuarios', __name__)
 
@@ -59,6 +60,13 @@ def insertar_usuario():
 
         db.session.commit()
 
+        registrar_log(
+        accion='CREATE', 
+        tabla='usuarios', 
+        registro_id=nuevo_usuario.id, 
+        detalle=f"Se ha reistrado {nuevo_usuario.email} correctamente"
+        )
+
         # Enviar correo para que el usuario ponga su propia contraseña
         from flask_security.recoverable import send_reset_password_instructions
         send_reset_password_instructions(nuevo_usuario)
@@ -91,6 +99,14 @@ def modificar_usuario(id):
             usuario.roles = [rol_nuevo]
         
         db.session.commit()
+
+        registrar_log(
+        accion='UPDATE', 
+        tabla='usuarios', 
+        registro_id=usuario.id, 
+        detalle=f"Datos de {usuario.email} actualizados correctamente"
+        )
+
         flash(f'Datos de {usuario.nombre} actualizados correctamente.', 'success')
         return redirect(url_for('usuarios.usuarios'))
 
@@ -111,6 +127,14 @@ def eliminar_usuario():
         else:
             usuario.active = False  # Baja lógica
             db.session.commit()
+            
+            registrar_log(
+            accion='DELETE', 
+            tabla='usuarios', 
+            registro_id=usuario.id, 
+            detalle=f"Baja a el usuario {usuario.email}"
+            )
+
             flash(f'Usuario {usuario.email} desactivado.', 'success')
             
     return redirect(url_for('usuarios.usuarios'))
@@ -124,6 +148,13 @@ def reactivar_usuario():
     if usuario:
         usuario.active = True  # Reactivación lógica
         db.session.commit()
+        
+        registrar_log(
+        accion='CREATE', 
+        tabla='usuarios', 
+        registro_id=usuario.id, 
+        detalle=f"Se ha reactivado el usuario {usuario.email}"
+        )
         flash(f'Usuario {usuario.email} ha sido reactivado.', 'success')
             
     return redirect(url_for('usuarios.usuarios'))
