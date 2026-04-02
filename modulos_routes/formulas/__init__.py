@@ -10,6 +10,14 @@ def index_formulas():
 def nueva_formula():
     return render_template('modulos_front/formulas/nueva_formula.html')
 
+@formulas_bp.route('/formulas/detalles', methods=['GET'])
+def detalle_formula():
+    return render_template('modulos_front/formulas/detalles.html')
+
+@formulas_bp.route('/formulas/modificar', methods=['GET'])
+def modificar_formula():
+    return render_template('modulos_front/formulas/modificar.html')
+
 # (Opcional por ahora) Aquí dejaremos preparada la ruta POST para cuando guardes datos
 @formulas_bp.route('/formulas/guardar', methods=['POST'])
 def guardar_formula():

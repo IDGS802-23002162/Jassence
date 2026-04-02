@@ -1,0 +1,105 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Producción - Solicitudes{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Solicitudes
+        </h1>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <a href="/produccion/ordenes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Órdenes
+        </a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="/produccion/seguimiento" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Seguimiento
+        </a>
+
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        
+        <div>
+            <form action="#" method="POST" class="space-y-6">
+                
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Producto</label>
+                    <select name="id_producto" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option value="1">Jassence Floral - 100ml</option>
+                        <option value="2">Jassence Night - 50ml</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Cantidad a producir</label>
+                    <input type="number" name="cantidad" value="0" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Motivo</label>
+                    <select name="motivo" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option value="reabasto">Pedido en linea</option>
+                        <option value="reabasto">Pedido en tienda</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Fecha solicitada</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <input type="date" name="fecha" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                            Registrar solicitud
+                        </button>
+                        <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                            Cancelar Registro
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div>
+            <div class="w-full flex justify-center mb-6">
+                <span class="px-8 py-2 border border-gray-300 rounded-full text-gray-500 text-sm font-medium bg-[#EDEDED]">
+                    Lista de solicitudes
+                </span>
+            </div>
+            
+            <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                        <tr>
+                            <th scope="col" class="px-6 py-4">Producto</th>
+                            <th scope="col" class="px-6 py-4 text-center">Cantidad</th>
+                            <th scope="col" class="px-6 py-4 text-center">Fecha</th>
+                            <th scope="col" class="px-6 py-4 text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors h-16">
+                            <td class="px-6 py-4">Jassence Floral</td>
+                            <td class="px-6 py-4 text-center">10</td>
+                            <td class="px-6 py-4 text-center">2026-03-24</td>
+                            <td class="px-6 py-4 text-center border-l border-table-dark">
+                                <span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded-full">Pendiente</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div> 
+{% endblock %}

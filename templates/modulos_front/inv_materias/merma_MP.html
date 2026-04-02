@@ -1,0 +1,89 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Control de Mermas{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('inv_materias.inventario') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Materias Primas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Mermas
+        </h1>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('inv_materias.historial') }}"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Historial
+        </a>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text" 
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all" 
+                placeholder="Buscar por ítem, motivo o etapa...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <select class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option selected>Todas las mermas</option>
+                <option>Materia Prima</option>
+                <option>Producto en Proceso</option>
+                <option>Por Caducidad</option>
+            </select>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <a href="{{ url_for('inv_materias.registrar_merma') }}"
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-md font-medium flex items-center justify-center gap-2 whitespace-nowrap">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Registrar Nueva Merma
+            </a>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark bg-[#2A2A2A]">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase">
+                <tr>
+                    <th class="px-6 py-4">Fecha</th>
+                    <th class="px-6 py-4">Ítem / Tipo</th>
+                    <th class="px-6 py-4">Etapa</th>
+                    <th class="px-6 py-4">Cant. Perdida</th>
+                    <th class="px-6 py-4">Motivo</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400">2026-03-26</td>
+                    <td class="px-6 py-4 font-medium">
+                        Alcohol Etílico
+                        <span class="text-xs text-gray-400 block italic">Materia Prima</span>
+                    </td>
+                    <td class="px-6 py-4">Almacenaje</td>
+                    <td class="px-6 py-4 text-red-400 font-bold">-5.50 Lts</td>
+                    <td class="px-6 py-4 truncate max-w-[150px]">Derrame accidental</td>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_merma', id=1) }}"
+                            class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">
+                            Ver
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

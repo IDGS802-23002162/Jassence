@@ -1,0 +1,72 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Editar Compra #1024 - EcoDev{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in">
+
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">Editar Compra</h1>
+            <p class="text-gray-500 mt-2 text-sm">
+                Modificando registro del <span class="font-mono text-black font-bold">27/03/2026</span> 
+                a las <span class="font-mono text-black font-bold">14:30</span>
+            </p>
+        </div>
+        <a href="{{ url_for('compras.compras') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Regresar al Historial
+        </a>
+    </div>
+
+    <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
+        <form class="space-y-8" action="#" method="GET"> <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                <div class="relative z-0 w-full group">
+                    <select name="proveedor_id" id="proveedor_id" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
+                        <option value="1" selected>Envases de Vidrio S.A.</option>
+                        <option value="2">Químicos del Norte</option>
+                        <option value="3">Distribuidora Eco-Pack</option>
+                    </select>
+                    <label for="proveedor_id" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Proveedor</label>
+                </div>
+
+                <div class="relative w-full group">
+                    <label class="block mb-2 text-xs font-bold text-gray-500 uppercase tracking-tighter" for="archivo_factura">Cambiar Comprobante</label>
+                    <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2" id="archivo_factura" name="archivo_factura" type="file">
+                    <p class="mt-2 text-[10px] text-blue-600 font-medium flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                        factura_vidrio_032026.pdf (Actual)
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                <div class="relative z-0 w-full group">
+                    <input type="text" value="@Admin_User" class="block py-2.5 px-0 w-full text-sm text-gray-400 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none cursor-not-allowed" readonly />
+                    <label class="absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Registrado por</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <textarea rows="2" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" ">Ajuste de stock mensual para envases de 500ml.</textarea>
+                    <label class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Notas / Comentarios</label>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 rounded-lg p-4 border border-amber-100 mt-4">
+                <p class="text-amber-800 text-xs leading-relaxed italic">
+                    * Recordatorio: Según la política del sistema, los insumos de esta compra no pueden editarse individualmente para evitar discrepancias en el inventario. Si el error está en los productos, deberá anular esta compra y registrar una nueva.
+                </p>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-100">
+                <a href="{{ url_for('compras.compras') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
+                    Descartar
+                </a>
+                <button type="button" onclick="window.location.href='{{ url_for('compras.compras') }}'" class="text-white bg-black hover:bg-gray-800 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
+                    Actualizar Registro
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
