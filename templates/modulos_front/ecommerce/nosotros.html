@@ -1,0 +1,139 @@
+{% extends "layout_tienda.html" %}
+
+{% block title %}Nosotros | Jassence{% endblock %}
+
+{% block content %}
+<style>
+    /* Animación para la flechita de scroll */
+    @keyframes bounce-scroll {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(8px); }
+    }
+    .animate-bounce-scroll {
+        animation: bounce-scroll 2s ease-in-out infinite;
+    }
+</style>
+
+<div class="animate-fade-in relative min-h-screen flex flex-col">
+
+   <div class="w-full bg-[#FAFAFA] border-b border-gray-200 py-20 px-4 min-h-[calc(100vh-4rem)] flex flex-col justify-center relative">
+    
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4">
+            
+            <div class="w-48 h-48 md:w-60 md:h-60 flex-shrink-0 flex items-center justify-center">
+                <img src="{{ url_for('static', filename='img/NFNB-Logo.png') }}" alt="Jassence Logo" class="max-w-full max-h-full object-contain drop-shadow-sm">
+            </div>
+
+            <div class="text-center md:text-left flex flex-col items-center md:items-start max-w-2xl">
+                <h1 class="font-elegant text-5xl md:text-7xl text-black cursor-default mb-4">
+                    Nuestra Esencia
+                </h1>
+                <div class="w-12 h-px bg-black mx-auto md:mx-0 mb-6"></div>
+                <p class="text-gray-500 text-sm md:text-base leading-relaxed">
+                    Más que fragancias, embotellamos memorias, carácter y elegancia.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-400 flex flex-col items-center gap-1 cursor-pointer animate-bounce-scroll">
+            <span class="text-[10px] uppercase tracking-widest font-bold">Conócenos</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7-7-7"></path>
+            </svg>
+        </div>
+
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center mb-16">
+            <h2 class="font-elegant text-4xl text-black mb-6">La Historia de Jassence</h2>
+            <p class="text-gray-600 leading-loose text-justify md:text-center">
+                Jassence nació con un propósito muy claro: redefinir el arte de la perfumería contemporánea. Inspirados por la brisa cálida, la vitalidad y los atardeceres inigualables de León Guanajuato, comenzamos este viaje buscando la mezcla perfecta entre la naturaleza y el lujo. Cada una de nuestras recetas está diseñada meticulosamente no solo para perdurar en la piel, sino para dejar una huella imborrable en la memoria de quienes nos eligen. Nuestro compromiso es la excelencia desde el primer acorde olfativo hasta el diseño de cada presentación.
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-black text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+                
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                    <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-elegant text-3xl mb-4 text-white">Nuestra Misión</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm md:text-base">
+                        Brindar experiencias olfativas inigualables mediante la creación de perfumes de la más alta calidad. Nos dedicamos a fusionar ingredientes premium con procesos artesanales y tecnología de vanguardia, asegurando que cada cliente encuentre en Jassence la expresión perfecta de su propia identidad.
+                    </p>
+                </div>
+
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                    <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-elegant text-3xl mb-4 text-white">Nuestra Visión</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm md:text-base">
+                        Posicionarnos como la casa perfumera líder a nivel nacional, reconocida por nuestra exclusividad, innovación y compromiso con la sofisticación. Aspiramos a ser el referente en fragancias que marcan tendencia, elevando el estándar de la perfumería independiente.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 class="font-elegant text-4xl text-black mb-16 text-center">Nuestros Valores</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            
+            <div class="p-8 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow text-center group">
+                <div class="w-12 h-12 bg-gray-50 rounded-lg mx-auto flex items-center justify-center mb-6 group-hover:bg-black transition-colors">
+                    <svg class="w-6 h-6 text-black group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    </svg>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-3 uppercase tracking-widest text-sm">Exclusividad</h4>
+                <p class="text-gray-500 text-sm">Fórmulas únicas que no encontrarás en ningún otro lugar, diseñadas para destacar.</p>
+            </div>
+
+            <div class="p-8 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow text-center group">
+                <div class="w-12 h-12 bg-gray-50 rounded-lg mx-auto flex items-center justify-center mb-6 group-hover:bg-black transition-colors">
+                    <svg class="w-6 h-6 text-black group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-3 uppercase tracking-widest text-sm">Calidad Premium</h4>
+                <p class="text-gray-500 text-sm">Seleccionamos rigurosamente cada materia prima para garantizar una fijación y estela excepcionales.</p>
+            </div>
+
+            <div class="p-8 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow text-center group">
+                <div class="w-12 h-12 bg-gray-50 rounded-lg mx-auto flex items-center justify-center mb-6 group-hover:bg-black transition-colors">
+                    <svg class="w-6 h-6 text-black group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-3 uppercase tracking-widest text-sm">Innovación</h4>
+                <p class="text-gray-500 text-sm">Mejoramos continuamente nuestros procesos de destilación y mezcla para ofrecer siempre lo mejor.</p>
+            </div>
+
+            <div class="p-8 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow text-center group">
+                <div class="w-12 h-12 bg-gray-50 rounded-lg mx-auto flex items-center justify-center mb-6 group-hover:bg-black transition-colors">
+                    <svg class="w-6 h-6 text-black group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <h4 class="font-bold text-gray-900 mb-3 uppercase tracking-widest text-sm">Pasión</h4>
+                <p class="text-gray-500 text-sm">Amamos lo que hacemos, y esa dedicación se refleja en cada frasco que llega a tus manos.</p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

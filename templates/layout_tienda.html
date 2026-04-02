@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jassence - {% block title %}Tienda{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+    <style>
+        body { background-color: #F6F5F0; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+        .font-elegant { font-family: 'Playfair Display', serif; }
+        
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 65px; 
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-900">
+
+ <nav class="bg-white w-full border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            
+            <div class="flex items-center gap-4 lg:gap-8">
+                <button data-collapse-toggle="navbar-mobile" type="button" class="inline-flex items-center p-2 justify-center text-gray-800 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200" aria-controls="navbar-mobile" aria-expanded="false">
+                    <span class="sr-only">Abrir menú</span>
+                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                    </svg>
+                </button>
+
+                <a href="/" class="flex-shrink-0">
+                    <img src="{{ url_for('static', filename='img/NFNL-Logo.png') }}" class="h-10 sm:h-12" alt="Logo Jassence">
+                </a>
+
+                <div class="hidden lg:flex space-x-6">
+                    <a href="/" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Inicio</a>
+                    <a href="/nosotros" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Sobre nosotros</a>
+                    <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="text-gray-800 hover:text-black font-semibold text-base transition-colors">Tienda</a>
+                </div>
+            </div>
+
+            <div class="flex-1 max-w-2xl mx-8 hidden lg:block">
+                <div class="relative w-full">
+                    <input type="text" class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-black focus:border-black block py-2.5 px-5 pr-10 shadow-sm transition-shadow" placeholder="Buscar">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 sm:gap-6">
+                <button type="button" 
+                        data-drawer-target="drawer-cart" 
+                        data-drawer-show="drawer-cart" 
+                        data-drawer-placement="right" 
+                        aria-controls="drawer-cart" 
+                        class="text-gray-800 hover:text-black transition-colors relative flex items-center">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <span class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+                
+                <a href="/login" class="text-white bg-black hover:bg-gray-800 font-medium rounded-md text-sm px-5 py-2.5 transition-colors shadow-sm hidden sm:block">
+                    Iniciar Sesión
+                </a>
+            </div>
+
+        </div>
+
+        <div class="hidden lg:hidden w-full pb-4" id="navbar-mobile">
+            <div class="pt-2 pb-4">
+                <div class="relative w-full">
+                    <input type="text" class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-black focus:border-black block py-2.5 px-5 pr-10 shadow-sm" placeholder="Buscar fragancias...">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="flex flex-col space-y-2">
+                <li>
+                    <a href="/" class="block py-2 px-3 text-gray-800 rounded hover:bg-gray-100 font-medium transition-colors">Inicio</a>
+                </li>
+                <li>
+                    <a href="/nosotros" class="block py-2 px-3 text-gray-800 rounded hover:bg-gray-100 font-medium transition-colors">Sobre nosotros</a>
+                </li>
+                <li>
+                    <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="block py-2 px-3 text-gray-800 rounded hover:bg-gray-100 font-medium transition-colors">Tienda</a>
+                </li>
+                <li class="sm:hidden pt-2 border-t border-gray-100">
+                    <a href="/login" class="block text-center py-2.5 px-3 text-white bg-black rounded-md font-medium transition-colors mt-2">Iniciar Sesión</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+    <div id="drawer-cart" class="fixed top-0 right-0 z-[60] h-screen p-4 overflow-y-auto transition-transform translate-x-full bg-white w-80 md:w-96 shadow-2xl" tabindex="-1" aria-labelledby="drawer-right-label">
+        <div class="flex items-center justify-between border-b pb-4">
+            <h5 id="drawer-right-label" class="inline-flex items-center text-lg font-semibold text-gray-800 uppercase tracking-wider">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Tu Carrito
+            </h5>
+            <button type="button" data-drawer-hide="drawer-cart" aria-controls="drawer-cart" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex items-center justify-center">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Cerrar</span>
+            </button>
+        </div>
+
+        <div class="py-6 flex-1 h-[70vh] overflow-y-auto">
+            <p class="text-center text-gray-500 italic">Tu carrito está vacío</p>
+            </div>
+
+        <div class="border-t pt-4 space-y-4">
+            <div class="flex justify-between text-base font-bold text-gray-900">
+                <span>Total estimado:</span>
+                <span>$0.00</span>
+            </div>
+            <a href="/pagar" class="flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white bg-black rounded-md hover:bg-gray-800 transition-all">
+                Finalizar Compra
+            </a>
+            <button data-drawer-hide="drawer-cart" class="w-full text-center text-sm text-gray-500 hover:underline">
+                Continuar comprando
+            </button>
+        </div>
+    </div>
+
+    <main class="w-full min-h-[calc(100vh-7.5rem)]">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-[#0a0a0a] text-gray-300 pt-16 pb-8 font-sans w-full mt-auto">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+                
+                <div>
+                    <h3 class="text-white font-bold tracking-wider uppercase mb-6 text-sm">Categorías</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'mujer')" class="hover:text-white transition-colors">Dama</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'hombre')" class="hover:text-white transition-colors">Caballero</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="hover:text-white transition-colors">Perfumes</a></li>
+                        <li><a href="#" onclick="navegarYFiltrar(event, 'novedades-seccion', '')" class="hover:text-white transition-colors">Novedades</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold tracking-wider uppercase mb-6 text-sm">Conócenos</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/nosotros" class="hover:text-white transition-colors">Nosotros</a></li>
+                        <li><a href="{{ url_for('ecommerce.sucursales') }}" target="_blank" class="hover:text-white transition-colors">Sucursales</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold tracking-wider uppercase mb-6 text-sm">Suscríbete a nuestro boletín</h3>
+                    <p class="mb-6 text-sm">Recibe las últimas noticias sobre nuestros productos iniciando sesión o creando una cuenta con nosotros.</p>
+                    <a href="/login" class="inline-block bg-white text-black font-bold text-xs sm:text-sm px-8 py-3.5 hover:bg-gray-200 transition-colors uppercase tracking-wide w-full md:w-auto text-center">
+                        Iniciar Sesión / Suscribirse
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-[#222] flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-xs">
+                <p>© 2026 Jassence. Derechos reservados.</p>
+               
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function navegarYFiltrar(event, idSeccion, filtroGenero) {
+            // Verifica si estamos en la página principal ('/')
+            if (window.location.pathname === '/' || window.location.pathname === '') {
+                event.preventDefault(); // Evita recargar la página
+                
+                const seccion = document.getElementById(idSeccion);
+                if (seccion) {
+                    seccion.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Aplica el filtro si se envió uno y la sección es la tienda
+                if (idSeccion === 'tienda-seccion') {
+                    const selectGenero = document.getElementById('filter-gender');
+                    if (selectGenero) {
+                        selectGenero.value = filtroGenero || ""; // Selecciona el valor o vuelve a 'Género' si está vacío
+                    }
+                }
+            } else {
+                // Si estamos en OTRA página (ej. /nosotros), redirige al index y pasa parámetros por URL
+                window.location.href = `/?seccion=${idSeccion}&genero=${filtroGenero}`;
+            }
+        }
+
+        // Ejecutar al cargar la página por si venimos redirigidos con parámetros en la URL
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const seccionParam = urlParams.get('seccion');
+            const generoParam = urlParams.get('genero');
+
+            if (seccionParam) {
+                // Pequeño timeout para dar tiempo a que renderice todo antes del scroll
+                setTimeout(() => {
+                    const seccion = document.getElementById(seccionParam);
+                    if (seccion) {
+                        seccion.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    
+                    if (seccionParam === 'tienda-seccion' && generoParam !== null) {
+                        const select = document.getElementById('filter-gender');
+                        if (select) {
+                            select.value = generoParam;
+                        }
+                    }
+                }, 100);
+            }
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+</html>

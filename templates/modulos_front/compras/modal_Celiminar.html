@@ -1,0 +1,67 @@
+<div id="modal-eliminar-compra" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-[60] justify-center items-center w-full md:inset-0 h-modal h-full bg-black/50">
+    <div class="relative p-4 w-full max-w-md h-auto animate-fade-in">
+        <div class="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            
+            <button type="button" onclick="cerrarModalC()" class="absolute top-4 end-4 text-gray-400 hover:bg-gray-100 hover:text-gray-900 rounded-full text-sm w-8 h-8 inline-flex justify-center items-center transition-colors">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+            </button>
+            
+            <div class="p-8 text-center">
+                <div class="mx-auto mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-orange-50 border border-orange-100">
+                    <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                
+                <h3 class="mb-2 text-2xl font-elegant text-black">¿Anular Registro?</h3>
+                <p class="mb-6 text-sm text-gray-500 leading-relaxed">
+                    Estás por eliminar la compra del <strong id="fecha-compra-txt" class="text-black"></strong> <br>
+                    del proveedor <span id="proveedor-compra-txt" class="font-bold text-black"></span>.
+                </p>
+                
+                <form id="form-eliminar-compra" action="#" method="POST" class="flex flex-col sm:flex-row justify-center gap-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <button onclick="cerrarModalC()" type="button" class="flex-1 py-3 px-5 text-xs font-bold uppercase tracking-widest text-gray-500 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+                        Mantener Registro
+                    </button>
+                    <button type="submit" class="flex-1 py-3 px-5 text-xs font-bold uppercase tracking-widest text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-all active:scale-95">
+                        Confirmar Cancelacion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modalC = document.getElementById('modal-eliminar-compra');
+    const fechaTxt = document.getElementById('fecha-compra-txt');
+    const proveedorTxt = document.getElementById('proveedor-compra-txt');
+    const formularioC = document.getElementById('form-eliminar-compra');
+
+    function abrirModalEliminarC(id, fecha, proveedor) {
+        // Rellenar datos visuales
+        fechaTxt.textContent = fecha;
+        proveedorTxt.textContent = proveedor;
+        
+        // Construir la URL de eliminación
+        formularioC.action = "{{ url_for('compras.modal_Celiminar', id=0) }}".replace('0', id);
+        
+        // Mostrar modal con animación
+        modalC.classList.remove('hidden');
+        modalC.classList.add('flex');
+    }
+
+    function cerrarModalC() {
+        modalC.classList.add('hidden');
+        modalC.classList.remove('flex');
+    }
+
+    // Cerrar al hacer clic fuera del contenido blanco
+    window.onclick = function(event) {
+        if (event.target == modalC) {
+            cerrarModalC();
+        }
+    }
+</script>

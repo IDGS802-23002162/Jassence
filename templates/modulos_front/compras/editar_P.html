@@ -1,0 +1,70 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Editar Proveedor - EcoDev{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in">
+
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">Editar Proveedor</h1>
+            <p class="text-gray-500 mt-2 text-sm">Actualiza la información de la empresa: <span class="font-bold text-black">{{ proveedor.nombre_empresa }}</span></p>
+        </div>
+        <a href="{{ url_for('compras.proveedores') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Regresar al Catálogo
+        </a>
+    </div>
+
+    <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
+        <form class="space-y-8" action="{{ url_for('compras.editar_P', id=proveedor.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                <div class="relative z-0 w-full group">
+                    <input type="text" name="nombre_empresa" id="nombre_empresa" value="{{ proveedor.nombre_empresa }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="nombre_empresa" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nombre de la Empresa</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <input type="tel" name="telefono" id="telefono" value="{{ proveedor.telefono }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <label for="telefono" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Teléfono de Contacto</label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
+                <div class="relative z-0 w-full group">
+                    <select name="tipo_insumos" id="tipo_insumos" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
+                        <option value="Materia Prima" {% if proveedor.tipo_insumos == 'Materia Prima' %}selected{% endif %}>Materia Prima</option>
+                        <option value="Empaques" {% if proveedor.tipo_insumos == 'Empaques' %}selected{% endif %}>Empaques</option>
+                        <option value="Químicos" {% if proveedor.tipo_insumos == 'Químicos' %}selected{% endif %}>Químicos</option>
+                        <option value="Herramientas" {% if proveedor.tipo_insumos == 'Herramientas' %}selected{% endif %}>Herramientas</option>
+                        <option value="Otros" {% if proveedor.tipo_insumos == 'Otros' %}selected{% endif %}>Otros</option>
+                    </select>
+                    <label for="tipo_insumos" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Categoría / Tipo de Insumos</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <textarea name="direccion" id="direccion" rows="3" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required>{{ proveedor.direccion }}</textarea>
+                    <label for="direccion" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Dirección Completa</label>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 mt-4">
+                <p class="text-gray-600 text-xs leading-relaxed italic">
+                    * Está editando un registro existente. Los cambios afectarán la información mostrada en futuras órdenes de compra.
+                </p>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-100">
+                <a href="{{ url_for('compras.proveedores') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
+                    Descartar Cambios
+                </a>
+                <button type="submit" class="text-white bg-black hover:bg-gray-800 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
+                    Actualizar Información
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

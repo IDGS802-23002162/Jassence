@@ -1,0 +1,87 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Detalle de Merma Materia Prima - EcoDev{% endblock %}
+
+{% block content %}
+<br>
+<div class="max-w-5xl mx-auto px-4 animate-fade-in text-black">
+
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">
+                Detalle de Merma
+            </h1>
+        </div>
+        
+        <a href="{{ url_for('inv_materias.mermas') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Regresar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-8 md:p-12 mb-6">
+        
+        <div class="space-y-10">
+            
+            <div class="border-b border-gray-100 pb-8">
+                <p class="text-xs text-gray-400 uppercase tracking-widest mb-2 font-bold">ID del Registro</p>
+                <h2 class="font-elegant text-4xl text-black">M-001</h2> </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12">
+                
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Fecha de Registro</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">2026-03-26</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Tipo de Inventario</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 italic">Materia Prima</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Etapa del Proceso</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">Almacenaje</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Cantidad Perdida</p>
+                    <p class="text-2xl font-bold text-red-600 border-l-2 border-red-600 pl-4">-5.50 <span class="text-sm font-normal text-gray-400 uppercase">Lts</span></p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Orden / Lote</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono uppercase tracking-widest">OP-000</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Motivo</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 uppercase text-xs">Derrame accidental</p>
+                </div>
+
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-100 mt-4">
+                <h3 class="font-elegant text-xl text-black mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 6h16M4 12h16M4 18h7" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Descripción Detallada
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed italic">
+                    Se rompió el garrafón al trasladarlo hacia el área de producción.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center">
+        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">Registro generado automáticamente por el sistema</p>
+    </div>
+
+</div>
+<br>
+{% endblock %}

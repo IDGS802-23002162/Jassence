@@ -1,0 +1,155 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Punto de Venta{% endblock %}
+
+{% block content %}
+<br>
+<div class="flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-8rem)] animate-fade-in -mt-4">
+
+    <div class="lg:w-2/3 flex flex-col">
+
+        <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+            <h1 class="font-elegant text-7xl text-black cursor-default">
+                Perfumes
+            </h1>
+            <div class="w-px h-12 bg-gray-400 mx-8 mb-2"></div>
+            <a href="{{ url_for('pos.historial_V') }}" class="text-gray-500 font-elegant text-3xl mb-1 italic">
+                Historial de Ventas
+            </a>
+
+        </div>
+
+        <div class="mb-8 relative w-full">
+            <input type="text"
+                class="block w-full p-3.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar fragancia o tamaño...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-8">
+
+                    {% for i in range(6) %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
+        
+        <div>
+            <div class="overflow-hidden rounded-lg mb-4 text-center sm:text-left">
+                <h3 class="font-elegant text-2xl text-black group-hover:text-gray-700 transition-colors">Fragancia Prueba {{ i + 1 }}</h3>
+                <p class="text-xs text-gray-400 italic">cítrico - amaderado</p>
+            </div>
+
+            <div class="flex justify-center mb-6 h-56 relative overflow-hidden">
+                <img src="{{ url_for('static', filename='img/ejemploPerfume.jpg') }}" alt="Perfume de prueba"
+                    class="h-full object-contain transition-transform duration-500 group-hover:scale-110">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-[10px] uppercase tracking-tighter text-gray-400 mb-1">Seleccionar Presentación</label>
+            <div class="flex items-center gap-2 w-full">
+                <select class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
+                     <option value="30">30 ml</option>
+                                        <option value="50">50 ml</option>
+                                        <option value="100">100 ml</option>
+                    
+                </select>
+                
+                <button type="button" class="text-white bg-black hover:bg-gray-800 p-2.5 rounded-md transition-all shrink-0 active:scale-95">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+        </div>
+    </div>
+
+    <div
+        class="lg:w-1/3 bg-white border border-gray-200 shadow-sm rounded-lg p-6 flex flex-col sticky top-24 h-[calc(100vh-8rem)]">
+
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+            Venta Actual
+        </h2>
+
+        <div class="flex-grow overflow-y-auto mb-6 pr-1">
+            <table class="w-full text-sm text-left text-gray-900">
+                <thead class="text-xs font-bold text-gray-500 uppercase border-b border-gray-200">
+                    <tr>
+                        <th scope="col" class="py-3">Producto</th>
+                        <th scope="col" class="py-3 text-center">Cant</th>
+                        <th scope="col" class="py-3 text-right">Total</th>
+                        <th scope="col" class="py-3 w-8"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr class="group">
+                        <td class="py-4">
+                            <span class="block font-medium">Perfume 30ml</span>
+                            <span class="text-xs text-gray-400">$150.00 c/u</span>
+                        </td>
+                        <td class="py-4 text-center">1</td>
+                        <td class="py-4 text-right font-bold">$150.00</td>
+                        <td class="py-4 text-right pl-2">
+                            <button class="text-gray-300 hover:text-red-500 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-500 font-medium">Total a pagar:</span>
+                <span class="text-3xl font-black text-black">$150.00</span>
+            </div>
+
+            <form action="#" method="POST">
+                <div class="mb-6">
+                    <label class="block mb-2 text-sm font-bold text-gray-900 uppercase tracking-wider">Método de
+                        Pago</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="metodo_pago" value="efectivo" class="peer hidden" checked>
+                            <div
+                                class="p-3 text-center border rounded-lg peer-checked:bg-black peer-checked:text-white peer-checked:border-black transition-all">
+                                Efectivo
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="metodo_pago" value="tarjeta" class="peer hidden">
+                            <div
+                                class="p-3 text-center border rounded-lg peer-checked:bg-black peer-checked:text-white peer-checked:border-black transition-all">
+                                Tarjeta
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <a href="{{ url_for('pos.ticket') }}"
+                    class="block w-full text-white bg-black hover:bg-gray-800 font-bold text-lg px-5 py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-center">
+                    FINALIZAR VENTA
+                </a>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

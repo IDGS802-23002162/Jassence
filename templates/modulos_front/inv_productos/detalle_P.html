@@ -1,0 +1,98 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Detalle de Producto - EcoDev{% endblock %}
+
+{% block content %}
+<br>
+<div class="max-w-5xl mx-auto px-4 animate-fade-in text-black">
+    
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">
+                Ficha de Producto
+            </h1>
+        </div>
+        
+        <a href="{{ url_for('inventarioP.inventario_P') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Regresar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-8 md:p-12 mb-10">
+        
+        <div class="space-y-10">
+            
+            <div class="border-b border-gray-100 pb-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-widest mb-2">Nombre del Perfume / Inspiración</p>
+                        <h2 class="font-elegant text-4xl text-black">Inspiración Perfume #{{ id_producto }}</h2>
+                    </div>
+                    <div class="pb-1">
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider border border-green-200">
+                            En Stock
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Presentación</p>
+                    <p class="text-2xl italic font-elegant text-black border-l-2 border-black pl-4">50 ml</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Existencias</p>
+                    <p class="text-2xl font-bold text-black border-l-2 border-black pl-4">24 <span class="text-sm font-normal text-gray-500 uppercase">piezas</span></p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Precio Unitario</p>
+                    <p class="text-2xl font-bold text-black border-l-2 border-black pl-4">$450.00</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-100">
+                    <h3 class="font-elegant text-xl text-black mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                        Notas de Producción
+                    </h3>
+                    <p class="text-gray-600 text-sm leading-relaxed italic">
+                        Este producto fue generado bajo los estándares de "Green Coding" de EcoDev, optimizando los recursos de servidor durante su registro. El lote corresponde a la temporada de Primavera 2026.
+                    </p>
+                </div>
+
+                <div class="flex flex-col justify-center space-y-4">
+                    <button onclick="abrirModalMerma('{{ id_producto }}', 'Inspiración Perfume {{ id_producto }}')" 
+                            class="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-base transition-all flex items-center justify-center gap-3 shadow-md group">
+                        <svg class="w-5 h-5 text-yellow-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2"/>
+                        </svg>
+                        REGISTRAR MERMA
+                    </button>
+                    <div class="text-center">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Último movimiento registrado: Hace 2 días</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% include 'modulos_front/inv_productos/merma_Pmodel.html' %}
+
+<script>
+    function abrirModalMerma(id, nombre) {
+        document.getElementById('modal-merma').classList.remove('hidden');
+        document.getElementById('merma_nombre').value = nombre;
+        document.getElementById('merma_item_id').value = id;
+    }
+    function cerrarModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+</script>
+{% endblock %}
