@@ -27,39 +27,41 @@
             
             <div class="border-b border-gray-100 pb-8">
                 <p class="text-xs text-gray-400 uppercase tracking-widest mb-2 font-bold">ID del Registro de Merma</p>
-                <h2 class="font-elegant text-4xl text-black">M-000</h2>
+                <h2 class="font-elegant text-4xl text-black">{{ merma.id }}</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-12">
                 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Fecha de Registro</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">--/--/----</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">
+                        {{ merma.fecha.strftime('%Y-%m-%d') if merma.fecha else 'N/A' }}
+                    </p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Tipo de Inventario</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 italic">Producto Terminado</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 italic">{{ merma.tipo_item }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Etapa del Proceso</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">---</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">{{ merma.etapa }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Cantidad Perdida</p>
-                    <p class="text-2xl font-bold text-red-600 border-l-2 border-red-600 pl-4">-0 <span class="text-sm font-normal text-gray-400 uppercase">Unidades</span></p>
+                    <p class="text-2xl font-bold text-red-600 border-l-2 border-red-600 pl-4">-{{ merma.cantidad_perdida }} <span class="text-sm font-normal text-gray-400 uppercase">Unidades</span></p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Orden / Lote</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono uppercase tracking-widest">---</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono uppercase tracking-widest">{{ merma.orden_produccion_id }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Motivo</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 uppercase text-xs">---</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 uppercase text-xs">{{ merma.motivo }}
                 </div>
 
             </div>
@@ -72,7 +74,7 @@
                     Descripción Detallada
                 </h3>
                 <p class="text-gray-600 text-sm leading-relaxed italic">
-                    Sin descripción disponible.
+                    {{ merma.descripcion or "No se proporcionó una descripción adicional para esta merma." }}
                 </p>
             </div>
 

@@ -26,11 +26,13 @@ class Usuario(db.Model):
 
 
 class LogAuditoria(db.Model):
-    __tablename__ = 'logs_auditoria'
+    _tablename_ = 'logs_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    accion = db.Column(db.String(255))
+    usuario = db.relationship('Usuario')
+    accion = db.Column(db.String(50))  # CREATE, UPDATE, DELETE
     tabla_afectada = db.Column(db.String(100))
+    registro_id = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
 
@@ -161,10 +163,12 @@ class ProductoTerminado(db.Model):
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     stock_disponible_venta = db.Column(db.Integer)
-    stock_comprometido = db.Column(db.Integer)
     stock_minimo = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
+
+    receta = db.relationship('Receta')
+    presentacion = db.relationship('Presentacion')
 
 
 class OrdenProduccion(db.Model):
