@@ -1,0 +1,96 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Detalle de Materia Prima - EcoDev{% endblock %}
+
+{% block content %}
+<br>
+<div class="max-w-5xl mx-auto px-4 animate-fade-in text-black">
+
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
+        <div>
+            <h1 class="font-elegant text-5xl text-black cursor-default">
+                Ficha del Insumo
+            </h1>
+        </div>
+        
+        <a href="{{ url_for('inv_materias.inventario') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Regresar al Inventario
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-8 md:p-12 mb-6">
+        
+        <div class="space-y-10">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+                
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Identificador único (ID)</p>
+                    <p class="text-xl font-mono border-l-2 border-black pl-4 text-gray-700">#{{ materia.id }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Nombre del Insumo</p>
+                    <p class="text-2xl font-elegant italic border-l-2 border-black pl-4">{{ materia.nombre }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Existencia Actual</p>
+                    <p class="text-3xl font-black border-l-2 {% if materia.cantidad_disponible <= materia.stock_minimo %}border-red-600 text-red-600{% else %}border-green-600 text-green-600{% endif %} pl-4">
+                        {{ materia.cantidad_disponible }} <span class="text-lg font-normal text-gray-500">{{ materia.unidad_medida }}</span>
+                    </p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Punto de Reorden (Mínimo)</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 text-gray-600">{{ materia.stock_minimo }} {{ materia.unidad_medida }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Unidad de Gestión</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4 uppercase tracking-tighter">{{ materia.unidad_medida }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Categoría de Almacén</p>
+                    <div class="border-l-2 border-black pl-4">
+                        {% if materia.es_contenedor %}
+                            <span class="bg-black text-white text-[10px] px-2 py-1 rounded uppercase font-bold">📦 Contenedor / Envase</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded uppercase font-bold border border-gray-200">💧 Materia Prima / Fluido</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-100 mt-4">
+                <h3 class="font-elegant text-xl text-black mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Análisis de Disponibilidad
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed italic">
+                    {% if materia.cantidad_disponible <= 0 %}
+                        Agotado. Se requiere reposición inmediata para no detener la producción.
+                    {% elif materia.cantidad_disponible <= materia.stock_minimo %}
+                        Nivel crítico. La cantidad actual es menor o igual al stock mínimo permitido.
+                    {% else %}
+                        Nivel óptimo. El inventario cuenta con suficiente suministro para operaciones normales.
+                    {% endif %}
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center">
+        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">Registro de inventario verificado - EcoDev System</p>
+    </div>
+
+</div>
+<br>
+{% endblock %}

@@ -17,7 +17,7 @@
                 </button>
             </div>
 
-            <form id="form-merma" class="space-y-8">
+            <form id="form-merma" class="space-y-8" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="item_id" id="merma_item_id">
                 <input type="hidden" name="tipo_item" value="materia_prima">
@@ -60,19 +60,22 @@
                             <option value="Evaporación">Evaporación</option>
                             <option value="Otro">Otro</option>
                         </select>
-                        <label for="motivo" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Motivo</label>
+                        <label for="motivo" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">
+                            Motivo</label>
                     </div>
 
-                    <div class="relative z-0 w-full group">
+                    <div hidden class="relative z-0 w-full group">
                         <input type="text" name="orden_produccion_id" id="orden_produccion_id" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " />
-                        <label for="orden_produccion_id" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Lote afectado (Opcional)</label>
+                        <label for="orden_produccion_id" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                            Lote afectado (Opcional)</label>
                     </div>
 
                 </div>
 
                 <div class="relative z-0 w-full group pt-2">
                     <textarea name="descripcion" id="descripcion_merma" rows="2" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none" placeholder=" "></textarea>
-                    <label for="descripcion_merma" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Descripción (Explica qué pasó...)</label>
+                    <label for="descripcion_merma" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                        Descripción (Explica qué pasó...)</label>
                 </div>
 
                 <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
@@ -95,5 +98,10 @@ function abrirModalMerma(id = '', nombre = '') {
     document.getElementById('modal-merma').classList.remove('hidden');
     document.getElementById('merma_nombre').value = nombre;
     document.getElementById('merma_item_id').value = id;
+
+    document.getElementById('form-merma').action =
+        "/materias-primas/inventario/mermar/" + id;
 }
+
+
 </script>

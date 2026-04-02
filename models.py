@@ -24,13 +24,14 @@ class Usuario(db.Model):
 
     rol = db.relationship('Rol')
 
-
 class LogAuditoria(db.Model):
     __tablename__ = 'logs_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    accion = db.Column(db.String(255))
+    usuario = db.relationship('Usuario')
+    accion = db.Column(db.String(50))  # CREATE, UPDATE, DELETE
     tabla_afectada = db.Column(db.String(100))
+    registro_id = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
 

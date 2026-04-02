@@ -46,6 +46,8 @@
 function abrirModalEliminar(id, nombre) {
     document.getElementById('modal-eliminar').classList.remove('hidden');
     document.getElementById('eliminar_nombre').textContent = nombre;
-    // document.getElementById('form-eliminar').action = '/eliminarMP/' + id; 
+
+    document.getElementById('form-eliminar').action =
+        "/materias-primas/Inventario/delete/" + id;
 }
 </script>

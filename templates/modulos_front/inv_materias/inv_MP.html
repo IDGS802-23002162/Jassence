@@ -10,37 +10,41 @@
             Materias Primas
         </h1>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        <a href="{{ url_for('inv_materias.mermas') }}"
+        <a href="{{ url_for('inv_materias.mermas') }} " onclick="resetFiltros()"
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
             Mermas
         </a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        <a href="{{ url_for('inv_materias.historial') }}"
+        <a href="{{ url_for('inv_materias.historial') }}" onclick="resetFiltros()"
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
             Historial
         </a>
     </div>
 
     <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
-        
+
         <div class="relative flex-1 w-full">
-            <input type="text" id="buscador" 
-                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm" 
+            <input type="text" id="buscador"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
                 placeholder="Buscar por nombre de insumo (Esencia, fijador...)...">
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            <div  id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 ">
+                <svg id="icono-svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                 </svg>
+
             </div>
         </div>
 
         <div class="w-full md:w-auto">
-            <select class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 pr-8 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+            <select
+                class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 pr-8 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
                 <option selected>Todas las categorías</option>
-                <option>Esencias</option>
-                <option>Alcoholes</option>
-                <option>Fijadores</option>
-                <option>Otros Insumos</option>
+                <option>Esencia</option>
+                <option>Alcohol</option>
+                <option>Fijador</option>
+                <option>Frasco</option>
+                <option>Atomizador</option>
             </select>
         </div>
     </div>
@@ -49,33 +53,37 @@
         <table class="w-full text-sm text-left text-gray-300">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
-                    <th class="px-6 py-4">ID</th>
                     <th class="px-6 py-4">Nombre</th>
                     <th class="px-6 py-4">Cantidad</th>
                     <th class="px-6 py-4">Unidad</th>
                     <th class="px-6 py-4">Stock mínimo</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
                     <th class="px-6 py-4 text-center">Mermar</th>
                     <th class="px-6 py-4 text-center">Eliminar</th>
                 </tr>
             </thead>
 
-            <tbody>
-                {% for i in range(5) %}
-                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{{ i }}</td>
-                    <td class="px-6 py-4">Alcohol Etílico</td>
-                    <td class="px-6 py-4">50</td>
-                    <td class="px-6 py-4">Litros</td>
-                    <td class="px-6 py-4">10</td>
-
+            <tbody id="tabla-materias">
+                {% for materia in materias %}
+                <tr class="fila-materia bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="nombre px-6 py-4">{{ materia.nombre }}</td>
+                    <td class="cantidad px-6 py-4">{{ materia.cantidad_disponible }}</td>
+                    <td class="unidad px-6 py-4">{{ materia.unidad_medida }}</td>
+                    <td class="stock-minimo px-6 py-4">{{ materia.stock_minimo }}</td>
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <button onclick="abrirModalMerma('{{ i }}','Alcohol Etílico')"
+                        <a href="{{ url_for('inv_materias.detalle_MP', id=materia.id) }}"
+                            class="font-medium text-gray-300 hover:text-blue-400 transition-colors">
+                            Ver
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button onclick="abrirModalMerma('{{ materia.id }}','{{ materia.nombre }}')"
                             class="font-medium text-gray-300 hover:text-yellow-400 transition-colors focus:outline-none cursor-pointer">
                             Mermar
                         </button>
                     </td>
                     <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <button onclick="abrirModalEliminar('{{ i }}','Alcohol Etílico')"
+                        <button onclick="abrirModalEliminar('{{ materia.id }}','{{ materia.nombre }}')"
                             class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
                             Eliminar
                         </button>
@@ -91,9 +99,79 @@
 {% include 'modulos_front/inv_materias/eliminar_MP.html' %}
 
 <script>
-    function cerrarModal(id) {
-        document.getElementById(id).classList.add('hidden');
+    const buscador = document.getElementById('buscador');
+    const filtro = document.querySelector('select');
+    const filas = document.querySelectorAll('.fila-materia');
+    const iconoContainer = document.getElementById('icono-buscador');
+
+    if (sessionStorage.getItem('reset_filtros') === 'true') {
+        sessionStorage.removeItem('busqueda_mp');
+        sessionStorage.removeItem('filtro_mp');
+        sessionStorage.removeItem('reset_filtros');
     }
+
+    buscador.value = sessionStorage.getItem('busqueda_mp') || '';
+    filtro.value = sessionStorage.getItem('filtro_mp') || 'Todas las categorías';
+
+    const lupa = `
+        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+        </svg>
+    `;
+
+    const cerrar = `
+        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    `;
+
+function filtrar() {
+    const texto = buscador.value.toLowerCase();
+    const filtroSelect = filtro.value.toLowerCase();
+
+    sessionStorage.setItem('busqueda_mp', buscador.value);
+    sessionStorage.setItem('filtro_mp', filtro.value);
+
+    filas.forEach(fila => {
+        const nombre = fila.querySelector('.nombre').textContent.toLowerCase();
+
+        const coincideTexto = nombre.includes(texto);
+
+        let coincideFiltro = true;
+        if (filtroSelect !== "todas las categorías") {
+            coincideFiltro = nombre.includes(filtroSelect);
+        }
+
+        fila.style.display = (coincideTexto && coincideFiltro) ? '' : 'none';
+    });
+
+    iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
+}
+
+buscador.addEventListener('input', filtrar);
+filtro.addEventListener('change', filtrar);
+
+iconoContainer.addEventListener('click', () => {
+    if (buscador.value) {
+        buscador.value = '';
+        sessionStorage.removeItem('busqueda_mp');
+        filtrar();
+    }
+});
+
+filtrar();
+
+function resetFiltros() {
+    sessionStorage.setItem('reset_filtros', 'true');
+}
+
+function cerrarModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
 </script>
+
+
 
 {% endblock %}
