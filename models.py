@@ -139,6 +139,8 @@ class Receta(db.Model):
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
 
+    detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
+
 
 class DetalleReceta(db.Model):
     __tablename__ = 'detalle_recetas'
@@ -147,6 +149,8 @@ class DetalleReceta(db.Model):
     materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'))
     porcentaje = db.Column(db.Float)
     tipo_componente = db.Column(db.String(50))
+
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_receta')
 
 
 class Presentacion(db.Model):

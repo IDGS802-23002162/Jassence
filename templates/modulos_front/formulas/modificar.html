@@ -11,13 +11,15 @@
             <p class="text-gray-500 mt-2 text-sm">Edita la composición química y la información comercial.</p>
         </div>
         <a href="{{ url_for('formulas.index_formulas') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             Regresar
         </a>
     </div>
 
     <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
-        <form onsubmit="validarEnvio(event)" class="space-y-10" action="{{ url_for('formulas.modificar_formula', id=receta.id) }}" method="POST">
+        <form onsubmit="validarEnvio(event)" class="space-y-10" action="{{ url_for('formulas.modificar_formula', id=receta.id) }}" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -57,47 +59,82 @@
                         <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Descripción Sensorial</label>
                     </div>
                     <div class="relative z-0 w-full group">
-                        <input type="url" name="imagen_url" value="{{ receta.imagen_url or '' }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" />
-                        <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">URL Imagen (Poster)</label>
+                        <input type="file" name="imagen" accept="image/*" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" />
+                        <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Imagen del Producto</label>
                     </div>
                 </div>
             </div>
 
             <div class="pt-4">
                 <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Fórmula Química (%)</h2>
+                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                    <div class="relative z-0 w-full group">
-                        <input type="number" step="0.01" name="esencia_base" value="{{ esencia }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
-                        <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Esencia Principal %</label>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <label class="text-[10px] text-gray-400 uppercase font-bold mb-2 block">Materia Esencia</label>
+                        <select name="esencia_base_nombre" class="w-full text-sm border-b border-gray-300 bg-transparent mb-4 outline-none focus:border-black">
+                            {% for mp in esencias %}
+                                <option value="{{ mp.id }}" {{ 'selected' if mp.id == esencia_nombre }}>{{ mp.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="relative z-0 w-full group">
+                            <input type="number" step="0.01" name="esencia_base" value="{{ esencia }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
+                            <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Porcentaje %</label>
+                        </div>
                     </div>
-                    <div class="relative z-0 w-full group">
-                        <input type="number" step="0.01" name="etanol" value="{{ etanol }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
-                        <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Etanol %</label>
+
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <label class="text-[10px] text-gray-400 uppercase font-bold mb-2 block">Materia Etanol</label>
+                        <select name="etanol_nombre" class="w-full text-sm border-b border-gray-300 bg-transparent mb-4 outline-none focus:border-black">
+                            {% for mp in etanol_lista %}
+                                <option value="{{ mp.id }}" {{ 'selected' if mp.id == etanol_nombre }}>{{ mp.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="relative z-0 w-full group">
+                            <input type="number" step="0.01" name="etanol" value="{{ etanol }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
+                            <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Porcentaje %</label>
+                        </div>
                     </div>
-                    <div class="relative z-0 w-full group">
-                        <input type="number" step="0.01" name="fijador" value="{{ fijador }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
-                        <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Fijador %</label>
+
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <label class="text-[10px] text-gray-400 uppercase font-bold mb-2 block">Materia Fijador</label>
+                        <select name="fijador_nombre" class="w-full text-sm border-b border-gray-300 bg-transparent mb-4 outline-none focus:border-black">
+                            {% for mp in fijadores %}
+                                <option value="{{ mp.id }}" {{ 'selected' if mp.id == fijador_nombre }}>{{ mp.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="relative z-0 w-full group">
+                            <input type="number" step="0.01" name="fijador" value="{{ fijador }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
+                            <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Porcentaje %</label>
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between mb-4 mt-8">
-                    <h3 class="text-sm font-semibold text-gray-700">Matices Adicionales</h3>
+                    <h3 class="text-sm font-semibold text-gray-700">Matices de Esencias Adicionales</h3>
                     <button type="button" onclick="agregarEsencia()" class="text-[10px] bg-black text-white px-3 py-1.5 rounded-full hover:bg-gray-800 transition-all flex items-center shadow-sm uppercase tracking-tighter">
                         + Añadir Matiz
                     </button>
                 </div>
 
                 <div id="contenedor-esencias" class="space-y-3">
-                    {% for d in receta.detalles if d.tipo_componente not in ['etanol', 'fijador', 'esencia_base'] %}
+                    {% set ids_base = [esencia_nombre, etanol_nombre, fijador_nombre] %}
+                    {# Aplicamos la lógica dinámica solicitada #}
+                    {% for d in detalles_dinamicos %}
                     <div class="flex items-end gap-4 animate-fade-in group bg-gray-50 p-3 rounded-lg border border-gray-100">
                         <div class="flex-1">
-                            <input type="text" name="nombres_esencias[]" value="{{ d.tipo_componente }}" class="w-full border-b border-gray-200 focus:border-black bg-transparent outline-none py-1 text-sm" required placeholder="Nombre matiz">
+                            <select name="nombres_esencias[]" class="w-full border-b border-gray-200 focus:border-black bg-transparent outline-none py-1 text-sm" required>
+                                {% for mp in esencias %}
+                                <option value="{{ mp.id }}" {{ 'selected' if d.materia_prima_id == mp.id }}>{{ mp.nombre }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="w-24">
                             <input type="number" step="0.01" name="porcentajes_esencias[]" value="{{ d.porcentaje }}" class="w-full border-b border-gray-200 focus:border-black bg-transparent outline-none py-1 text-sm" required placeholder="0.00%">
                         </div>
                         <button type="button" onclick="this.parentElement.remove(); calcularTotal();" class="mb-1 text-gray-300 hover:text-red-500 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </button>
                     </div>
                     {% endfor %}
@@ -126,61 +163,70 @@
 </div>
 
 <script>
-    function calcularTotal() {
-        const btnGuardar = document.getElementById('btn-guardar');
-        const displaySuma = document.getElementById('suma-total-display');
-        const barraEstado = document.getElementById('barra-estado-total');
-        const mensaje = document.getElementById('mensaje-validacion');
+const esenciasDisponibles = [
+        {% for mp in esencias %}
+        {id: {{ mp.id }}, nombre: "{{ mp.nombre }}"},
+        {% endfor %}
+    ];
 
-        // Obtener valores
-        const esenciaBase = parseFloat(document.getElementsByName('esencia_base')[0].value) || 0;
-        const etanol = parseFloat(document.getElementsByName('etanol')[0].value) || 0;
-        const fijador = parseFloat(document.getElementsByName('fijador')[0].value) || 0;
+function calcularTotal() {
+    const btnGuardar = document.getElementById('btn-guardar');
+    const displaySuma = document.getElementById('suma-total-display');
+    const barraEstado = document.getElementById('barra-estado-total');
+    const mensaje = document.getElementById('mensaje-validacion');
 
-        const extras = document.getElementsByName('porcentajes_esencias[]');
-        let sumaExtras = 0;
-        extras.forEach(input => sumaExtras += parseFloat(input.value) || 0);
+    let total = 0;
+    document.querySelectorAll('input[type=number]').forEach(i => total += parseFloat(i.value) || 0);
+    
+    displaySuma.innerText = total.toFixed(2);
 
-        const total = esenciaBase + etanol + fijador + sumaExtras;
-        displaySuma.innerText = total.toFixed(2);
-
-        // Estilos dinámicos
-        if (Math.abs(total - 100) < 0.01) {
-            barraEstado.className = "mt-8 p-5 rounded-xl border-2 flex items-center justify-between transition-all duration-500 bg-green-50 border-green-500 text-green-700 shadow-inner";
-            mensaje.innerText = "✓ FÓRMULA EQUILIBRADA";
-            btnGuardar.disabled = false;
-            btnGuardar.classList.remove('opacity-20', 'grayscale', 'cursor-not-allowed');
-        } else {
-            barraEstado.className = "mt-8 p-5 rounded-xl border-2 flex items-center justify-between transition-all duration-500 bg-red-50 border-red-500 text-red-700";
-            mensaje.innerText = total > 100 ? "⚠ EXCESO DE MEZCLA" : "⚠ FÓRMULA INCOMPLETA";
-            btnGuardar.disabled = true;
-            btnGuardar.classList.add('opacity-20', 'grayscale', 'cursor-not-allowed');
-        }
+    if (Math.abs(total - 100) < 0.01) {
+        barraEstado.className = "mt-8 p-5 rounded-xl border-2 flex items-center justify-between bg-green-50 border-green-500 text-green-700 shadow-inner";
+        mensaje.innerText = "✓ FÓRMULA EQUILIBRADA";
+        btnGuardar.disabled = false;
+        btnGuardar.classList.remove('opacity-20', 'grayscale', 'cursor-not-allowed');
+    } else {
+        barraEstado.className = "mt-8 p-5 rounded-xl border-2 flex items-center justify-between bg-red-50 border-red-500 text-red-700";
+        mensaje.innerText = total > 100 ? "⚠ EXCESO DE MEZCLA" : "⚠ FÓRMULA INCOMPLETA";
+        btnGuardar.disabled = true;
+        btnGuardar.classList.add('opacity-20', 'grayscale', 'cursor-not-allowed');
     }
+}
 
-    function agregarEsencia() {
-        const contenedor = document.getElementById('contenedor-esencias');
-        const div = document.createElement('div');
-        div.className = 'flex items-end gap-4 animate-fade-in group bg-gray-50 p-3 rounded-lg border border-gray-100';
-        div.innerHTML = `
-            <div class="flex-1"><input type="text" name="nombres_esencias[]" placeholder="Nombre matiz" class="w-full border-b border-gray-200 focus:border-black bg-transparent outline-none py-1 text-sm" required></div>
-            <div class="w-24"><input type="number" step="0.01" name="porcentajes_esencias[]" placeholder="0.00" class="w-full border-b border-gray-200 focus:border-black bg-transparent outline-none py-1 text-sm" required></div>
-            <button type="button" onclick="this.parentElement.remove(); calcularTotal();" class="mb-1 text-gray-300 hover:text-red-500 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>`;
-        contenedor.appendChild(div);
-        calcularTotal();
+function agregarEsencia() {
+    const contenedor = document.getElementById('contenedor-esencias');
+    const div = document.createElement('div');
+    div.className = 'flex items-end gap-4 animate-fade-in group bg-gray-50 p-3 rounded-lg border border-gray-100';
+    
+    let opciones = esenciasDisponibles.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+
+    div.innerHTML = `
+        <div class="flex-1">
+            <select name="nombres_esencias[]" class="w-full border-b border-gray-200 bg-transparent outline-none py-1 text-sm" required>
+                ${opciones}
+            </select>
+        </div>
+        <div class="w-24">
+            <input type="number" step="0.01" name="porcentajes_esencias[]" placeholder="0.00" class="w-full border-b border-gray-200 bg-transparent outline-none py-1 text-sm" required>
+        </div>
+        <button type="button" onclick="this.parentElement.remove(); calcularTotal();" class="mb-1 text-gray-300 hover:text-red-500 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>`;
+    contenedor.appendChild(div);
+    calcularTotal();
+}
+
+function validarEnvio(e){
+    let total = parseFloat(document.getElementById('suma-total-display').innerText);
+    if(Math.abs(total-100)>0.01){
+        e.preventDefault();
+        alert("Atención: La fórmula debe sumar exactamente 100.00% para ser guardada.");
     }
+}
 
-    function validarEnvio(event) {
-        const total = parseFloat(document.getElementById('suma-total-display').innerText);
-        if (Math.abs(total - 100) > 0.01) {
-            event.preventDefault();
-            alert("Atención: La fórmula debe sumar exactamente 100.00% para ser guardada.");
-        }
-    }
-
-    document.querySelector('form').addEventListener('input', calcularTotal);
-    document.addEventListener('DOMContentLoaded', calcularTotal);
+document.addEventListener('input', calcularTotal);
+document.addEventListener('DOMContentLoaded', calcularTotal);
 </script>
 {% endblock %}

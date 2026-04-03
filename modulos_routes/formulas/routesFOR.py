@@ -1,4 +1,4 @@
-from models import DetalleReceta, LogAuditoria, db, Receta
+from models import DetalleReceta, LogAuditoria, db, Receta, MateriaPrima
 from . import formulas_bp
 from flask import render_template, request, redirect, url_for, flash
 
@@ -29,58 +29,113 @@ def index_formulas():
         recetas=recetas
     )
 
+# ==========================================
+# CREAR NUEVA FÓRMULA  
+# ==========================================
 
-# ==========================================
-# NUEVA FÓRMULA
-# ==========================================
 @formulas_bp.route('/formulas/nueva', methods=['GET', 'POST'])
 def nueva_formula():
     if request.method == 'POST':
         nombre = request.form.get('nombre_perfume')
         inspiracion = request.form.get('inspiracion')
         descripcion = request.form.get('descripcion')
+        genero = request.form.get('genero')
+        ocasion = request.form.get('ocasion')
+        familia_olfativa = request.form.get('familia_olfativa')
 
-        esencia = float(request.form.get('esencia'))
-        etanol = float(request.form.get('etanol'))
-        fijador = float(request.form.get('fijador'))
+        try:
+            file = request.files.get('imagen')
+            imagen_nombre = None
+            if file and file.filename.strip() != "":
+                from werkzeug.utils import secure_filename
+                import os
+                filename = secure_filename(file.filename)
+                carpeta = 'static/img/productosIMG'
+                os.makedirs(carpeta, exist_ok=True)
+                ruta = os.path.join(carpeta, filename)
+                file.save(ruta)
+                imagen_nombre = filename
 
-        # VALIDACIÓN
-        if round(esencia, 2) != 40 or round(etanol, 2) != 55 or round(fijador, 2) != 5:
-            flash("La fórmula debe ser 40% esencia, 55% etanol y 5% fijador", "error")
+            esencia_id = int(request.form.get('esencia_base_nombre', 0))
+            etanol_id = int(request.form.get('etanol_nombre', 0))
+            fijador_id = int(request.form.get('fijador_nombre', 0))
+
+            esencia_base = float(request.form.get('esencia_base') or 0)
+            etanol = float(request.form.get('etanol') or 0)
+            fijador = float(request.form.get('fijador') or 0)
+
+            extras_ids = request.form.getlist('nombres_esencias[]')
+            porcentajes_extras = request.form.getlist('porcentajes_esencias[]')
+
+            suma_total = esencia_base + etanol + fijador
+            extras_lista = []
+            for i in range(len(extras_ids)):
+                if extras_ids[i]:
+                    mp_id = int(extras_ids[i])
+                    p = float(porcentajes_extras[i] or 0)
+                    suma_total += p
+                    extras_lista.append({'id': mp_id, 'porcentaje': p})
+
+            if abs(suma_total - 100) > 0.01:
+                flash(f"Error: La suma es {suma_total}%. Debe ser 100%.", "error")
+                return redirect(url_for('formulas.nueva_formula'))
+
+            nueva = Receta(
+                nombre_perfume=nombre,
+                inspiracion=inspiracion,
+                descripcion=descripcion,
+                genero=genero,
+                ocasion=ocasion,
+                familia_olfativa=familia_olfativa,
+                imagen_url=imagen_nombre
+            )
+            db.session.add(nueva)
+            db.session.flush()  
+
+            for mp_id, valor, tipo in [
+                (esencia_id, esencia_base, 'esencia'),
+                (etanol_id, etanol, 'etanol'),
+                (fijador_id, fijador, 'fijador')
+            ]:
+                if mp_id and valor > 0:
+                    db.session.add(DetalleReceta(
+                        receta_id=nueva.id,
+                        materia_prima_id=mp_id,
+                        porcentaje=valor,
+                        tipo_componente=tipo
+                    ))
+
+            for extra in extras_lista:
+                if extra['porcentaje'] > 0:
+                    mp = MateriaPrima.query.get(extra['id'])
+                    db.session.add(DetalleReceta(
+                        receta_id=nueva.id,
+                        materia_prima_id=extra['id'],
+                        porcentaje=extra['porcentaje'],
+                        tipo_componente=mp.tipo
+                    ))
+
+            crear_log(
+                accion="CREATE",
+                tabla="Recetas",
+                registro_id=nueva.id,
+                detalle=f"Nueva fórmula creada: {nombre}"
+            )
+            db.session.commit()
+            flash("Fórmula creada correctamente", "success")
+            return redirect(url_for('formulas.index_formulas'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al guardar la fórmula: {str(e)}", "error")
             return redirect(url_for('formulas.nueva_formula'))
 
-        nueva = Receta(
-            nombre_perfume=nombre,
-            inspiracion=inspiracion,
-            descripcion=descripcion
-        )
-
-        db.session.add(nueva)
-        db.session.flush()  # Para obtener el ID antes del commit final
-
-        # DETALLES
-        d1 = DetalleReceta(receta_id=nueva.id, porcentaje=esencia, tipo_componente='esencia')
-        d2 = DetalleReceta(receta_id=nueva.id, porcentaje=etanol, tipo_componente='etanol')
-        d3 = DetalleReceta(receta_id=nueva.id, porcentaje=fijador, tipo_componente='fijador')
-
-        db.session.add_all([d1, d2, d3])
-
-        # REGISTRO EN AUDITORÍA
-        crear_log(
-            accion="CREATE",
-            tabla="Recetas",
-            registro_id=nueva.id,
-            detalle=f"Receta creada: {nueva.nombre_perfume} (ID: {nueva.id})"
-        )
-
-        db.session.commit()
-
-        flash("Fórmula creada correctamente", "success")
-        return redirect(url_for('formulas.index_formulas'))
-
-    return render_template('modulos_front/formulas/nueva_formula.html')
-
-
+    return render_template(
+        'modulos_front/formulas/nueva_formula.html',
+        esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
+        etanol_lista=MateriaPrima.query.filter_by(tipo='etanol').all(),
+        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
+    )
 # ==========================================
 # DETALLE
 # ==========================================
@@ -98,11 +153,13 @@ def detalle_formula(id):
             ml = (d.porcentaje / 100) * p
             calculos[p].append({
                 "tipo": d.tipo_componente,
+                "materia": d.materia_prima.nombre,
                 "porcentaje": d.porcentaje,
                 "ml": round(ml, 2)
             })
 
-    return render_template('modulos_front/formulas/detalles.html',
+    return render_template(
+        'modulos_front/formulas/detalles.html',
         receta=receta,
         detalles=detalles,
         calculos=calculos
@@ -110,7 +167,7 @@ def detalle_formula(id):
 
 
 # ==========================================
-# MODIFICAR
+# MODIFICAR FÓRMULA
 # ==========================================
 @formulas_bp.route('/formulas/modificar/<int:id>', methods=['GET', 'POST'])
 def modificar_formula(id):
@@ -124,64 +181,124 @@ def modificar_formula(id):
         receta.genero = request.form.get('genero')
         receta.ocasion = request.form.get('ocasion')
         receta.familia_olfativa = request.form.get('familia_olfativa')
-        receta.imagen_url = request.form.get('imagen_url')
-        
+
         try:
-            esencia_base = float(request.form.get('esencia_base', 0))
-            etanol = float(request.form.get('etanol', 0))
-            fijador = float(request.form.get('fijador', 0))
-            
-            nombres_extras = request.form.getlist('nombres_esencias[]')
+            # 🔥 IMAGEN
+            file = request.files.get('imagen')  
+            if file and file.filename.strip() != "":
+                from werkzeug.utils import secure_filename
+                import os
+
+                filename = secure_filename(file.filename)
+                carpeta = 'static/img/productosIMG'
+                os.makedirs(carpeta, exist_ok=True)
+                ruta = os.path.join(carpeta, filename)
+
+            try:
+                file.save(ruta)
+                receta.imagen_url = filename
+                print(f"[INFO] Imagen guardada correctamente en: {ruta}")
+            except Exception as e:
+                flash(f"Error al guardar imagen: {str(e)}", "error")
+                print(f"[ERROR] Falló guardado de imagen: {str(e)}")
+
+            esencia_id = int(request.form.get('esencia_base_nombre', 0))
+            etanol_id = int(request.form.get('etanol_nombre', 0))
+            fijador_id = int(request.form.get('fijador_nombre', 0))
+
+            esencia_base = float(request.form.get('esencia_base') or 0)
+            etanol = float(request.form.get('etanol') or 0)
+            fijador = float(request.form.get('fijador') or 0)
+
+            extras_ids = request.form.getlist('nombres_esencias[]')
             porcentajes_extras = request.form.getlist('porcentajes_esencias[]')
-            
+
             suma_total = esencia_base + etanol + fijador
             extras_lista = []
-            
-            for i in range(len(nombres_extras)):
-                nombre_limpio = nombres_extras[i].strip()
-                if nombre_limpio:
+
+            for i in range(len(extras_ids)):
+                if extras_ids[i]:
+                    mp_id = int(extras_ids[i])
                     p = float(porcentajes_extras[i] or 0)
                     suma_total += p
-                    extras_lista.append({'nombre': nombre_limpio, 'porcentaje': p})
+                    extras_lista.append({'id': mp_id, 'porcentaje': p})
 
             if abs(suma_total - 100) > 0.01:
                 flash(f"Error: La suma es {suma_total}%. Debe ser 100%.", "error")
                 return redirect(url_for('formulas.modificar_formula', id=id))
 
-            # RECONSTRUIR DETALLES
             DetalleReceta.query.filter_by(receta_id=id).delete()
 
-            fijos = [('esencia_base', esencia_base), ('etanol', etanol), ('fijador', fijador)]
-            for tipo, valor in fijos:
-                db.session.add(DetalleReceta(receta_id=id, tipo_componente=tipo, porcentaje=valor))
+            for mp_id, valor, tipo in [
+                (esencia_id, esencia_base, 'esencia'),
+                (etanol_id, etanol, 'etanol'),
+                (fijador_id, fijador, 'fijador')
+            ]:
+                if mp_id and valor > 0:
+                    db.session.add(DetalleReceta(
+                        receta_id=id,
+                        materia_prima_id=mp_id,
+                        porcentaje=valor,
+                        tipo_componente=tipo
+                    ))
 
             for extra in extras_lista:
-                db.session.add(DetalleReceta(receta_id=id, tipo_componente=extra['nombre'], porcentaje=extra['porcentaje']))
+                if extra['porcentaje'] > 0:
+                    mp = MateriaPrima.query.get(extra['id'])
+                    db.session.add(DetalleReceta(
+                        receta_id=id,
+                        materia_prima_id=extra['id'],
+                        porcentaje=extra['porcentaje'],
+                        tipo_componente=mp.tipo 
+                    ))
 
-            # REGISTRO EN AUDITORÍA
             crear_log(
                 accion="UPDATE",
                 tabla="Recetas",
                 registro_id=id,
-                detalle=f"Fórmula recalibrada y datos actualizados para: {receta.nombre_perfume}"
+                detalle=f"Fórmula actualizada: {receta.nombre_perfume}"
             )
-
             db.session.commit()
-            flash("Fórmula y datos de marketing actualizados", "success")
+            flash("Fórmula actualizada correctamente", "success")
             return redirect(url_for('formulas.index_formulas'))
 
-        except ValueError:
-            flash("Error: Los porcentajes deben ser números válidos.", "error")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al actualizar: {str(e)}", "error")
             return redirect(url_for('formulas.modificar_formula', id=id))
 
-    esencia = next((d.porcentaje for d in detalles if d.tipo_componente == 'esencia_base'), 0)
-    etanol = next((d.porcentaje for d in detalles if d.tipo_componente == 'etanol'), 0)
-    fijador = next((d.porcentaje for d in detalles if d.tipo_componente == 'fijador'), 0)
+    detalles_por_tipo = {d.tipo_componente: d for d in detalles}
 
-    return render_template('modulos_front/formulas/modificar.html', 
-            receta=receta, esencia=esencia, etanol=etanol, fijador=fijador)
+    esencia_det = detalles_por_tipo.get('esencia', None)
+    etanol_det = detalles_por_tipo.get('etanol', None)
+    fijador_det = detalles_por_tipo.get('fijador', None)
 
+    ids_fijos = {
+        'esencia': esencia_det.materia_prima_id if esencia_det else None,
+        'etanol': etanol_det.materia_prima_id if etanol_det else None,
+        'fijador': fijador_det.materia_prima_id if fijador_det else None
+    }
 
+    detalles_dinamicos = [
+        d for d in detalles
+        if not (d.tipo_componente in ids_fijos and d.materia_prima_id == ids_fijos[d.tipo_componente])
+    ]
+
+    return render_template(
+        'modulos_front/formulas/modificar.html',
+        receta=receta,
+        esencia=esencia_det.porcentaje if esencia_det else 0,
+        etanol=etanol_det.porcentaje if etanol_det else 0,
+        fijador=fijador_det.porcentaje if fijador_det else 0,
+        esencia_nombre=esencia_det.materia_prima_id if esencia_det else None,
+        etanol_nombre=etanol_det.materia_prima_id if etanol_det else None,
+        fijador_nombre=fijador_det.materia_prima_id if fijador_det else None,
+        detalles_dinamicos=detalles_dinamicos,
+        esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
+        etanol_lista=MateriaPrima.query.filter_by(tipo='etanol').all(),
+        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
+    )
+                            
 # ==========================================
 # ELIMINAR (SEGURO)
 # ==========================================
@@ -193,7 +310,6 @@ def eliminar_formula(id):
     DetalleReceta.query.filter_by(receta_id=id).delete()
     db.session.delete(receta)
 
-    # REGISTRO EN AUDITORÍA
     crear_log(
         accion="DELETE",
         tabla="Recetas",
