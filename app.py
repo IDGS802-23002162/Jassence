@@ -33,10 +33,8 @@ app.register_blueprint(dashboard_bp)
 
 @app.route('/')
 def index():
-    #Usuario de prueba aqui debe ir la consulta mysql
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     
-    return render_template('index.html', current_user=usuario_logueado)
+    return render_template('index.html')
 
 @app.errorhandler(404)
 def page_not_fount(e):
