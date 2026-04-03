@@ -1,91 +1,129 @@
 {% extends "layout_sistema.html" %}
 
-{% block title %}Detalles de Fórmula{% endblock %}
+{% block title %}Detalles de Fórmula: {{ receta.nombre_perfume }}{% endblock %}
 
 {% block content %}
-<br>
- <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4 animate-fade-in">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4 animate-fade-in">
         <div>
             <h1 class="font-elegant text-5xl text-black cursor-default">
-                Detalles
+                {{ receta.nombre_perfume }}
             </h1>
+            <p class="text-gray-500 mt-2 text-sm uppercase tracking-widest">{{ receta.familia_olfativa or 'Sin Familia Definida' }}</p>
         </div>
         
-        <a href="/explosion-materiales" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Regresar
-        </a>
+        <div class="flex gap-4">
+            <a href="{{ url_for('formulas.modificar_formula', id=receta.id) }}" class="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Editar
+            </a>
+            <a href="{{ url_for('formulas.index_formulas') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Regresar
+            </a>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 animate-fade-in">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 animate-fade-in">
         
-        <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-6 flex flex-col items-center justify-center">
-            <p class="text-sm font-elegant text-gray-500 mb-4">Nombre de la formula/perfume</p>
-            <img src="{{ url_for('static', filename='img/ejemploPerfume.jpg') }}" class="w-full max-w-sm h-auto rounded-lg" alt="Ejemplo de Perfume" />
-        </div>
-
-        
-        <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-8 flex flex-col justify-between">
-            
-            <div class="space-y-6">
-                
-                <div class="border-b border-gray-100 pb-6 mb-6">
-                    
-                    <h2 class="font-elegant text-3xl text-black mb-4">Información General</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                            <p class="text-xs text-gray-500">Nombre del Perfume</p>
-                            <p class="text-lg text-black">Jassence Night</p>
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden sticky top-8">
+                <div class="aspect-square bg-gray-50 flex items-center justify-center relative">
+                    {% if receta.imagen_url %}
+                        <img src="{{ receta.imagen_url }}" class="w-full h-full object-cover" alt="{{ receta.nombre_perfume }}" />
+                    {% else %}
+                        <div class="text-center p-8">
+                            <svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>
+                            <p class="text-xs text-gray-400 uppercase tracking-tighter">Sin imagen comercial</p>
                         </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Inspiración</p>
-                            <p class="text-lg text-black italic">Dior Sauvage</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Descripción</p>
-                            <p class="text-lg text-black">Notas olfativas al millon</p>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
-
-                <div>
-                    <h2 class="font-elegant text-3xl text-black mb-4">Proporciones de Ingredientes</h2>
-                    <div class="relative overflow-x-auto shadow-sm rounded-base border border-table-dark">
-                        <table class="w-full text-xs text-left text-gray-300">
-                            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
-                                <tr>
-                                    <th scope="col" class="px-5 py-3">Ingrediente</th>
-                                    <th scope="col" class="px-5 py-3 border-l border-table-dark">Dato</th>
-                                    <th scope="col" class="px-5 py-3 border-l border-table-dark">Proporción (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="bg-table-dark border-b border-table-dark">
-                                    <td class="px-5 py-3 font-medium text-white whitespace-nowrap">Esencia</td>
-                                    <td class="px-5 py-3 border-l border-table-dark">Fix 40</td>
-                                    <td class="px-5 py-3 border-l border-table-dark">40</td>
-                                </tr>
-                                <tr class="bg-table-dark border-b border-table-dark">
-                                    <td class="px-5 py-3 font-medium text-white whitespace-nowrap">Etanol</td>
-                                    <td class="px-5 py-3 border-l border-table-dark">Fix 55</td>
-                                    <td class="px-5 py-3 border-l border-table-dark">55</td>
-                                </tr>
-                                <tr class="bg-table-dark border-b border-table-dark">
-                                    <td class="px-5 py-3 font-medium text-white whitespace-nowrap">Fijador</td>
-                                    <td class="px-5 py-3 border-l border-table-dark">Fix 5</td>
-                                    <td class="px-5 py-3 border-l border-table-dark">5</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="p-6 border-t border-gray-100">
+                    <div class="flex justify-between items-center">
+                        <span class="px-3 py-1 bg-black text-white text-[10px] font-bold rounded-full uppercase">{{ receta.genero }}</span>
+                        <span class="text-xs text-gray-400 font-medium">ID: #{{ receta.id }}</span>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-8">
             
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+                <h2 class="font-elegant text-3xl text-black mb-6 border-b border-gray-50 pb-4">Perfil Olfativo</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Inspiración</p>
+                        <p class="text-lg text-black italic font-serif">"{{ receta.inspiracion }}"</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ocasión de uso</p>
+                        <p class="text-lg text-black">{{ receta.ocasion or 'No especificada' }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Descripción Sensorial</p>
+                        <p class="text-gray-600 leading-relaxed">{{ receta.descripcion or 'Sin descripción detallada.' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+                <div class="flex justify-between items-end mb-6 border-b border-gray-50 pb-4">
+                    <h2 class="font-elegant text-3xl text-black">Composición (%)</h2>
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">FÓRMULA EQUILIBRADA 100%</span>
+                </div>
+                
+                <div class="overflow-hidden rounded-xl border border-gray-100">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-[10px] text-gray-400 uppercase bg-gray-50 tracking-widest">
+                            <tr>
+                                <th class="px-6 py-4">Componente</th>
+                                <th class="px-6 py-4 text-right">Proporción</th>
+                                <th class="px-6 py-4">Visualización</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            {% for d in detalles %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-gray-900 capitalize">
+                                    {{ d.tipo_componente.replace('_', ' ') }}
+                                </td>
+                                <td class="px-6 py-4 text-right font-mono font-bold text-black">
+                                    {{ "%.2f"|format(d.porcentaje) }}%
+                                </td>
+                                <td class="px-6 py-4 w-1/3">
+                                    <div class="w-full bg-gray-100 rounded-full h-1.5">
+                                        <div class="bg-black h-1.5 rounded-full" style="width: {{ d.porcentaje }}%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 rounded-2xl p-8 text-white">
+                <h2 class="font-elegant text-2xl mb-6">Guía de Mezcla Rápida (ml)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {% for ml_totales, componentes in calculos.items() %}
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p class="text-center font-bold text-xl mb-3 border-b border-white/10 pb-2">{{ ml_totales }}ml</p>
+                        <ul class="space-y-2">
+                            {% for item in componentes %}
+                            <li class="flex justify-between text-xs">
+                                <span class="text-gray-400 capitalize">{{ item.tipo.replace('_', ' ') }}</span>
+                                <span class="font-mono">{{ item.ml }} ml</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
         </div>
     </div>
-
 </div>
-
-
 {% endblock %}
