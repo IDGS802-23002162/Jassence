@@ -51,16 +51,23 @@
                 </tr>
             </thead>
             <tbody>
+                {% for receta in recetas %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Jassence Night</td>
-                    <td class="px-6 py-4">Dior Sauvage</td>
-                    <td class="px-6 py-4">Notas olfativas al millon</td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark"><a href="/formulas/detalles" class="font-medium text-gray-300 hover:text-white">Ver</a></td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark"><a href="/formulas/modificar" class="font-medium text-gray-300 hover:text-white">Modificar</a></td>
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{{ receta.nombre_perfume }}</td>
+                    <td class="px-6 py-4">{{ receta.inspiracion }}</td>
+                    <td class="px-6 py-4">{{ receta.descripcion }}</td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href={{ url_for('formulas.detalle_formula', id=receta.id) }} 
+                        class="font-medium text-gray-300 hover:text-white">Detalles</a>
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href={{ url_for('formulas.modificar_formula', id=receta.id) }} 
+                        class="font-medium text-gray-300 hover:text-white">Modificar</a>
+                    </td>
                     
                     <td class="px-6 py-4 text-center border-l border-table-dark">
                         <button type="button" 
-                                onclick="prepararEliminarFormula('1', 'Jassence Night')" 
+                                onclick="prepararEliminarFormula('{{ receta.id }}', '{{ receta.nombre_perfume }}')" 
                                 data-modal-target="modal-eliminar-formula" 
                                 data-modal-toggle="modal-eliminar-formula" 
                                 class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
@@ -68,6 +75,7 @@
                         </button>
                     </td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
