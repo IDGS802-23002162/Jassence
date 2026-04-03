@@ -122,31 +122,33 @@ def detalle_C(id):
 
 
 
-@compras_bp.route('/editar_C/<int:id>', methods=['GET', 'POST'])
-def editar_C(id):
+@compras_bp.route('/marcar_recibido/<int:id>', methods=['POST'])
+def marcar_recibido(id):
     compra = Compra.query.get_or_404(id)
     
-    if request.method == 'POST':
-        compra.notas = request.form.get('notas')
-        
-        # Si sube un archivo nuevo, lo guardamos y actualizamos el nombre
-        archivo = request.files.get('archivo_factura')
-        if archivo and archivo.filename != '':
-            nombre_archivo = secure_filename(archivo.filename)
-            ruta_carpeta = os.path.join('static', 'uploads', 'facturas')
-            os.makedirs(ruta_carpeta, exist_ok=True)
-            archivo.save(os.path.join(ruta_carpeta, nombre_archivo))
-            compra.archivo_factura = nombre_archivo
-            
+    # Candado de seguridad: Solo procesamos si sigue pendiente
+    if compra.estado == 'Pendiente':
         try:
+            compra.estado = 'Recibido'
+            
+            # ¡Hacemos la suma al inventario real en este momento!
+            for detalle in compra.detalles:
+                mp = MateriaPrima.query.get(detalle.materia_prima_id)
+                if mp:
+                    mp.cantidad_disponible += detalle.cantidad_convertida
+                    
             db.session.commit()
-            flash('¡Compra actualizada con éxito!', 'success')
-            return redirect(url_for('compras.compras'))
+            flash('¡Mercancía recibida físicamente! El stock ha sido sumado al inventario. UwU', 'success')
+            
         except Exception as e:
             db.session.rollback()
-            flash('Error al actualizar.', 'error')
-            
-    return render_template('modulos_front/compras/editar_C.html', compra=compra)
+            flash(f'Ocurrió un error al procesar la entrada: {str(e)}', 'error')
+    else:
+        flash('Esta compra ya fue procesada anteriormente o está cancelada.', 'warning')
+        
+    return redirect(url_for('compras.compras'))
+
+
 
 
 @compras_bp.route('/registrar_C', methods=['GET', 'POST'])
@@ -272,6 +274,33 @@ def agregar_materia_rapida():
     
     # Te regresa a la misma página de compras
     return redirect(request.referrer)
+
+
+
+
+
+@compras_bp.route('/actualizar_notas/<int:id>', methods=['POST'])
+def actualizar_notas(id):
+    compra = Compra.query.get_or_404(id)
+    
+    # Bloqueo de seguridad: No editar si está cancelada
+    if compra.estado == 'cancelado':
+        flash('No se pueden modificar las notas de una compra anulada.', 'error')
+        return redirect(url_for('compras.detalle_C', id=compra.id))
+
+    nueva_nota = request.form.get('notas')
+    
+    try:
+        compra.notas = nueva_nota
+        db.session.commit()
+        flash('¡Notas actualizadas y guardadas correctamente!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Ocurrió un error al guardar las notas.', 'error')
+        
+    return redirect(url_for('compras.detalle_C', id=compra.id))
+
+
 # ///////////////////////////////////////////////////////////////////
 
 @compras_bp.route('/historial_PC')

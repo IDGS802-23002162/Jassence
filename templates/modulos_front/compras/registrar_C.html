@@ -53,7 +53,7 @@
                 
                 <div id="contenedor-insumos" class="space-y-4">
                     <!-- Cambiamos a grid-cols-5 para que quepan los 5 campos perfectos -->
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="fila-insumo grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200 relative group/fila">
                         
                         <div class="relative z-0 w-full group">
                             <select name="materia_prima_id[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
@@ -95,7 +95,7 @@
                     </div>
                 </div>
 
-                <button type="button" class="mt-4 text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-black transition-colors flex items-center gap-1">
+                <button type="button" onclick="agregarFilaInsumo()" class="mt-4 text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-black transition-colors flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     Añadir otro insumo
                 </button>
@@ -174,4 +174,33 @@
         </form>
     </div>
 </div>
+
+<script>
+    function agregarFilaInsumo() {
+        const contenedor = document.getElementById('contenedor-insumos');
+        const primeraFila = contenedor.querySelector('.fila-insumo');
+        const nuevaFila = primeraFila.cloneNode(true);
+
+        // Limpiamos los inputs de la fila clonada para que aparezcan vacíos
+        const inputs = nuevaFila.querySelectorAll('input');
+        inputs.forEach(input => input.value = '');
+
+        // Reseteamos los selectores al primer valor
+        const selects = nuevaFila.querySelectorAll('select');
+        selects.forEach(select => select.selectedIndex = 0);
+
+        // Creamos un botón de "Eliminar" para las filas nuevas
+        const divEliminar = document.createElement('div');
+        divEliminar.className = "md:col-span-5 flex justify-end mt-2";
+        divEliminar.innerHTML = `
+            <button type="button" onclick="this.closest('.fila-insumo').remove()" class="text-red-500 text-xs font-bold uppercase hover:text-red-700 flex items-center gap-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Quitar Insumo
+            </button>
+        `;
+
+        nuevaFila.appendChild(divEliminar);
+        contenedor.appendChild(nuevaFila);
+    }
+</script>
 {% endblock %}
