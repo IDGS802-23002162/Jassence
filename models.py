@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -162,17 +163,18 @@ class Presentacion(db.Model):
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
 
-
 class ProductoTerminado(db.Model):
-    __tablename__ = 'productos_terminados'
+    _tablename_ = 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     stock_disponible_venta = db.Column(db.Integer)
-    stock_comprometido = db.Column(db.Integer)
     stock_minimo = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
+
+    receta = db.relationship('Receta')
+    presentacion = db.relationship('Presentacion')
 
 
 class OrdenProduccion(db.Model):

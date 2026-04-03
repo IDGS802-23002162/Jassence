@@ -15,21 +15,25 @@
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="flex items-center justify-between">
+      
       <div class="flex items-center justify-start rtl:justify-end">
-        <img src="{{ url_for('static', filename='img/NFNL-Logo.png') }}" class="h-10 mr-4" alt="Logo Jassence">
-        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+        
+        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 mr-3 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
             <span class="sr-only">Alternar menú lateral</span>
             <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
             </svg>
          </button>
 
-        <a href="/" class="flex ms-2 md:me-24 items-center ml-4">
-          
-          <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.nombre  }}&background=random" alt="user photo">
+        <a href="/inicio" class="flex items-center shrink-0 relative z-10 cursor-pointer">
+            <img src="{{ url_for('static', filename='img/NFNL-Logo.png') }}" class="h-10 mr-4" alt="Logo Jassence">
+        </a>
+
+        <a href="/inicio" class="flex ms-2 md:me-24 items-center ml-4 relative z-10">
+          <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.nombre }}&background=random" alt="user photo">
           <div class="hidden md:flex flex-col ml-3">
-              <span class="text-sm font-semibold text-gray-900">Bienvenido {{ current_user.nombre  }}</span>
-              <span class="text-xs text-gray-500">{{ current_user.rol }}</span>
+              <span class="text-sm font-semibold text-gray-900">Bienvenido {{ current_user.nombre }}</span>
+              <span class="text-xs text-gray-500">{{ current_user.roles[0].name }}</span>
           </div>
         </a>
       </div>
@@ -40,6 +44,7 @@
               <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           </a>
       </div>
+      
     </div>
   </div>
 </nav>
@@ -58,8 +63,29 @@
             </a>
          </li>
 
+          <li>
+            <a href="/pos" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Venta local</span>
+                   <span class="text-xs text-gray-400 font-normal">Vendedor</span>
+               </div>
+            </a>
+         </li>
+
+             <li>
+            <a href="/corte_caja" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>               
+               <div class="ms-3 flex flex-col">
+                   <span class="text-sm">Corte de Caja</span>
+                   <span class="text-xs text-gray-400 font-normal">Administrador</span>
+               </div>
+            </a>
+         </li>
+
          <li class="pt-6 mt-5 border-t border-gray-200">
-            <a href="/inventario-materias" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+            <a href="{{ url_for('inv_materias.inventario') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                <div class="ms-3 flex flex-col">
                    <span class="text-sm">Inventario Materias Primas</span>
@@ -69,7 +95,7 @@
          </li>
 
          <li>
-            <a href="/inventario-productos" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+            <a href="{{ url_for('inventarioP.inventario_P') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                <div class="ms-3 flex flex-col">
                    <span class="text-sm">Inventario Productos</span>
@@ -128,17 +154,13 @@
             </a>
          </li>
 
+
       </ul>
    </div>
 </aside>
 
-
 <div class="p-4">
    <div class="p-4 mt-8">
-
-
-
-      <br><br>
       {% block content %}
       
       {% endblock %}

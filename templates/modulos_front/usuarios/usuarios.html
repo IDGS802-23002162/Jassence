@@ -1,0 +1,175 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Gestión de Usuarios - Jassence{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    {# Encabezado Dinámico #}
+    <div class="flex items-end mb-4 border-b border-gray-300 pb-4">
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Usuarios
+        </h1>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <a href="{{ url_for('usuarios.gestion_roles') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300">
+            Roles
+        </a>
+    </div>
+
+    <div class="flex items-end mb-8 pl-10">
+        <h2 class="font-elegant text-4xl text-black cursor-default">Empleados</h2>
+        <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
+        <a href="/usuarios/clientes" class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Clientes</a>
+    </div>
+
+    {# Buscador y Botón de Registro #}
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text" id="busquedaUsuario" onkeyup="filtrarTabla()"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar por nombre o correo...">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <a href="{{ url_for('usuarios.insertar_usuario') }}"
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Registrar Usuario
+            </a>
+        </div>
+    </div>
+
+    {# Tabla de Usuarios Reales #}
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table id="tablaUsuarios" class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Nombre</th>
+                    <th scope="col" class="px-6 py-4">Correo</th>
+                    <th scope="col" class="px-6 py-4">Telefono</th>
+                    <th scope="col" class="px-6 py-4">Rol Principal</th>
+                    <th scope="col" class="px-6 py-4">Estado</th>
+                    <th scope="col" class="px-6 py-4 text-center">Editar</th>
+                    <th scope="col" class="px-6 py-4 text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                {% if usuario.roles and usuario.roles[0].name != 'cliente' %}
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        {{ usuario.nombre if usuario.nombre else 'Sin nombre' }}
+                        {{ usuario.apellidos if usuario.apellidos else '' }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ usuario.email }}
+                    </td>
+                     <td class="px-6 py-4">
+                        {{ usuario.telefono if usuario.telefono else '---' }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if usuario.roles %}
+                            <span class="px-2 py-1 bg-gray-700 text-gray-200 rounded text-xs uppercase tracking-wider">
+                                {{ usuario.roles[0].name }}
+                            </span>
+                        {% else %}
+                            <span class="text-gray-500 italic">Sin rol</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if usuario.active %}
+                            <span class="text-green-400 flex items-center gap-1">
+                                <span class="w-2 h-2 bg-green-400 rounded-full"></span> Activo
+                            </span>
+                        {% else %}
+                            <span class="text-red-400 flex items-center gap-1">
+                                <span class="w-2 h-2 bg-red-400 rounded-full"></span> Inactivo
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="{{ url_for('usuarios.modificar_usuario', id=usuario.id) }}" class="font-medium text-gray-300 hover:text-white transition-colors">
+                            Modificar
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        {% if usuario.id != current_user.id %}
+                            {% if usuario.active %}
+                                {# BOTÓN ELIMINAR (Solo si está activo) #}
+                                <button type="button" 
+                                        onclick="prepararEliminar('{{ usuario.id }}', '{{ usuario.email }}')" 
+                                        data-modal-target="modal-eliminar-global" 
+                                        data-modal-toggle="modal-eliminar-global" 
+                                        class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+                                    Eliminar
+                                </button>
+                            {% else %}
+                                {# BOTÓN REACTIVAR (Solo si está inactivo) #}
+                                <button type="button" 
+                                        onclick="prepararReactivar('{{ usuario.id }}', '{{ usuario.email }}')" 
+                                        data-modal-target="modal-reactivar-global" 
+                                        data-modal-toggle="modal-reactivar-global" 
+                                        class="font-medium text-gray-300 hover:text-blue-500 transition-colors focus:outline-none cursor-pointer">
+                                    Reactivar
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-gray-600 cursor-not-allowed" title="No puedes eliminarte a ti mismo">Eliminar</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'modulos_front/usuarios/eliminar.html' %}
+{% include 'modulos_front/usuarios/reactivar.html' %}
+
+<script>
+    function filtrarTabla() {
+        let input = document.getElementById("busquedaUsuario");
+        let filter = input.value.toUpperCase();
+        let table = document.getElementById("tablaUsuarios");
+        let tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) {
+            let tdNombre = tr[i].getElementsByTagName("td")[0];
+            let tdCorreo = tr[i].getElementsByTagName("td")[1];
+            if (tdNombre || tdCorreo) {
+                let txtValueNombre = tdNombre.textContent || tdNombre.innerText;
+                let txtValueCorreo = tdCorreo.textContent || tdCorreo.innerText;
+                if (txtValueNombre.toUpperCase().indexOf(filter) > -1 || txtValueCorreo.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    // Funciones para cargar datos en los modales
+    function prepararEliminar(id, nombre) {
+        document.getElementById('usuario-id-eliminar').value = id;
+        document.getElementById('nombre-a-eliminar').textContent = nombre;
+    }
+
+    function prepararReactivar(id, nombre) {
+        document.getElementById('usuario-id-reactivar').value = id;
+        document.getElementById('nombre-a-reactivar').textContent = nombre;
+    }
+</script>
+
+{% endblock %}

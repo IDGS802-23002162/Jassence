@@ -1,0 +1,49 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Roles - Jassence{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('usuarios.usuarios') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Usuarios
+        </a>
+        
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Roles
+        </h1>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Identificador Técnico</th>
+                    <th scope="col" class="px-6 py-4">Descripción de Funciones</th>
+                    <th scope="col" class="px-6 py-4 text-center">Usuarios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rol in roles %}
+                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        <code class="px-2 py-1 bg-gray-700 text-gray-200 rounded text-xs uppercase tracking-wider" >{{ rol.name }}</code>
+                    </td>
+                    <td class="px-6 py-4 text-gray-400 italic">
+                        {{ rol.description if rol.description else 'Sin descripción detallada' }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="bg-black text-white px-3 py-1 rounded-full text-xs border border-gray-700">
+                            {{ rol.usuarios.count() }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

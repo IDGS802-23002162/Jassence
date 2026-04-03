@@ -1,0 +1,230 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Historial de Auditoría - Inventario{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('inv_materias.inventario') }}" onclick="resetFiltros()"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Materias Primas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('inv_materias.mermas') }}" onclick="resetFiltros()"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Mermas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Historial
+        </h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full text-black">
+            <input type="text" id="buscador"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all"
+                placeholder="Buscar por insumo, usuario o acción...">
+            <div id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"></div>
+        </div>
+
+        <div class="relative w-full md:w-auto">
+            <div class="flex items-center gap-2">
+                <button id="btnAbrirCalendario" type="button"
+                    class="flex items-center justify-center p-2 bg-white border border-gray-300 rounded-lg shadow-sm h-[42px] w-[42px] hover:bg-gray-50 transition-colors">
+                    <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z" />
+                    </svg>
+                </button>
+                <button id="limpiarTodo"
+                    class="hidden px-4 py-2 h-[42px] text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border border-gray-300 transition-all whitespace-nowrap">
+                    Limpiar Filtros
+                </button>
+            </div>
+
+            <div id="dropdownCalendario"
+                class="hidden absolute top-12 left-0 z-50 w-64 p-4 bg-white border border-gray-300 rounded-xl shadow-xl animate-in fade-in zoom-in duration-200">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Seleccionar Fecha</label>
+                <input type="date" id="filtroFecha"
+                    class="w-full mb-4 p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black outline-none text-sm">
+
+                <div class="flex gap-2">
+                    <button id="btnAplicarFecha"
+                        class="flex-1 bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                        Filtrar
+                    </button>
+                    <button id="btnCancelarFecha"
+                        class="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border border-gray-200">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <select id="selectMovimientos"
+                class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 pr-8 h-[42px] focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option selected>Todos los movimientos</option>
+                <option>UPDATE</option>
+                <option>DELETE</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark bg-[#2A2A2A]">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase">
+                <tr>
+                    <th class="px-6 py-4">Fecha y Hora</th>
+                    <th class="px-6 py-4">Usuario</th>
+                    <th class="px-6 py-4">Acción</th>
+                    <th class="px-6 py-4">Table</th>
+                    <th class="px-6 py-4">Variación</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-historial">
+                {% for log in historial %}
+                <tr
+                    class="fila-log text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
+                    <td class="fecha px-6 py-4 text-gray-400 font-mono">{{ log.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                    <td class="usuario px-6 py-4">
+                        {{ log.usuario.nombre if log.usuario else "Sistema" }}
+                    </td>
+
+                    <td class="accion px-6 py-4">
+                        <span
+                            class="detalle px-2 py-1 bg-green-900/50 text-green-400 rounded-full text-[10px] uppercase font-bold border border-green-800">
+                            {{ log.accion }}
+                        </span>
+                    </td>
+
+                    <td class="tabla px-6 py-4 font-medium">{{ log.tabla_afectada }}</td>
+
+                    <td class="detalle px-6 py-4 text-green-400 font-bold">{{ log.detalle }}</td>
+
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_historial', id=log.id) }}"
+                            class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">Ver</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const buscador = document.getElementById('buscador');
+    const filtroSelect = document.getElementById('selectMovimientos');
+    const filas = document.querySelectorAll('.fila-log');
+    const iconoContainer = document.getElementById('icono-buscador');
+
+    const btnAbrir = document.getElementById('btnAbrirCalendario');
+    const dropdown = document.getElementById('dropdownCalendario');
+    const inputFecha = document.getElementById('filtroFecha');
+    const btnLimpiarTodo = document.getElementById('limpiarTodo');
+    const btnAplicar = document.getElementById('btnAplicarFecha');
+    const btnCancelar = document.getElementById('btnCancelarFecha');
+
+  
+    if (sessionStorage.getItem('reset_filtros') === 'true') {
+        sessionStorage.removeItem('busqueda_historial');
+        sessionStorage.removeItem('filtro_historial');
+        sessionStorage.removeItem('fecha_historial');
+        sessionStorage.removeItem('reset_filtros'); 
+    }
+
+    let fechaSeleccionada = sessionStorage.getItem('fecha_historial') || "";
+
+    buscador.value = sessionStorage.getItem('busqueda_historial') || '';
+    filtroSelect.value = sessionStorage.getItem('filtro_historial') || 'Todos los movimientos';
+    inputFecha.value = fechaSeleccionada;
+
+    const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
+    const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
+
+    function filtrar() {
+        const texto = buscador.value.toLowerCase();
+        const tipo = filtroSelect.value.toLowerCase();
+
+        sessionStorage.setItem('busqueda_historial', buscador.value);
+        sessionStorage.setItem('filtro_historial', filtroSelect.value);
+
+        filas.forEach(fila => {
+            const usuario = fila.querySelector('.usuario').textContent.toLowerCase();
+            const accion = fila.querySelector('.accion').textContent.toLowerCase();
+            const detalle = fila.querySelector('.detalle').textContent.toLowerCase();
+            const fechaFila = fila.querySelector('.fecha').textContent.split(' ')[0];
+
+            const coincideTexto = usuario.includes(texto) || accion.includes(texto) || detalle.includes(texto);
+            const coincideFecha = !fechaSeleccionada || fechaFila === fechaSeleccionada;
+            const coincideFiltro = tipo === 'todos los movimientos' || accion.includes(tipo);
+
+            fila.style.display = (coincideTexto && coincideFiltro && coincideFecha) ? '' : 'none';
+        });
+
+        const hayFiltroTexto = buscador.value.length > 0;
+        const hayFiltroSelect = filtroSelect.value !== 'Todos los movimientos';
+        const hayFiltroFecha = fechaSeleccionada !== "";
+
+        btnLimpiarTodo.classList.toggle('hidden', !(hayFiltroTexto || hayFiltroSelect || hayFiltroFecha));
+        iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
+    }
+
+
+    btnAbrir.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+    });
+
+    btnAplicar.addEventListener('click', () => {
+        fechaSeleccionada = inputFecha.value;
+        sessionStorage.setItem('fecha_historial', fechaSeleccionada);
+        filtrar();
+        dropdown.classList.add('hidden');
+    });
+
+    btnCancelar.addEventListener('click', () => {
+        inputFecha.value = fechaSeleccionada; 
+        dropdown.classList.add('hidden');
+    });
+
+    btnLimpiarTodo.addEventListener('click', () => {
+        buscador.value = "";
+        filtroSelect.value = "Todos los movimientos";
+        inputFecha.value = "";
+        fechaSeleccionada = "";
+        sessionStorage.removeItem('busqueda_historial');
+        sessionStorage.removeItem('filtro_historial');
+        sessionStorage.removeItem('fecha_historial');
+        filtrar();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && !btnAbrir.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    buscador.addEventListener('input', filtrar);
+    filtroSelect.addEventListener('change', filtrar);
+    
+    iconoContainer.addEventListener('click', () => {
+        if (buscador.value) {
+            buscador.value = '';
+            filtrar();
+        }
+    });
+
+    function resetFiltros() {
+        sessionStorage.setItem('reset_filtros', 'true');
+    }
+
+    filtrar();
+</script>
+
+{% endblock %}

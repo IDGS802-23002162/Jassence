@@ -1,0 +1,234 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Control de Mermas{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <a href="{{ url_for('inv_materias.inventario') }} " onclick="resetFiltros()"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Materias Primas
+        </a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <h1 class="font-elegant text-6xl text-black cursor-default">
+            Mermas
+        </h1>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('inv_materias.historial') }}" onclick="resetFiltros()"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+            Historial
+        </a>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full text-black">
+            <input type="text" id="buscadorM"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all"
+                placeholder="Buscar por ítem, motivo o etapa...">
+            <div id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"></div>
+        </div>
+
+        <div class="relative w-full md:w-auto">
+            <div class="flex items-center gap-2">
+                <button id="btnAbrirCalendario" type="button"
+                    class="flex items-center justify-center p-2 bg-white border border-gray-300 rounded-lg shadow-sm h-[42px] w-[42px] hover:bg-gray-50 transition-colors">
+                    <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z" />
+                    </svg>
+                </button>
+                <button id="limpiarTodo"
+                    class="hidden px-4 py-2 h-[42px] text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border border-gray-300 transition-all whitespace-nowrap font-medium">
+                    Limpiar Filtros
+                </button>
+            </div>
+
+            <div id="dropdownCalendario"
+                class="hidden absolute top-12 left-0 z-50 w-64 p-4 bg-white border border-gray-300 rounded-xl shadow-xl">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Fecha de
+                    Merma</label>
+                <input type="date" id="filtroFecha"
+                    class="w-full mb-4 p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black outline-none text-sm text-gray-700">
+                <div class="flex gap-2">
+                    <button id="btnAplicarFecha"
+                        class="flex-1 bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">Filtrar</button>
+                    <button id="btnCancelarFecha"
+                        class="flex-1 bg-gray-50 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border border-gray-200">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <select id="filtroM"
+                class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option selected>Todas las mermas</option>
+                <option>Almacen</option>
+                <option>Produccion</option>
+                <option>Recepcion</option>
+            </select>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <a href="{{ url_for('inv_materias.registrar_merma_mp') }}"
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-md font-medium flex items-center justify-center gap-2 whitespace-nowrap">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Registrar Nueva Merma
+            </a>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark bg-[#2A2A2A]">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase">
+                <tr>
+                    <th class="px-6 py-4">Fecha</th>
+                    <th class="px-6 py-4">Ítem / Tipo</th>
+                    <th class="px-6 py-4">Etapa</th>
+                    <th class="px-6 py-4">Cant. Perdida</th>
+                    <th class="px-6 py-4">Unidad</th>
+                    <th class="px-6 py-4">Motivo</th>
+                    <th class="px-6 py-4 text-center">Detalles</th>
+                </tr>
+            </thead>
+            <tbody id="tablas-mermas">
+                {% for merma in mermas %}
+                <tr
+                    class="fila-merma text-white bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
+                    <td class="px-6 py-4 text-gray-400">{% if merma.fecha %}{{ merma.fecha.strftime('%Y-%m-%d') }}{%
+                        endif %}</td>
+                    <td class="nombre px-6 py-4 font-medium">
+                        {{ merma.item_nombre }}
+                        <span class="text-xs text-gray-400 block italic">Materia Prima</span>
+                    </td>
+                    <td class="etapa px-6 py-4">{{ merma.etapa }}</td>
+                    <td class="cantidad-perdida px-6 py-4 text-red-400 font-bold">{{ merma.cantidad_perdida }}</td>
+                    <td class="unidad px-6 py-4">{{ merma.unidad_medida }}</td>
+                    <td class="motivo px-6 py-4 truncate max-w-[150px]">{{ merma.motivo }}</td>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('inv_materias.detalle_merma', id=merma.id) }}"
+                            class="text-gray-300 hover:text-white font-medium transition-colors cursor-pointer">
+                            Ver
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    const buscadorM = document.getElementById('buscadorM');
+    const filtroM = document.getElementById('filtroM');
+    const filasM = document.querySelectorAll('.fila-merma');
+    const iconoContainer = document.getElementById('icono-buscador');
+
+    const btnAbrir = document.getElementById('btnAbrirCalendario');
+    const dropdown = document.getElementById('dropdownCalendario');
+    const inputFecha = document.getElementById('filtroFecha');
+    const btnLimpiarTodo = document.getElementById('limpiarTodo');
+    const btnAplicar = document.getElementById('btnAplicarFecha');
+    const btnCancelar = document.getElementById('btnCancelarFecha');
+
+    if (sessionStorage.getItem('reset_filtros') === 'true') {
+        sessionStorage.removeItem('busqueda_merma');
+        sessionStorage.removeItem('filtro_merma');
+        sessionStorage.removeItem('fecha_merma');
+        sessionStorage.removeItem('reset_filtros');
+    }
+
+    let fechaSeleccionada = sessionStorage.getItem('fecha_merma') || "";
+
+    buscadorM.value = sessionStorage.getItem('busqueda_merma') || '';
+    filtroM.value = sessionStorage.getItem('filtro_merma') || 'Todas las mermas';
+    inputFecha.value = fechaSeleccionada;
+
+    const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
+    const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
+
+    function filtrarMermas() {
+        const texto = buscadorM.value.toLowerCase();
+        const etapaFiltro = filtroM.value.toLowerCase();
+
+        sessionStorage.setItem('busqueda_merma', buscadorM.value);
+        sessionStorage.setItem('filtro_merma', filtroM.value);
+
+        filasM.forEach(fila => {
+            const nombre = fila.querySelector('.nombre').textContent.toLowerCase();
+            const etapa = fila.querySelector('.etapa').textContent.toLowerCase();
+            const motivo = fila.querySelector('.motivo').textContent.toLowerCase();
+            const fechaFila = fila.querySelector('td:first-child').textContent.trim();
+
+            const coincideTexto = nombre.includes(texto) || etapa.includes(texto) || motivo.includes(texto);
+            const coincideFecha = !fechaSeleccionada || fechaFila === fechaSeleccionada;
+            
+            let coincideFiltro = true;
+            if (etapaFiltro !== 'todas las mermas') {
+                coincideFiltro = etapa.includes(etapaFiltro);
+            }
+
+            fila.style.display = (coincideTexto && coincideFiltro && coincideFecha) ? '' : 'none';
+        });
+
+        const hayFiltroTexto = buscadorM.value.length > 0;
+        const hayFiltroSelect = filtroM.value !== 'Todas las mermas';
+        const hayFiltroFecha = fechaSeleccionada !== "";
+        btnLimpiarTodo.classList.toggle('hidden', !(hayFiltroTexto || hayFiltroSelect || hayFiltroFecha));
+
+        iconoContainer.innerHTML = buscadorM.value ? cerrar : lupa;
+    }
+
+    btnAbrir.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+    });
+
+    btnAplicar.addEventListener('click', () => {
+        fechaSeleccionada = inputFecha.value;
+        sessionStorage.setItem('fecha_merma', fechaSeleccionada);
+        filtrarMermas();
+        dropdown.classList.add('hidden');
+    });
+
+    btnCancelar.addEventListener('click', () => {
+        inputFecha.value = fechaSeleccionada;
+        dropdown.classList.add('hidden');
+    });
+
+    btnLimpiarTodo.addEventListener('click', () => {
+        buscadorM.value = "";
+        filtroM.value = "Todas las mermas";
+        inputFecha.value = "";
+        fechaSeleccionada = "";
+        sessionStorage.removeItem('busqueda_merma');
+        sessionStorage.removeItem('filtro_merma');
+        sessionStorage.removeItem('fecha_merma');
+        filtrarMermas();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && !btnAbrir.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    buscadorM.addEventListener('input', filtrarMermas);
+    filtroM.addEventListener('change', filtrarMermas);
+    
+    iconoContainer.addEventListener('click', () => {
+        if (buscadorM.value) {
+            buscadorM.value = '';
+            filtrarMermas();
+        }
+    });
+
+    function resetFiltros() {
+        sessionStorage.setItem('reset_filtros', 'true');
+    }
+
+    filtrarMermas();
+</script>
+{% endblock %}

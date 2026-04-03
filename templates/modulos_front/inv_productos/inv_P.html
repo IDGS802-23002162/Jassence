@@ -1,0 +1,197 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Inventario de Productos Terminados{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
+        <h1 class="font-elegant text-6xl text-black">
+            Inventario Físico (Punto de Venta)
+        </h1>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="{{ url_for('inventarioP.inventario_PM') }}" onclick="resetFiltros()"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1 transition-colors duration-300">
+            Mermas
+        </a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="{{ url_for('inventarioP.historial_P') }}" onclick="resetFiltros()"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 mb-1 transition-colors duration-300">
+            Historial
+        </a>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text" id="buscador"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
+                placeholder="Buscar perfume por nombre...">
+            <div id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <select id="filtro-presentacion"
+                class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 pr-8 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option selected>Todas las presentaciones</option>
+                <option>30 ml</option>
+                <option>50 ml</option>
+                <option>100 ml</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+        <table class="w-full text-sm text-left text-gray-300">
+            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                <tr>
+                    <th scope="col" class="px-6 py-4">Perfume</th>
+                    <th scope="col" class="px-6 py-4">Presentación</th>
+                    <th scope="col" class="px-6 py-4">Stock</th>
+                    <th scope="col" class="px-6 py-4">Mínimo</th>
+                    <th scope="col" class="px-6 py-4">Precio</th>
+                    <th scope="col" class="px-6 py-4">Estado</th>
+                    <th scope="col" class="px-6 py-4 text-center">Detalles</th>
+                    <th scope="col" class="px-6 py-4 text-center">Mermas</th>
+                    <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabla-productos">
+                {% for producto in productos %}
+                <tr class="fila-producto bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+
+                    <td class="nombre px-6 py-4 font-medium text-white whitespace-nowrap">
+                        {{ producto.receta.nombre_perfume }}
+                    </td>
+
+                    <td class="presentacion px-6 py-4">
+                        {{ producto.presentacion.nombre }} ({{ producto.presentacion.mililitros }} ml)
+                    </td>
+
+                    <td class="px-6 py-4">{{ producto.stock_disponible_venta }}</td>
+                    <td class="px-6 py-4">{{ producto.stock_minimo }}</td>
+                    <td class="px-6 py-4">${{ '%.2f'|format(producto.precio_venta) }}</td>
+                    <td class="px-6 py-4">
+                        {% if producto.stock_disponible_venta <= producto.stock_minimo %} 
+                            <span class="text-red-400">Stock Bajo</span>
+                        {% else %}
+                            <span class="text-green-400">En Stock</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="{{ url_for('inventarioP.detalle_P', id=producto.id) }}"
+                            class="font-medium text-gray-300 hover:text-white transition-colors">
+                            Ver
+                        </a>
+                    </td>
+
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button type="button"
+                            onclick="abrirModalMerma('{{ producto.id }}','{{ producto.receta.nombre_perfume }}')" 
+                            class="font-medium text-gray-300 hover:text-yellow-400 transition-colors focus:outline-none cursor-pointer">
+                            Mermar
+                        </button>
+                    </td>
+
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button type="button"
+                            onclick="abrirModalEliminar('{{ producto.id }}','{{ producto.receta.nombre_perfume }}')" 
+                            class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="center-text text-gray-500 mt-4 italic">Nota: Las ventas web se gestionan bajo demanda y no afectan este conteo físico.</p>
+</div>
+
+{% include 'modulos_front/inv_productos/merma_Pmodel.html' %}
+{% include 'modulos_front/inv_productos/eliminar_P.html' %}
+
+<script>
+    const buscador = document.getElementById('buscador');
+    const filtro = document.getElementById('filtro-presentacion');
+    const filas = document.querySelectorAll('.fila-producto');
+    const iconoContainer = document.getElementById('icono-buscador');
+
+    if (sessionStorage.getItem('reset_filtros_p') === 'true') {
+        sessionStorage.removeItem('busqueda_p');
+        sessionStorage.removeItem('filtro_p');
+        sessionStorage.removeItem('reset_filtros_p');
+    }
+
+    buscador.value = sessionStorage.getItem('busqueda_p') || '';
+    filtro.value = sessionStorage.getItem('filtro_p') || 'Todas las presentaciones';
+
+    const lupa = `
+        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+        </svg>
+    `;
+
+    const cerrar = `
+        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    `;
+
+    function filtrar() {
+        const texto = buscador.value.toLowerCase();
+        const filtroSelect = filtro.value.toLowerCase();
+
+        sessionStorage.setItem('busqueda_p', buscador.value);
+        sessionStorage.setItem('filtro_p', filtro.value);
+
+        filas.forEach(fila => {
+            const nombre = fila.querySelector('.nombre').textContent.toLowerCase();
+            const presentacion = fila.querySelector('.presentacion').textContent.toLowerCase();
+
+            const coincideTexto = nombre.includes(texto);
+            
+            let coincideFiltro = true;
+            if (filtroSelect !== "todas las presentaciones") {
+                coincideFiltro = presentacion.includes(filtroSelect);
+            }
+
+            fila.style.display = (coincideTexto && coincideFiltro) ? '' : 'none';
+        });
+
+        iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
+    }
+
+    buscador.addEventListener('input', filtrar);
+    filtro.addEventListener('change', filtrar);
+
+    iconoContainer.addEventListener('click', () => {
+        if (buscador.value) {
+            buscador.value = '';
+            sessionStorage.removeItem('busqueda_p');
+            filtrar();
+        }
+    });
+
+    filtrar();
+
+    function resetFiltros() {
+        sessionStorage.setItem('reset_filtros_p', 'true');
+    }
+
+    function cerrarModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+</script>
+
+{% endblock %}

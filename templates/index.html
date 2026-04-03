@@ -3,6 +3,7 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<br>
 
     <div class="mb-8">
         <h1 class="text-4xl font-serif text-black mb-2">Panel Principal</h1>
@@ -14,15 +15,15 @@
             ¡Hola, {{ current_user.nombre }}!
         </h5>
         <p class="font-normal text-gray-700 mb-4">
-            Has iniciado sesión con el rol de <span class="font-semibold text-black">{{ current_user.rol }}</span>. 
+            Has iniciado sesión con el rol de <span class="font-semibold text-black">{{ current_user.roles[0].name }}</span>. 
             Usa el menú lateral para navegar entre los módulos.
         </p>
         
-        {% if current_user.rol == 'Administrador' %}
+        {% if current_user.roles[0].name  == 'admin' %}
             <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
                 <span class="font-medium">Acceso Total:</span> Tienes permisos para gestionar usuarios, inventarios completos y auditorías.
             </div>
-        {% elif current_user.rol == 'Vendedores' %}
+        {% elif current_user.roles[0].name  == 'ventas' %}
             <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50" role="alert">
                 <span class="font-medium">Área de Ventas:</span> Tienes acceso al registro de pedidos y visualización de productos.
             </div>
