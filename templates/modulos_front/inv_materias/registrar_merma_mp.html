@@ -10,12 +10,15 @@
             <h1 class="font-elegant text-5xl text-black cursor-default">
                 Registrar Merma
             </h1>
-            <p class="text-gray-500 mt-2 text-sm">Define la cantidad, etapa y motivo de la pérdida general de insumos.</p>
+            <p class="text-gray-500 mt-2 text-sm">Define la cantidad, etapa y motivo de la pérdida general de insumos.
+            </p>
         </div>
-        
-        <a href="{{ url_for('inv_materias.mermas') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+
+        <a href="{{ url_for('inv_materias.mermas') }}"
+            class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+                </path>
             </svg>
             Regresar
         </a>
@@ -23,62 +26,102 @@
 
     <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
 
-        <form id="form-nueva-merma" class="space-y-8" action="#" method="POST">
-            
+        <form id="form-nueva-merma" class="space-y-8" action="{{ url_for('inv_materias.registrar_merma_mp') }}"
+            method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
                 <div class="relative z-0 w-full group">
-                    <select name="tipo_item" id="tipo_item" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
-                        <option value="materia_prima">Materia Prima</option>
-                        <option value="producto_proceso">Producto en Proceso</option>
-                    </select>
-                    <label for="tipo_item" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Tipo de Ítem</label>
+                    <input type="text" name="tipo_item" id="tipo_item"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-not-allowed"
+                        placeholder=" " readonly value="Materia Prima" />
+                    <label for="tipo_item"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Tipo
+                        de Ítem</label>
                 </div>
 
                 <div class="relative z-0 w-full group">
-                    <input type="number" name="item_id" id="item_id" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="item_id" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">ID del Ítem / Insumo</label>
+                    <select name="item_id" id="item_id"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300">
+                        <option value="" disabled selected>Selecciona un ítem o insumo...</option>
+
+                        {% for m in materias %}
+                        <option value="{{ m.id }}">
+                            {{ m.nombre }} (Stock: {{ m.cantidad_disponible }} {{ m.unidad_medida }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <label for="item_id"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">ID
+                        del Ítem / Insumo</label>
+
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-2">
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="etapa" id="etapa_nueva" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="etapa_nueva" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Etapa (Ej. Almacén)</label>
+                    <input type="text" name="etapa" id="etapa_nueva"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                        placeholder=" " required />
+                    <label for="etapa_nueva"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Etapa
+                        (Ej. Almacén)</label>
                 </div>
 
                 <div class="relative z-0 w-full group">
-                    <input type="number" step="0.01" name="cantidad_perdida" id="cantidad_nueva" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="cantidad_nueva" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Cant. Perdida</label>
+                    <input type="number" step="0.01" name="cantidad_perdida" id="cantidad_nueva"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                        placeholder=" " required />
+                    <label for="cantidad_nueva"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Cant.
+                        Perdida</label>
                 </div>
 
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="unidad_medida" id="unidad_nueva" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="unidad_nueva" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Unidad (Kg, Lts...)</label>
+                    <input type="text" name="unidad_medida" id="unidad_nueva"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                        placeholder=" " required />
+                    <label for="unidad_nueva"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Unidad
+                        (Kg, Lts...)</label>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="motivo" id="motivo_nuevo" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="motivo_nuevo" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Motivo Principal</label>
+                    <input type="text" name="motivo" id="motivo_nuevo"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                        placeholder=" " required />
+                    <label for="motivo_nuevo"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Motivo
+                        Principal</label>
                 </div>
 
-                <div class="relative z-0 w-full group">
-                    <input type="text" name="orden_produccion_id" id="orden_nueva" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " />
-                    <label for="orden_nueva" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Lote / Orden (Opcional)</label>
+                <div hidden class="relative z-0 w-full group">
+                    <input type="text" name="orden_produccion_id" id="orden_nueva"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                        placeholder=" " />
+                    <label for="orden_nueva"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Lote
+                        / Orden (Opcional)</label>
                 </div>
             </div>
 
             <div class="relative z-0 w-full group pt-2">
-                <textarea name="descripcion" id="desc_nueva" rows="3" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none" placeholder=" "></textarea>
-                <label for="desc_nueva" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Descripción Detallada</label>
+                <textarea name="descripcion" id="desc_nueva" rows="3"
+                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none"
+                    placeholder=" "></textarea>
+                <label for="desc_nueva"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Descripción
+                    Detallada</label>
             </div>
 
             <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
-                <a href="{{ url_for('inv_materias.mermas') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
+                <a href="{{ url_for('inv_materias.mermas') }}"
+                    class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
                     Cancelar
                 </a>
-                <button type="submit" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
+                <button type="submit"
+                    class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
                     Guardar Registro
                 </button>
             </div>

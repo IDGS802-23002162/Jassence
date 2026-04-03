@@ -42,7 +42,7 @@ class Usuario(db.Model, UserMixin):
     roles = db.relationship('Rol', secondary=roles_users, backref=db.backref('usuarios', lazy='dynamic'))
 
 class LogAuditoria(db.Model):
-    _tablename_ = 'logs_auditoria'
+    __tablename__ = 'log_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     usuario = db.relationship('Usuario')

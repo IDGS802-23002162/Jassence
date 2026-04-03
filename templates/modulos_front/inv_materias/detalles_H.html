@@ -12,71 +12,65 @@
                 Detalle de Auditoría
             </h1>
         </div>
-        
-        <a href="{{ url_for('inv_materias.historial') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+
+        <a href="{{ url_for('inv_materias.historial') }}"
+            class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+                </path>
             </svg>
             Regresar
         </a>
     </div>
 
     <div class="bg-white rounded-lg border border-gray-300 shadow-sm p-8 md:p-12 mb-6">
-        
+
         <div class="space-y-10">
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-                
-                <div class="space-y-1">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Fecha del Evento</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 font-mono text-gray-700">2026-03-26 14:20</p>
-                </div>
 
                 <div class="space-y-1">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Usuario Responsable</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4 italic">Admin_Perfume</p>
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Fecha de Registro</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">{{ historial.fecha.strftime('%Y-%m-%d') if historial.fecha else 'N/A' }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Tipo de Acción</p>
-                    <p class="text-xl font-bold border-l-2 border-black pl-4 uppercase">Entrada de Mercancía</p>
+                    <p class="text-xl font-bold border-l-2 border-black pl-4 uppercase">{{ historial.accion }}</p>
                 </div>
 
                 <div class="space-y-1">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Insumo Afectado</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">Esencia de Lavanda</p>
+                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Insumo / Ítem</p>
+                    <p class="text-xl font-medium border-l-2 border-black pl-4">{{ historial.tabla_afectada }} - ID: {{
+                        historial.registro_id }}</p>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Variación de Stock</p>
-                    <p class="text-3xl font-bold border-l-2 border-green-600 text-green-600 pl-4">+10.00 Lts</p>
+                    <p class="text-3xl font-bold border-l-2 border-green-600 text-green-600 pl-4">
+                        {{ historial.detalle }}
+                    </p>
                 </div>
 
-                <div class="space-y-1">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Estado Post-Movimiento</p>
-                    <p class="text-xl font-medium border-l-2 border-black pl-4">Óptimo</p>
-                </div>
             </div>
-
             <div class="bg-gray-50 rounded-lg p-6 border border-gray-100 mt-4">
                 <h3 class="font-elegant text-xl text-black mb-3 flex items-center gap-2">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M4 6h16M4 12h16M4 18h7" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                    Notas de Auditoría / Justificación
-                </h3>
-                <p class="text-gray-600 text-sm leading-relaxed italic">
-                    Compra a proveedor certificado. Lote #998.
-                </p>
-            </div>
-
+                        Notas de Auditoría / Justificación
+                    </h3>
+                    <p class="text-gray-600 text-sm leading-relaxed italic">
+                        {{ historial.detalle or 'No hay notas adicionales para este registro.' }}
+                    </p>
+                </div>
         </div>
-    </div>
 
-    <div class="text-center">
-        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">Registro de auditoría inmutable</p>
-    </div>
+        <div class="text-center">
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">Registro de auditoría inmutable
+            </p>
+        </div>
 
-</div>
-<br>
-{% endblock %}
+    </div>
+    <br>
+    {% endblock %}
