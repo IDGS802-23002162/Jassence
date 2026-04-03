@@ -171,6 +171,7 @@ class ProductoTerminado(db.Model):
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     stock_disponible_venta = db.Column(db.Integer)
+    stock_comprometido = db.Column(db.Integer, default=0)
     stock_minimo = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
