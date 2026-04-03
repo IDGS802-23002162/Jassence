@@ -51,16 +51,16 @@
             </div>
 
             <div class="flex items-center gap-4 sm:gap-6">
-                <button type="button" 
-                        data-drawer-target="drawer-cart" 
-                        data-drawer-show="drawer-cart" 
-                        data-drawer-placement="right" 
-                        aria-controls="drawer-cart" 
-                        class="text-gray-800 hover:text-black transition-colors relative flex items-center">
-                    <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    <span class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                <!-- En tu botón del carrito en el menú superior, asegúrate de tener este onclick -->
+                <button id="boton-carrito-nav" onclick="toggleCarritoSidebar()" class="relative p-2 text-gray-400 hover:text-black transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    
+                    <!-- Este es el numerito rojo que ahora cambiará solo -->
+                    {% if cantidad_total > 0 %}
+                    <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-black rounded-full shadow-md">
+                        {{ cantidad_total }}
+                    </span>
+                    {% endif %}
                 </button>
                 
                 <a href="/login" class="text-white bg-black hover:bg-gray-800 font-medium rounded-md text-sm px-5 py-2.5 transition-colors shadow-sm hidden sm:block">
@@ -225,5 +225,155 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+    <!-- FONDO OSCURO Y BARRA LATERAL DEL CARRITO -->
+<div id="carrito-sidebar-container" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="toggleCarritoSidebar()"></div>
+        <div class="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col animate-slide-in-right">
+        
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="font-elegant text-3xl text-black">Tu Compra</h2>
+            <button onclick="toggleCarritoSidebar()" class="p-2 text-gray-400 hover:text-black transition-colors rounded-full hover:bg-gray-100">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            {% if cantidad_total > 0 %}
+                <div class="space-y-6">
+                    {% for item in carrito_global.items %}
+                    <div class="flex gap-4">
+                        <div class="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100 p-2 shrink-0">
+                            <img src="{{ url_for('static', filename='img/productos/' ~ item.producto_terminado.receta.imagen_url) if item.producto_terminado and item.producto_terminado.receta.imagen_url else url_for('static', filename='img/ejemploPerfume.jpg') }}" class="h-full object-contain">
+                        </div>
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-gray-900 text-sm leading-tight pr-4">{{ item.producto_terminado.receta.nombre_perfume if item.producto_terminado else 'Producto' }}</h3>
+                                    
+                                    <!-- Botón Eliminar -->
+                                    <form action="{{ url_for('ecommerce.modificar_carrito') }}" method="POST" onsubmit="enviarFormularioCarrito(event, this)">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                                        <input type="hidden" name="accion" value="eliminar">
+                                        <button type="submit" class="text-gray-300 hover:text-red-500 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">{{ item.producto_terminado.presentacion.mililitros if item.producto_terminado else '0' }}ml</p>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mt-2">
+                                <!-- Controles + / - -->
+                                <div class="flex items-center border border-gray-200 rounded-lg">
+                                    <form action="{{ url_for('ecommerce.modificar_carrito') }}" method="POST" onsubmit="enviarFormularioCarrito(event, this)">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                                        <input type="hidden" name="accion" value="restar">
+                                        <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-50 transition-colors rounded-l-lg">-</button>
+                                    </form>
+                                    <span class="w-8 text-center text-sm font-bold">{{ item.cantidad }}</span>
+                                    <form action="{{ url_for('ecommerce.modificar_carrito') }}" method="POST" onsubmit="enviarFormularioCarrito(event, this)">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                                        <input type="hidden" name="accion" value="sumar">
+                                        <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-50 transition-colors rounded-r-lg">+</button>
+                                    </form>
+                                </div>
+                                <span class="font-black text-sm">${{ "%.2f"|format(item.cantidad * item.producto_terminado.precio_venta) if item.producto_terminado else '0.00' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="h-full flex flex-col items-center justify-center text-center space-y-4">
+                    <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    <p class="text-gray-500 uppercase tracking-widest text-sm font-bold">Tu bolsa está vacía</p>
+                    <button onclick="toggleCarritoSidebar()" class="mt-4 text-xs font-bold uppercase tracking-widest border-b-2 border-black pb-1 hover:text-gray-600 hover:border-gray-600 transition-colors">Seguir Comprando</button>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer del Sidebar (Solo si hay cosas) -->
+        {% if cantidad_total > 0 %}
+        <div class="border-t border-gray-100 p-6 bg-gray-50">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Subtotal</span>
+                <span class="text-xl font-black text-black">${{ "%.2f"|format(subtotal_carrito) }}</span>
+            </div>
+            <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest text-center">El IVA y el envío se calculan en el pago.</p>
+            
+            <a href="{{ url_for('ecommerce.pagar') }}" class="block w-full text-center text-white bg-black hover:bg-gray-800 font-bold uppercase tracking-widest rounded-lg text-sm px-8 py-4 transition-colors shadow-lg active:scale-95">
+                PROCEDER AL PAGO
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+    function toggleCarritoSidebar() {
+        const sidebar = document.getElementById('carrito-sidebar-container');
+        if (sidebar.classList.contains('hidden')) {
+            sidebar.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('hidden');
+        }
+    }
+
+
+    // NUEVA MAGIA: Enviar sin recargar
+    async function enviarFormularioCarrito(event, formulario) {
+        event.preventDefault(); // Detiene la molesta recarga de la página
+        
+        // Le damos un efecto visual al botón mientras procesa
+        const boton = formulario.querySelector('button');
+        boton.style.opacity = '0.5';
+        
+        try {
+            // 1. Enviamos el perfume al servidor en secreto
+            await fetch(formulario.action, {
+                method: formulario.method,
+                body: new FormData(formulario)
+            });
+
+            // 2. Traemos la página actual por detrás para ver cómo quedó el carrito
+            const respuesta = await fetch(window.location.href);
+            const html = await respuesta.text();
+            
+            // 3. Extraemos solo el carrito y el numerito del HTML que llegó
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const nuevoSidebar = doc.getElementById('carrito-sidebar-container');
+            const nuevoBotonNav = doc.getElementById('boton-carrito-nav');
+            
+            // 4. Reemplazamos lo viejo por lo nuevo en la pantalla
+            if(nuevoSidebar) document.getElementById('carrito-sidebar-container').innerHTML = nuevoSidebar.innerHTML;
+            if(nuevoBotonNav) document.getElementById('boton-carrito-nav').innerHTML = nuevoBotonNav.innerHTML;
+
+            // 5. ¡Detalle Pro! Si agregamos un producto desde el catálogo, abrimos el carrito automáticamente
+            if(formulario.action.includes('agregar_carrito')) {
+                document.getElementById('carrito-sidebar-container').classList.remove('hidden');
+            }
+
+        } catch (error) {
+            console.error("Error al actualizar el carrito:", error);
+        } finally {
+            boton.style.opacity = '1'; // Regresamos el botón a la normalidad
+        }
+    }
+</script>
+
+<style>
+    @keyframes slideInRight {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+    .animate-slide-in-right {
+        animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
 </body>
 </html>

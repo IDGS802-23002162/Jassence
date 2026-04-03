@@ -1,6 +1,6 @@
 {% extends "layout_tienda.html" %}
 
-{% block title %}Comprobante de Venta{% endblock %}
+{% block title %}Comprobante de Venta - {{ "%05d"|format(venta.id) }}{% endblock %}
 
 {% block content %}
 <br>
@@ -11,17 +11,21 @@
         <div class="text-center mb-6">
             <h1 class="text-2xl font-black uppercase tracking-tighter mb-1">Perfumería Jassence</h1>
             <p class="text-xs text-gray-500">RFC: PERF123456-ABC</p>
-            <p class="text-xs text-gray-500">Calle Fragancia #123, Ciudad</p>
+            <p class="text-xs text-gray-500">Tienda Online - jassence.com</p>
             <div class="border-b-2 border-dashed border-gray-300 my-4"></div>
         </div>
 
         <div class="flex justify-between mb-2">
             <span>ID Venta:</span>
-            <span class="font-bold">#VEN-00042</span>
+            <span class="font-bold">#VEN-{{ "%05d"|format(venta.id) }}</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span>Estado:</span>
+            <span class="font-bold text-green-600">{{ venta.estado_pedido }}</span>
         </div>
         <div class="flex justify-between mb-4">
             <span>Fecha:</span>
-            <span>28/03/2026 15:45</span>
+            <span>{{ venta.fecha.strftime('%d/%m/%Y %H:%M') if venta.fecha else '' }}</span>
         </div>
 
         <div class="border-b border-gray-200 mb-4"></div>
@@ -35,52 +39,52 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
+                {% for detalle in venta.detalles %}
                 <tr class="py-2">
                     <td class="py-3">
-                        <span class="block">1x Perfume 30ml</span>
+                        <span class="block">{{ detalle.cantidad }}x {{ detalle.producto_terminado.receta.nombre_perfume if detalle.producto_terminado else 'Perfume' }}</span>
+                        <span class="text-[10px] text-gray-400">{{ detalle.producto_terminado.presentacion.mililitros }}ml</span>
                     </td>
-                    <td class="py-3 text-right">$150.00</td>
-                    <td class="py-3 text-right">$150.00</td>
+                    <td class="py-3 text-right">${{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                    <td class="py-3 text-right font-bold">${{ "%.2f"|format(detalle.cantidad * detalle.precio_unitario) }}</td>
                 </tr>
-                <tr class="py-2">
-                    <td class="py-3">
-                        <span class="block">2x Perfume 50ml</span>
-                    </td>
-                    <td class="py-3 text-right">$220.00</td>
-                    <td class="py-3 text-right">$440.00</td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
 
         <div class="space-y-2 border-t border-gray-200 pt-4">
             <div class="flex justify-between">
                 <span>Subtotal:</span>
-                <span>$508.62</span>
+                <span>${{ "%.2f"|format(venta.total_venta / 1.16) }}</span>
             </div>
             <div class="flex justify-between">
                 <span>IVA (16%):</span>
-                <span>$81.38</span>
+                <span>${{ "%.2f"|format(venta.total_venta - (venta.total_venta / 1.16)) }}</span>
             </div>
-            <div class="flex justify-between text-lg font-black border-t-2 border-double border-gray-800 pt-2">
+            <div class="flex justify-between">
+                <span>Envío:</span>
+                <span>$0.00</span>
+            </div>
+            <div class="flex justify-between text-lg font-black border-t-2 border-double border-gray-800 pt-2 mt-2">
                 <span>TOTAL:</span>
-                <span>$590.00</span>
+                <span>${{ "%.2f"|format(venta.total_venta) }}</span>
             </div>
         </div>
 
         <div class="mt-6 p-2 bg-gray-50 text-center rounded">
             <span class="text-xs uppercase font-bold text-gray-500">Método de Pago:</span>
-            <span class="ml-2 font-bold uppercase">Tarjeta con terminacion: 4577</span>
+            <span class="ml-2 font-bold uppercase">{{ venta.metodo_pago_fisico|capitalize if venta.metodo_pago_fisico else 'Tarjeta' }}</span>
         </div>
 
         <div class="text-center mt-8 space-y-2">
-            <p class="text-xs uppercase">¡Gracias por su compra!</p>
-            <p class="text-[10px] text-gray-400 italic">Este no es un comprobante fiscal, para factura solicítela en mostrador.</p>
+            <p class="text-xs uppercase font-bold">¡Gracias por su compra en línea!</p>
+            <p class="text-[10px] text-gray-400 italic">Recibirá las guías de rastreo en su correo electrónico.</p>
         </div>
 
     </div>
 
     <div class="mt-8 flex gap-4 no-print">
-        <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-bold transition-all">
+        <a href="{{ url_for('ecommerce.ecommerce') }}" class="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-bold transition-all shadow-lg">
             Seguir comprando
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
         </a>
