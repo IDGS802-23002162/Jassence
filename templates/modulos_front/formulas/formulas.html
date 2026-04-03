@@ -6,30 +6,30 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
     
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
-        
         <h1 class="font-elegant text-6xl text-black cursor-default">
             Fórmulas
         </h1>
-        
     </div>
 
-
     <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
-        
-        <div class="relative flex-1 w-full">
+        <div class="relative flex-1 w-full text-black">
             <input type="text" id="busquedaFormula"
-                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
-                placeholder="Buscar...">
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                </svg>
-            </div>
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all"
+                placeholder="Buscar por perfume, inspiración o descripción...">
+            <div id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
+                </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <button id="limpiarTodo"
+                class="hidden px-4 py-2 h-[42px] text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border border-gray-300 transition-all whitespace-nowrap font-medium">
+                Limpiar Filtros
+            </button>
         </div>
 
         <div class="w-full md:w-auto">
             <a href="/formulas/nueva"
-                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm">
+                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm whitespace-nowrap">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -38,34 +38,33 @@
         </div>
     </div>
 
-    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark bg-[#2A2A2A]">
         <table class="w-full text-sm text-left text-gray-300">
-            <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+            <thead class="text-xs text-gray-200 uppercase">
                 <tr>
                     <th scope="col" class="px-6 py-4">Perfume</th>
                     <th scope="col" class="px-6 py-4">Inspiración</th>
                     <th scope="col" class="px-6 py-4">Descripción</th>
-                    <th scope="col" class="px-6 py-4 text-center">Ver</th>
+                    <th scope="col" class="px-6 py-4 text-center">Detalles</th>
                     <th scope="col" class="px-6 py-4 text-center">Editar</th>
                     <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tabla-formulas">
                 {% for receta in recetas %}
-                <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{{ receta.nombre_perfume }}</td>
-                    <td class="px-6 py-4">{{ receta.inspiracion }}</td>
-                    <td class="px-6 py-4">{{ receta.descripcion }}</td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <a href={{ url_for('formulas.detalle_formula', id=receta.id) }} 
-                        class="font-medium text-gray-300 hover:text-white">Detalles</a>
+                <tr class="fila-formula bg-table-dark border-t border-[#454545] hover:bg-[#454545] transition-colors">
+                    <td class="col-nombre px-6 py-4 font-medium text-white whitespace-nowrap">{{ receta.nombre_perfume }}</td>
+                    <td class="col-inspiracion px-6 py-4">{{ receta.inspiracion }}</td>
+                    <td class="col-descripcion px-6 py-4">{{ receta.descripcion }}</td>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('formulas.detalle_formula', id=receta.id) }}" 
+                           class="font-medium text-gray-300 hover:text-white transition-colors">Ver</a>
                     </td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <a href={{ url_for('formulas.modificar_formula', id=receta.id) }} 
-                        class="font-medium text-gray-300 hover:text-white">Modificar</a>
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
+                        <a href="{{ url_for('formulas.modificar_formula', id=receta.id) }}" 
+                           class="font-medium text-gray-300 hover:text-white transition-colors">Modificar</a>
                     </td>
-                    
-                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                    <td class="px-6 py-4 text-center border-l border-[#454545]">
                         <button type="button" 
                                 onclick="prepararEliminarFormula('{{ receta.id }}', '{{ receta.nombre_perfume }}')" 
                                 data-modal-target="modal-eliminar-formula" 
@@ -79,9 +78,61 @@
             </tbody>
         </table>
     </div>
-
-    </div> 
+</div> 
 
 {% include 'modulos_front/formulas/eliminar.html' %}
 
+<script>
+    const buscador = document.getElementById('busquedaFormula');
+    const filas = document.querySelectorAll('.fila-formula');
+    const iconoContainer = document.getElementById('icono-buscador');
+    const btnLimpiarTodo = document.getElementById('limpiarTodo');
+
+    // SVGs
+    const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
+    const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
+
+    // Cargar estado inicial desde sessionStorage
+    buscador.value = sessionStorage.getItem('busqueda_formula') || '';
+
+    function filtrarFormulas() {
+        const texto = buscador.value.toLowerCase();
+        sessionStorage.setItem('busqueda_formula', buscador.value);
+
+        filas.forEach(fila => {
+            const nombre = fila.querySelector('.col-nombre').textContent.toLowerCase();
+            const inspiracion = fila.querySelector('.col-inspiracion').textContent.toLowerCase();
+            const descripcion = fila.querySelector('.col-descripcion').textContent.toLowerCase();
+
+            const coincide = nombre.includes(texto) || 
+                             inspiracion.includes(texto) || 
+                             descripcion.includes(texto);
+
+            fila.style.display = coincide ? '' : 'none';
+        });
+
+        // UI updates
+        btnLimpiarTodo.classList.toggle('hidden', texto.length === 0);
+        iconoContainer.innerHTML = texto ? cerrar : lupa;
+    }
+
+    // Eventos
+    buscador.addEventListener('input', filtrarFormulas);
+
+    btnLimpiarTodo.addEventListener('click', () => {
+        buscador.value = "";
+        sessionStorage.removeItem('busqueda_formula');
+        filtrarFormulas();
+    });
+
+    iconoContainer.addEventListener('click', () => {
+        if (buscador.value) {
+            buscador.value = '';
+            filtrarFormulas();
+        }
+    });
+
+    // Ejecutar al cargar para aplicar filtros guardados
+    filtrarFormulas();
+</script>
 {% endblock %}
