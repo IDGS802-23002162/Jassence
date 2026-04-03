@@ -1,44 +1,34 @@
 from models import db, LogAuditoria, MermaInventario, ProductoTerminado, OrdenProduccion
 from . import inventarioP_bp
 from flask import render_template, request, redirect, url_for
+from flask_security import roles_required, current_user
+from modulos_routes.auditoria.utils import registrar_log
 
 class Usuario:
     def __init__(self, nombre, rol):
         self.nombre = nombre
         self.rol = rol
 
-# ==========================================
-# LOG DE AUDITORÍA
-# ==========================================
-
-def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
-    log = LogAuditoria(
-        usuario_id=usuario_id,
-        accion=accion,
-        tabla_afectada=tabla,
-        registro_id=registro_id,
-        detalle=detalle
-    )
-    db.session.add(log)
 
 # ==========================================
 # INVENTARIO PRODUCTOS TERMINADOS
 # ==========================================
 
+
 @inventarioP_bp.route('/inventario_P')
+@roles_required('admin','inventario','produccion')
 def inventario_P():
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     productos = ProductoTerminado.query.all()
 
     return render_template(
         'modulos_front/inv_productos/inv_P.html',
-        current_user=usuario_logueado,
         productos=productos
     )
 
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_P/<int:id>')
+@roles_required('admin','inventario','produccion')
 def detalle_P(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
@@ -47,10 +37,8 @@ def detalle_P(id):
         venta_id=None 
     ).all()
 
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     return render_template(
         'modulos_front/inv_productos/detalle_P.html',
-        current_user=usuario_logueado,
         producto=producto,
         ordenes=ordenes_stock_fisico # El HTML solo recibe lo que es para la tienda
     )
@@ -58,6 +46,7 @@ def detalle_P(id):
 # ------------------------------------------
 
 @inventarioP_bp.route('/merma_Pmodel/<int:id>', methods=['POST'])
+@roles_required('admin','inventario','produccion')
 def merma_Pmodel(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
@@ -82,12 +71,12 @@ def merma_Pmodel(id):
 
     db.session.add(nueva_merma)
 
-    crear_log(
-        "UPDATE",
-        "productos_terminados",
-        id,
-        f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}",
-        usuario_id=None
+    registrar_log(
+        usuario_id=current_user.id,
+        accion="CREATE",
+        tabla="MermaInventario",
+        registro_id=id,
+        detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
     )
 
     db.session.commit()
@@ -95,6 +84,7 @@ def merma_Pmodel(id):
     return redirect(url_for('inventarioP.inventario_P'))
 
 @inventarioP_bp.route('/ordenes_por_producto/<int:producto_id>')
+@roles_required('admin','inventario','produccion')
 def ordenes_por_producto(producto_id):
     ordenes = OrdenProduccion.query.filter_by(
         producto_terminado_id=producto_id
@@ -113,17 +103,18 @@ def ordenes_por_producto(producto_id):
 # ------------------------------------------
 
 @inventarioP_bp.route('/eliminar_P/<int:id>', methods=['POST'])
+@roles_required('admin','inventario','produccion')
 def eliminar_P(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
     db.session.delete(producto)
 
-    crear_log(
+    registrar_log(
+        usuario_id=current_user.id,
         accion="DELETE",
         tabla="productos_terminados",
         registro_id=id,
         detalle=f"Producto eliminado ID: {id}",
-        usuario_id=None
     )
 
     db.session.commit()
@@ -135,19 +126,19 @@ def eliminar_P(id):
 # ==========================================
 
 @inventarioP_bp.route('/inventario_PM')
+@roles_required('admin','inventario','produccion')
 def inventario_PM():
     mermas = MermaInventario.query.all()
 
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     return render_template(
         'modulos_front/inv_productos/inventario_PM.html',
-        current_user=usuario_logueado,
         mermas=mermas
     )
 
 # ------------------------------------------
 
 @inventarioP_bp.route('/registrar_PM', methods=['GET', 'POST'])
+@roles_required('admin','inventario','produccion')
 def registrar_PM():
     if request.method == 'POST':
         item_id = request.form.get('item_id')
@@ -174,12 +165,12 @@ def registrar_PM():
             orden_produccion_id=request.form.get('orden_produccion_id')
         )
 
-        crear_log(
-            "UPDATE",
-            "productos_terminados",
-            producto.id,
-            f"Merma registrada: {cantidad} unidades en etapa {request.form.get('etapa')}",
-            usuario_id=None
+        registrar_log(
+        usuario_id=current_user.id,
+        accion="CREATE",
+        tabla="MermaInventario",
+        registro_id=id,
+        detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
         )
 
         db.session.add(nueva_merma)
@@ -189,23 +180,20 @@ def registrar_PM():
 
     productos = ProductoTerminado.query.all()
 
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     return render_template(
         'modulos_front/inv_productos/registrar_PM.html',
-        current_user=usuario_logueado,
         productos=productos
     )
 
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_Pmerma/<int:id>')
+@roles_required('admin','inventario','produccion')
 def detalle_Pmerma(id):
     merma = MermaInventario.query.get_or_404(id)
 
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
     return render_template(
         'modulos_front/inv_productos/detalle_Pmerma.html',
-        current_user=usuario_logueado,
         merma=merma
     )
 
@@ -214,30 +202,28 @@ def detalle_Pmerma(id):
 # ==========================================
 
 @inventarioP_bp.route('/historial_P')
+@roles_required('admin','inventario','produccion')
 def historial_P():
     historial = LogAuditoria.query\
         .filter_by(tabla_afectada='productos_terminados')\
         .order_by(LogAuditoria.fecha.desc())\
         .all()
 
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
 
     return render_template(
         'modulos_front/inv_productos/historial_P.html',
-        current_user=usuario_logueado,
         historial=historial
     )
 
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_PH/<int:id>')
+@roles_required('admin','inventario','produccion')
 def detalle_PH(id):
     historial = LogAuditoria.query.get_or_404(id)
 
-    usuario_logueado = Usuario(nombre="Usuario", rol="Administrador")
 
     return render_template(
         'modulos_front/inv_productos/detalle_PH.html',
-        current_user=usuario_logueado,
         historial=historial
     )

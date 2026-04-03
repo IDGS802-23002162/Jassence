@@ -11,14 +11,14 @@ auditorias_bp = Blueprint('auditorias', __name__)
 @auditorias_bp.route("/auditoria", methods=['GET'])
 @roles_required('admin') 
 def auditoria():
-    tablas_inventario = ['materias_primas', 'productos_terminados', 'merma_inventario']
+    tablas_inventario = ['materias_primas', 'productos_terminados', 'MermaInventario']
     logs = LogAuditoria.query.filter(LogAuditoria.tabla_afectada.in_(tablas_inventario))\
                              .order_by(LogAuditoria.fecha.desc()).all()
 
     stats = {
         'productos': LogAuditoria.query.filter_by(tabla_afectada='productos_terminados').count(),
         'materia_prima': LogAuditoria.query.filter_by(tabla_afectada='materias_primas').count(),
-        'mermas': LogAuditoria.query.filter_by(tabla_afectada='merma_inventario').count()
+        'mermas': LogAuditoria.query.filter_by(tabla_afectada='MermaInventario').count()
     }
     
     return render_template("modulos_front/auditoria/movInventarios.html", logs=logs, stats=stats)
