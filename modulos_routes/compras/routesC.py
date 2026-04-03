@@ -3,6 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import render_template, request, redirect, url_for, flash, current_app
 from models import db, Proveedor, Compra, DetalleCompra, MateriaPrima
+from datetime import datetime, timedelta
 
 @compras_bp.route('/proveedores')
 def proveedores():
@@ -87,6 +88,30 @@ def baja_P(id):
 # //////////////////////////////////////////////////////////////
 @compras_bp.route('/compras')
 def compras():
+    compras_pendientes = Compra.query.filter_by(estado='Pendiente').all()
+    ahora = datetime.utcnow()
+
+    # ========================================================
+    # ⏱️ CONFIGURACIÓN DEL TIEMPO
+    # ========================================================
+    tiempo_espera = timedelta(hours=1) 
+    hubo_cambios = False
+
+    for compra in compras_pendientes:
+        if compra.fecha and ahora >= (compra.fecha + tiempo_espera):
+            compra.estado = 'Recibido'
+            
+            for detalle in compra.detalles:
+                mp = MateriaPrima.query.get(detalle.materia_prima_id)
+                if mp:
+                    mp.cantidad_disponible += detalle.cantidad_convertida
+                    
+            hubo_cambios = True
+
+    if hubo_cambios:
+        db.session.commit()
+    # --- FIN DE LA MÁQUINA DEL TIEMPO ---
+
     lista_compras = Compra.query.order_by(Compra.fecha.desc()).all()
     return render_template('modulos_front/compras/compras.html', compras=lista_compras)
 
@@ -152,28 +177,25 @@ def registrar_C():
             usuario_id=1, 
             archivo_factura=nombre_archivo,
             notas=notas,
-            estado='entregado'
+            estado='Pendiente'
         )
         
         db.session.add(nueva_compra)
-        db.session.flush() # Esto nos da el ID de la compra antes del commit final
+        db.session.flush() 
 
         total_compra = 0
 
-        # Atrapamos la nueva lista del HTML
         cantidades_convertidas = request.form.getlist('cantidad_convertida[]')
 
-        # 4. Procesamos cada insumo del detalle
         for i in range(len(materias_ids)):
             id_mp = materias_ids[i]
             cant_comprada = float(cantidades[i]) # Ej: 2 (Cajas)
             prec = float(precios[i])
             cant_real_inventario = float(cantidades_convertidas[i]) # Ej: 100 (Botellas totales)
             
-            sub = cant_comprada * prec # El precio suele ser por la unidad de compra (ej. $300 por caja)
+            sub = cant_comprada * prec 
             total_compra += sub
 
-            # Creamos el registro del detalle
             detalle = DetalleCompra(
                 compra_id=nueva_compra.id,
                 materia_prima_id=id_mp,
@@ -185,16 +207,13 @@ def registrar_C():
             )
             db.session.add(detalle)
 
-            # 5. ACTUALIZACIÓN DE STOCK (¡Usamos la cantidad convertida!)
-            mp = MateriaPrima.query.get(id_mp)
-            if mp:
-                mp.cantidad_disponible += cant_real_inventario # Sumamos 100 botellas, no 2 cajas
+            # 5. ACTUALIZACIÓN DE STOCK (ELIMINADA DE AQUÍ)
 
         nueva_compra.total = total_compra
         
         try:
             db.session.commit()
-            flash('¡Compra y stock actualizados correctamente! UwU', 'success')
+            flash('¡Compra registrada como PENDIENTE! El stock entrará cuando llegue el camión. UwU', 'success')
             return redirect(url_for('compras.compras'))
         except Exception as e:
             db.session.rollback()
@@ -214,29 +233,76 @@ def cancelar_C(id):
     
     if compra.estado != 'cancelado':
         try:
+            estado_anterior = compra.estado # Guardamos si era Pendiente o Recibido
             compra.estado = 'cancelado'
             
-            for detalle in compra.detalles:
-                mp = MateriaPrima.query.get(detalle.materia_prima_id)
-                if mp:
-                    mp.cantidad_disponible -= detalle.cantidad_convertida
-                    
+            # SOLO le restamos al inventario si la mercancía ya había sido "Recibida"
+            if estado_anterior == 'Recibido':
+                for detalle in compra.detalles:
+                    mp = MateriaPrima.query.get(detalle.materia_prima_id)
+                    if mp:
+                        mp.cantidad_disponible -= detalle.cantidad_convertida
+                        
             db.session.commit()
-            flash('Compra anulada y stock revertido correctamente.', 'success')
+            flash('Compra anulada correctamente.', 'success')
         except Exception as e:
             db.session.rollback()
             flash('Ocurrió un error al anular.', 'error')
             
     return redirect(url_for('compras.compras'))
 
+
+@compras_bp.route('/agregar_materia_rapida', methods=['POST'])
+def agregar_materia_rapida():
+    nombre = request.form.get('nombre')
+    tipo = request.form.get('tipo')
+    unidad_medida = request.form.get('unidad_medida')
+    stock_minimo = float(request.form.get('stock_minimo', 0))
+    
+    # Inicia con 0 porque apenas la van a surtir en esta compra
+    nueva_materia = MateriaPrima(
+        nombre=nombre,
+        tipo=tipo,
+        unidad_medida=unidad_medida,
+        stock_minimo=stock_minimo,
+        cantidad_disponible=0.0 
+    )
+    db.session.add(nueva_materia)
+    db.session.commit()
+    
+    # Te regresa a la misma página de compras
+    return redirect(request.referrer)
 # ///////////////////////////////////////////////////////////////////
 
 @compras_bp.route('/historial_PC')
 def historial_PC():
-    # Traemos todas las transacciones ordenadas por fecha
+    # --- MÁQUINA DEL TIEMPO (Lazy Update) ---
+    ahora = datetime.utcnow()
+    tiempo_espera = timedelta(hours=1) 
+    
+    # Buscamos solo las que siguen esperando el camión
+    pendientes = Compra.query.filter_by(estado='Pendiente').all()
+    hubo_cambios = False
+
+    for compra in pendientes:
+        if compra.fecha and ahora >= (compra.fecha + tiempo_espera):
+            compra.estado = 'Recibido'
+            for detalle in compra.detalles:
+                mp = MateriaPrima.query.get(detalle.materia_prima_id)
+                if mp:
+                    mp.cantidad_disponible += detalle.cantidad_convertida
+            hubo_cambios = True
+
+    if hubo_cambios:
+        db.session.commit()
+
+    # --- CARGA NORMAL DE LA PÁGINA ---
     logs = Compra.query.order_by(Compra.fecha.desc()).all()
     proveedores = Proveedor.query.filter_by(activo=True).all()
-    return render_template('modulos_front/compras/historial_PC.html', logs=logs, proveedores=proveedores)
+    
+    return render_template('modulos_front/compras/historial_PC.html', 
+                           logs=logs, 
+                           proveedores=proveedores)
 
 
 @compras_bp.route('/detalle_H/<int:id>')
