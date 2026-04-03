@@ -11,8 +11,8 @@ db = SQLAlchemy()
 class Rol(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -22,6 +22,8 @@ class Usuario(db.Model):
     correo = db.Column(db.String(150), unique=True)
     password_hash = db.Column(db.String(255))
     estado = db.Column(db.Boolean, default=True)
+
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
 
     rol = db.relationship('Rol')
 
@@ -164,7 +166,7 @@ class Presentacion(db.Model):
     mililitros = db.Column(db.Integer)
 
 class ProductoTerminado(db.Model):
-    _tablename_ = 'productos_terminados'
+    __tablename__ = 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
