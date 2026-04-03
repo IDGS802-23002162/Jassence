@@ -1,80 +1,49 @@
 {% extends "layout_sistema.html" %}
 
-{% block title %}Roles{% endblock %}
+{% block title %}Roles - Jassence{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
     
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
-        <a href="/usuarios" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
+        <a href="{{ url_for('usuarios.usuarios') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
             Usuarios
         </a>
         
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         
         <h1 class="font-elegant text-6xl text-black cursor-default">
-            Gestion de roles
+            Roles
         </h1>
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
-        
-        <div class="relative flex-1 w-full">
-            <input type="text" id="busquedaRol"
-                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
-                placeholder="Buscar...">
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                </svg>
-            </div>
-        </div>
-
-        <div class="w-full md:w-auto">
-            <a href="/insertarRol"
-                class="w-full bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shadow-lg font-medium flex items-center justify-center gap-2 text-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Crear Rol
-            </a>
-        </div>
     </div>
 
     <div class="relative overflow-x-auto shadow-xl rounded-lg">
         <table class="w-full text-sm text-left text-gray-300">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
-                    <th scope="col" class="px-6 py-4">Nombre</th>
-                    <th scope="col" class="px-6 py-4">Permisos</th>
-                    <th scope="col" class="px-6 py-4">Cantidad de usuarios</th>
-                    <th scope="col" class="px-6 py-4 text-center">Editar</th>
-                    <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
+                    <th scope="col" class="px-6 py-4">Identificador Técnico</th>
+                    <th scope="col" class="px-6 py-4">Descripción de Funciones</th>
+                    <th scope="col" class="px-6 py-4 text-center">Usuarios</th>
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(5) %}
+                {% for rol in roles %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Administrador</td>
-                    <td class="px-6 py-4">Acceso Total</td>
-                    <td class="px-6 py-4">3</td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark"><a href="/modificarRol" class="font-medium text-gray-300 hover:text-white">Modificar</a></td>
-                    
-                    <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <button type="button" 
-                                onclick="prepararEliminarRol('{{ i }}', 'Administrador {{ i }}')" 
-                                data-modal-target="modal-eliminar-rol-global" 
-                                data-modal-toggle="modal-eliminar-rol-global" 
-                                class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
-                            Eliminar
-                        </button>
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">
+                        <code class="px-2 py-1 bg-gray-700 text-gray-200 rounded text-xs uppercase tracking-wider" >{{ rol.name }}</code>
+                    </td>
+                    <td class="px-6 py-4 text-gray-400 italic">
+                        {{ rol.description if rol.description else 'Sin descripción detallada' }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="bg-black text-white px-3 py-1 rounded-full text-xs border border-gray-700">
+                            {{ rol.usuarios.count() }}
+                        </span>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-</div> {% include 'modulos_front/usuarios/roles/eliminar.html' %}
-
+</div>
 {% endblock %}

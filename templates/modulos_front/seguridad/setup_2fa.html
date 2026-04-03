@@ -1,0 +1,92 @@
+{% extends "layout_tienda.html" %}
+
+{% block title %}Verificación de Seguridad - Jassence{% endblock %}
+
+{% from "_macros.html" import render_field %}
+
+{% block content %}
+<br>
+<div class="min-h-[80vh] flex flex-col md:flex-row items-center justify-center gap-12 py-10">
+    
+    <div class="w-full max-w-md space-y-6">
+        
+        {# ==========================================
+           TARJETA 1: SOLICITAR CÓDIGO
+           ========================================== #}
+        <div class="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-gray-100">
+            <h1 class="text-3xl text-center font-serif italic text-black mb-4">Paso 1: Envío</h1>
+            <p class="text-center text-gray-600 mb-6 text-sm">
+                Verifica tu correo electrónico.
+            </p>
+            
+            <form action="{{ url_for_security('two_factor_setup') }}" method="POST" name="two_factor_setup_form" class="space-y-6">
+                {{ two_factor_setup_form.hidden_tag() }}
+
+                <div class="space-y-4">
+                    {% for subfield in two_factor_setup_form.setup %}
+                        {% if subfield.data == 'email' %}
+                            <label class="flex items-center justify-between p-4 border border-gray-200 rounded-lg cursor-pointer bg-gray-50 transition-all hover:bg-white hover:border-gray-300">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-black p-2 rounded-full text-white">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="block text-sm font-semibold text-black uppercase tracking-wider">Correo Electrónico</span>
+                                    </div>
+                                </div>
+                                {{ subfield(checked=True, class="w-4 h-4 text-black focus:ring-black border-gray-300") }}
+                            </label>
+                        {% else %}
+                            <div class="hidden">{{ subfield() }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <button type="submit" name="submit" value="Submit"
+                    class="w-full text-black bg-white border border-black hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors">
+                    Solicitar Código
+                </button>
+            </form>
+        </div>
+
+        {# ==========================================
+           TARJETA 2: VALIDAR CÓDIGO (Aparece al solicitar)
+           ========================================== #}
+        {% if two_factor_verify_code_form %}
+        <div class="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-gray-100">
+            <h1 class="text-3xl text-center font-serif italic text-black mb-4">Paso 2: Verificar</h1>
+            <p class="text-center text-gray-600 mb-6 text-sm">
+                Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación.
+            </p>
+            
+            <form action="{{ url_for('security.two_factor_token_validation') }}" method="POST" class="space-y-6" name="two_factor_verify_code_form">
+                {{ two_factor_verify_code_form.hidden_tag() }}
+
+                {{ render_field(two_factor_verify_code_form.code, 
+                    class="bg-white border border-gray-300 text-gray-900 text-center text-2xl tracking-widest rounded-lg focus:ring-black focus:border-black block w-full p-4", 
+                    placeholder="000000",
+                    autocomplete="one-time-code") 
+                }}
+
+                <button type="submit" name="submit" value="Submit Code"
+                    class="w-full text-white bg-[#2D2D2D] hover:bg-black focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors mt-4">
+                    Verificar y Entrar
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+    </div>  
+
+    {# ==========================================
+       COLUMNA DERECHA: IMAGEN / LOGO
+       ========================================== #}
+    <div class="hidden md:flex flex-col items-center justify-center w-full max-w-lg">
+        <img src="{{ url_for('static', filename='img/NF-Logo.png') }}" alt="Jassence Logo" class="w-full h-auto object-contain">
+    </div>
+
+</div>
+<br>
+{% endblock %}

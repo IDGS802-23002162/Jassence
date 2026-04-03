@@ -1,0 +1,16 @@
+{% extends "security/email/_base.html" %}
+
+{% block content %}
+    <h2 style="color: #000;">Bienvenido a la plataforma Jassence</h2>
+    <p>Hola,</p>
+    <p>Se ha creado o solicitado una actualización de acceso para tu cuenta vinculada a este correo electrónico.</p>
+    <p>Para establecer o restablecer tu contraseña de acceso al sistema, por favor haz clic en el siguiente botón:</p>
+    
+    <div style="text-align: center;">
+        <a href="{{ reset_link }}" class="button">Establecer mi contraseña</a>
+    </div>
+
+    <p style="margin-top: 30px; font-size: 13px; color: #6b7280;">
+        Este enlace expirará en {{ reset_within }}. Si tú no solicitaste este acceso, puedes ignorar este correo de forma segura.
+    </p>
+{% endblock %}

@@ -1,39 +1,56 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin
 from datetime import datetime
 
 db = SQLAlchemy()
 
-# ///////////////////////////////////////
-# SEGURIDAD 
-# ///////////////////////////////////////
+# ==========================================
+# SEGURIDAD (Adaptado para Flask-Security-Too)
+# ==========================================
 
-class Rol(db.Model):
+# Tabla intermedia obligatoria para relacionar Usuarios y Roles
+roles_users = db.Table('roles_users',
+    db.Column('usuario_id', db.Integer(), db.ForeignKey('usuarios.id')),
+    db.Column('rol_id', db.Integer(), db.ForeignKey('roles.id'))
+)
+
+class Rol(db.Model, RoleMixin):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    name = db.Column(db.String(80), unique=True) # Flask-Security exige que se llame 'name'
+    description = db.Column(db.String(255))      # Flask-Security exige 'description'
 
-
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     __tablename__ = 'usuarios'
-    id = db.Column(db.Integer, primary_key=True)
-    rol_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    nombre = db.Column(db.String(150))
-    correo = db.Column(db.String(150), unique=True)
-    password_hash = db.Column(db.String(255))
-    estado = db.Column(db.Boolean, default=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    # --- CAMPOS OBLIGATORIOS FLASK-SECURITY ---
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
+    # -------------------------------------------
 
-    rol = db.relationship('Rol')
+    # --- NUEVO: CAMPOS OBLIGATORIOS PARA 2FA (Flask-Security) ---
+    tf_primary_method = db.Column(db.String(64), nullable=True)
+    tf_totp_secret = db.Column(db.String(255), nullable=True)
+    tf_phone_number = db.Column(db.String(128), nullable=True)
 
+    nombre = db.Column(db.String(150), nullable=True) 
+    apellidos = db.Column(db.String(150), nullable=True) 
+    telefono = db.Column(db.String(20), nullable=True)
+    roles = db.relationship('Rol', secondary=roles_users, backref=db.backref('usuarios', lazy='dynamic'))
 
 class LogAuditoria(db.Model):
-    __tablename__ = 'logs_auditoria'
+    _tablename_ = 'logs_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    accion = db.Column(db.String(255))
+    usuario = db.relationship('Usuario')
+    accion = db.Column(db.String(50))  # CREATE, UPDATE, DELETE
     tabla_afectada = db.Column(db.String(100))
+    registro_id = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
-
 
 # ///////////////////////////////////////
 # CLIENTES 
@@ -43,12 +60,11 @@ class Cliente(db.Model):
     __tablename__ = 'clientes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
-    apellido = db.Column(db.String(100))
-    correo = db.Column(db.String(150), unique=True)
+    apellidos = db.Column(db.String(100))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), unique=True)
     telefono = db.Column(db.String(20))
-    password_hash = db.Column(db.String(255))
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-    estado = db.Column(db.Boolean, default=True)
+    usuario = db.relationship('Usuario', backref=db.backref('cliente', uselist=False))
 
 
 class DireccionEntrega(db.Model):
@@ -154,17 +170,18 @@ class Presentacion(db.Model):
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
 
-
 class ProductoTerminado(db.Model):
-    __tablename__ = 'productos_terminados'
+    _tablename_ = 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     stock_disponible_venta = db.Column(db.Integer)
-    stock_comprometido = db.Column(db.Integer)
     stock_minimo = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
+
+    receta = db.relationship('Receta')
+    presentacion = db.relationship('Presentacion')
 
 
 class OrdenProduccion(db.Model):

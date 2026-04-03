@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for
-from flask import flash
+from flask import Flask, render_template
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
-from flask import g
-  
+from flask_security import Security, SQLAlchemyUserDatastore
+from forms import CustomRegisterForm, CustomLoginForm
+from flask_mailman import Mail
+from flask_security import auth_required, current_user, roles_required, roles_accepted
+from initRoles import inicializar_roles
 
+from models import db, Usuario, Rol
 
-from models import db
-#Importe de rutas 
+# Importe de rutas 
 from modulos_routes.seguridad.routes import seguridad_bp
 from modulos_routes.usuarios.routes import usuarios_bp
 from modulos_routes.formulas import formulas_bp
@@ -24,20 +26,15 @@ from modulos_routes.finanzas import finanzas_bp
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
-class UsuarioFalso:
-    nombre = "Erick"
-    rol = "Admin"
-@app.context_processor
-def inyectar_usuario():
-    # Esto envía el 'current_user' falso a TODOS los archivos HTML automáticamente
-    return dict(current_user=UsuarioFalso())
-
-
-csrf=CSRFProtect()
 db.init_app(app)
+csrf = CSRFProtect(app)
+mail = Mail(app)
 
-#Registro de rutas 
+user_datastore = SQLAlchemyUserDatastore(db, Usuario, Rol)
+security = Security(app, user_datastore, register_form=CustomRegisterForm, login_form=CustomLoginForm, mail_util=mail)
 
+
+# Registro de rutas 
 app.register_blueprint(ecommerce_bp)
 app.register_blueprint(invMP_bp)
 app.register_blueprint(seguridad_bp)
@@ -51,21 +48,20 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(pos_bp)
 app.register_blueprint(finanzas_bp)
 
-
-# Ahora el index del sistema es /inicio
+# Rutas principales
 @app.route('/inicio')
+@roles_accepted('admin', 'ventas', 'produccion', 'inventario')
 def index():
-    
     return render_template('index.html')
 
-@app.errorhandler(404)
-def page_not_fount(e):
-	return render_template("404.html"),404
 
+@app.errorhandler(404)
+def page_not_found(e): 
+    return render_template("404.html"), 404
 
 if __name__ == '__main__':
-	csrf.init_app(app)
-	with app.app_context():
-		db.create_all()
-	app.run()
-
+    with app.app_context():
+        db.create_all()
+        inicializar_roles()
+    print("Tablas creadas con éxito.")
+    app.run()

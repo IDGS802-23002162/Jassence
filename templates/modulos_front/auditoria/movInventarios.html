@@ -1,99 +1,144 @@
 {% extends "layout_sistema.html" %}
-
 {% block title %}Bitácora Inventario{% endblock %}
 
 {% block content %}
-
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
-    
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
-        
-        <h1 class="font-elegant text-6xl text-black cursor-default">
-            Inventarios
-        </h1>
-        
+        <h1 class="font-elegant text-6xl text-black cursor-default">Inventarios</h1>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-
-        <a href="/auditoria/accesos" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Accesos
-        </a>
-        
+        <a href="{{ url_for('auditorias.accesos') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Accesos</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-
-        <a href="/auditoria/usuarios" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Usuarios
-        </a>
-        
+        <a href="{{ url_for('auditorias.usuarios') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Usuarios</a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-lg border border-gray-400 p-4 shadow-sm flex flex-col justify-center">
             <div class="flex items-center text-gray-900 mb-1">
-                <svg class="w-5 h-5 mr-2 text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                </svg>
-                <span class="text-sm font-semibold">Cambios en productos</span>
+                <span class="text-sm font-semibold uppercase tracking-wider">Productos</span>
             </div>
-            <span class="text-sm text-gray-600 ml-7">0</span>
+            <span class="text-2xl font-bold text-gray-800">{{ stats.productos }}</span>
         </div>
-
         <div class="bg-white rounded-lg border border-gray-400 p-4 shadow-sm flex flex-col justify-center">
             <div class="flex items-center text-gray-900 mb-1">
-                <svg class="w-5 h-5 mr-2 text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                </svg>
-                <span class="text-sm font-semibold">Cambios en materia prima</span>
+                <span class="text-sm font-semibold uppercase tracking-wider">Materia Prima</span>
             </div>
-            <span class="text-sm text-gray-600 ml-7">0</span>
+            <span class="text-2xl font-bold text-gray-800">{{ stats.materia_prima }}</span>
         </div>
-
         <div class="bg-white rounded-lg border border-gray-400 p-4 shadow-sm flex flex-col justify-center">
             <div class="flex items-center text-gray-900 mb-1">
-                <svg class="w-5 h-5 mr-2 text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                </svg>
-                <span class="text-sm font-semibold">Ajustes manuales</span>
+                <span class="text-sm font-semibold uppercase tracking-wider">Mermas / Ajustes</span>
             </div>
-            <span class="text-sm text-gray-600 ml-7">0</span>
+            <span class="text-2xl font-bold text-gray-800">{{ stats.mermas }}</span>
         </div>
     </div>
 
-    <div class="mb-6 relative w-full">
-        <input type="text" id="buscador" class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm" placeholder="Buscar">
-        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-            </svg>
-        </div>
-    </div>
+   <div class="mb-6 flex flex-col md:flex-row gap-4 items-center">
+
+    <!-- Buscador -->
+    <input type="text" id="buscador" onkeyup="filtrarTabla()"
+        class="w-full md:w-1/4 p-2.5 border border-gray-300 rounded-lg"
+        placeholder="Buscar responsable o detalle...">
+
+    <!-- Fecha -->
+    <input type="date" id="filtroFecha" onchange="filtrarTabla()"
+        class="p-2.5 border border-gray-300 rounded-lg">
+
+    <!-- Tabla -->
+    <select id="filtroTabla" onchange="filtrarTabla()"
+        class="p-2.5 pr-10 border border-gray-300 rounded-lg">
+        <option value="">Todas las tablas</option>
+        <option value="productos_terminados">PRODUCTOS</option>
+        <option value="materias_primas">MATERIA</option>
+        <option value="merma_inventario">MERMAS</option>
+    </select>
+
+    <!-- Acción -->
+    <select id="filtroAccion" onchange="filtrarTabla()"
+        class="p-2.5 pr-10 border border-gray-300 rounded-lg">
+        <option value="">Todas las acciones</option>
+        <option value="ENTRADA">Entrada</option>
+        <option value="SALIDA">Salida</option>
+        <option value="MERMA">Merma</option>
+    </select>
+
+
+</div>
 
     <div class="relative overflow-x-auto shadow-xl rounded-lg">
-        <table class="w-full text-sm text-left text-gray-300">
+        <table class="w-full text-sm text-left text-gray-300" id="tablaDatos">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
-                    <th scope="col" class="px-6 py-4">Responsable</th>
-                    <th scope="col" class="px-6 py-4 border-l border-table-dark">Tipo</th>
-                    <th scope="col" class="px-6 py-4 border-l border-table-dark">Acción</th>
-                    <th scope="col" class="px-6 py-4 border-l border-table-dark">Fecha</th>
-                    <th scope="col" class="px-6 py-4 border-l border-table-dark">Modulo</th>
-                    <th scope="col" class="px-6 py-4 border-l border-table-dark">Nota</th>
+                    <th class="px-6 py-4">Responsable</th>
+                    <th class="px-6 py-4 border-l border-table-dark">Tabla</th>
+                    <th class="px-6 py-4 border-l border-table-dark">Acción</th>
+                    <th class="px-6 py-4 border-l border-table-dark">Fecha</th>
+                    <th class="px-6 py-4 border-l border-table-dark">Detalle</th>
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(8) %}
+                {% for log in logs %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Responsable {{ i + 1 }}</td>
-                    <td class="px-6 py-4 border-l border-table-dark">Materia Prima</td>
-                    <td class="px-6 py-4 border-l border-table-dark">Modificación</td>
-                    <td class="px-6 py-4 border-l border-table-dark">2026-03-24 14:30</td>
-                    <td class="px-6 py-4 border-l border-table-dark">Inventario</td>
-                    <td class="px-6 py-4 border-l border-table-dark italic text-gray-400">Ajuste de inventario</td>
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{{ log.usuario.username if log.usuario else 'Sistema' }}</td>
+                    <td class="px-6 py-4 border-l border-table-dark">{{ log.tabla_afectada }}</td>
+                    <td class="px-6 py-4 border-l border-table-dark">
+                        <span class="{% if log.accion == 'DELETE' or log.accion == 'MERMA' %}text-red-400{% else %}text-green-400{% endif %} font-bold">{{ log.accion }}</span>
+                    </td>
+                    <td class="px-6 py-4 border-l border-table-dark">{{ log.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="px-6 py-4 border-l border-table-dark italic text-gray-400">{{ log.detalle }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+</div>
 
-    </div>
+<script>
+function filtrarTabla() {
+    let input = document.getElementById("buscador").value.toLowerCase();
+    let fechaFiltro = document.getElementById("filtroFecha").value;
+    let tablaFiltro = document.getElementById("filtroTabla").value;
+    let accionFiltro = document.getElementById("filtroAccion").value;
 
+    let tabla = document.getElementById("tablaDatos");
+    let filas = tabla.getElementsByTagName("tr");
+
+    for (let i = 1; i < filas.length; i++) {
+        let celdas = filas[i].getElementsByTagName("td");
+
+        if (celdas.length > 0) {
+            let responsable = celdas[0].textContent.toLowerCase();
+            let tablaDB = celdas[1].textContent.toLowerCase();
+            let accion = celdas[2].textContent.toUpperCase();
+            let fecha = celdas[3].textContent.split(" ")[0];
+            let detalle = celdas[4].textContent.toLowerCase();
+
+            let coincideBusqueda =
+                responsable.includes(input) || detalle.includes(input);
+
+            let coincideFecha =
+                !fechaFiltro || fecha === fechaFiltro;
+
+            let coincideTabla =
+                !tablaFiltro || tablaDB.includes(tablaFiltro);
+
+            let coincideAccion =
+                !accionFiltro || accion.includes(accionFiltro);
+
+            if (coincideBusqueda && coincideFecha && coincideTabla && coincideAccion) {
+                filas[i].style.display = "";
+            } else {
+                filas[i].style.display = "none";
+            }
+        }
+    }
+}
+
+function limpiarFiltros() {
+    document.getElementById("buscador").value = "";
+    document.getElementById("filtroFecha").value = "";
+    document.getElementById("filtroTabla").value = "";
+    document.getElementById("filtroAccion").value = "";
+    filtrarTabla();
+}
+</script>
 {% endblock %}

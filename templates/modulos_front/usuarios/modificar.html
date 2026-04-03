@@ -10,59 +10,75 @@
             <h1 class="font-elegant text-5xl text-black cursor-default">
                 {{ accion }} Usuario
             </h1>
-            <p class="text-gray-500 mt-2 text-sm">Completa los campos a continuación para guardar la información.</p>
+            <p class="text-gray-500 mt-2 text-sm">Actualiza la información del perfil y los permisos de acceso.</p>
         </div>
         
-        <a href="/usuarios" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <button type="button" onclick="window.history.back();" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
             Regresar
-        </a>
+        </button>
     </div>
 
     <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
         
-        <form class="space-y-6" action="#" method="POST">
-            
+        {# Apuntamos a la ruta de modificar pasando el ID real #}
+        <form class="space-y-6" action="{{ url_for('usuarios.modificar_usuario', id=datos.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <div class="relative z-0 w-full group">
-                <input type="email" name="email" id="email" value="{{ datos.email if datos else '' }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                <input type="email" name="email" id="email" value="{{ datos.email }}" 
+                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" 
+                       placeholder=" " required />
                 <label for="email" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Correo electrónico</label>
             </div>
 
             <div class="grid md:grid-cols-2 md:gap-8">
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="nombre" id="nombre" value="{{ datos.nombre if datos else '' }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <input type="text" name="nombre" id="nombre" value="{{ datos.nombre if datos.nombre else '' }}" 
+                           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" 
+                           placeholder=" " required />
                     <label for="nombre" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nombre</label>
                 </div>
                 
+                {# Nota: Si mantienes apellidos y teléfono, asegúrate de tenerlos en tu modelo #}
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="apellidos" id="apellidos" value="{{ datos.apellidos if datos else '' }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <input type="text" name="apellidos" id="apellidos" value="{{ datos.apellidos if datos.apellidos else '' }}" 
+                           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" 
+                           placeholder=" " />
                     <label for="apellidos" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Apellidos</label>
                 </div>
             </div>
 
             <div class="grid md:grid-cols-2 md:gap-8">
                 <div class="relative z-0 w-full group">
-                    <input type="tel" name="telefono" id="telefono" value="{{ datos.telefono if datos else '' }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                    <input type="tel" name="telefono" id="telefono" value="{{ datos.telefono if datos.telefono else '' }}" 
+                           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" 
+                           placeholder=" " />
                     <label for="telefono" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Teléfono</label>
                 </div>
 
                 <div class="relative z-0 w-full group">
                     <select name="rol" id="rol" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required>
-                        <option value="" disabled {% if not datos %}selected{% endif %}>Seleccionar Rol...</option>
-                        <option value="Administrador" {% if datos and datos.rol == 'Administrador' %}selected{% endif %}>Administrador</option>
-                        <option value="Vendedor" {% if datos and datos.rol == 'Vendedor' %}selected{% endif %}>Vendedor</option>
-                        <option value="Almacen" {% if datos and datos.rol == 'Almacen' %}selected{% endif %}>Almacén</option>
+                        {% for rol in lista_roles %}
+                            <option value="{{ rol.name }}" 
+                                {# Comparamos si el nombre del rol coincide con el primer rol del usuario #}
+                                {% if datos.roles and rol.name == datos.roles[0].name %}selected{% endif %}>
+                                {{ rol.name | capitalize }}
+                            </option>
+                        {% endfor %}
                     </select>
                     <label for="rol" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Rol asignado</label>
                 </div>
             </div>
 
             <div class="flex justify-end gap-4 pt-6 mt-6 border-t border-gray-100">
-                <a href="/usuarios" class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
+                <button type="button" onclick="window.history.back();" class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
                     Cancelar
-                </a>
+                </button>
                 <button type="submit" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
-                    Guardar
+                    Guardar Cambios
                 </button>
             </div>
         </form>
