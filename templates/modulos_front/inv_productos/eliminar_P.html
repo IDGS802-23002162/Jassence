@@ -5,7 +5,6 @@
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-xl border border-gray-100">
 
-            <!-- BOTÓN CERRAR -->
             <button type="button"
                 onclick="cerrarModal('modal-eliminar')"
                 class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center">
@@ -16,10 +15,8 @@
                 </svg>
             </button>
 
-            <!-- CONTENIDO -->
             <div class="p-6 text-center">
 
-                <!-- ICONO -->
                 <div class="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-red-100 sm:h-14 sm:w-14">
                     <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" stroke-width="2"
@@ -27,7 +24,6 @@
                     </svg>
                 </div>
 
-                <!-- TEXTO -->
                 <h3 class="mb-2 text-xl font-elegant text-gray-900">
                     ¿Eliminar registro?
                 </h3>
@@ -38,18 +34,15 @@
                     Esta acción no se puede deshacer.
                 </p>
 
-                <!-- FORM -->
                 <form id="form-eliminar" method="POST" class="flex justify-center gap-3">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                    <!-- CANCELAR -->
                     <button type="button"
                         onclick="cerrarModal('modal-eliminar')"
                         class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
                         Cancelar
                     </button>
 
-                    <!-- ELIMINAR -->
                     <button type="submit"
                         class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors">
                         Sí, eliminar
@@ -61,7 +54,6 @@
     </div>
 </div>
 
-<!-- SCRIPT -->
 <script>
 function abrirModalEliminar(id, nombre) {
     document.getElementById('modal-eliminar').classList.remove('hidden');

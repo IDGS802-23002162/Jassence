@@ -10,12 +10,16 @@
             <h1 class="font-elegant text-5xl text-black cursor-default">
                 Registrar Merma
             </h1>
-            <p class="text-gray-500 mt-2 text-sm">Define la cantidad, etapa y motivo para registrar la pérdida de producto.</p>
+            <p class="text-gray-500 mt-2 text-sm">Define la cantidad, etapa y motivo para registrar la pérdida de
+                producto.</p>
         </div>
-        
-        <a href="{{ url_for('inventarioP.inventario_PM') }}" class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+
+        <a href="{{ url_for('inventarioP.inventario_PM') }}"
+            class="flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+                </path>
             </svg>
             Regresar
         </a>
@@ -23,67 +27,118 @@
 
     <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
 
-        <form class="space-y-8" action="#" method="POST">
+        <form id="form-nueva-merma" class="space-y-8" action="{{ url_for('inventarioP.registrar_PM') }}" method="POST">
 
-            <div class="relative z-0 w-full group">
-                <input type="text" name="producto" id="producto" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                <label for="producto" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Producto (Selecciona o escanea)</label>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+                <div class="relative z-0 w-full group">
+                    <input type="text" name="tipo_item" id="tipo_item"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-not-allowed"
+                        placeholder=" " readonly value="Producto terminado" />
+                    <label for="tipo_item"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Tipo
+                        de Ítem</label>
+                </div>
+
+                <div class="relative z-0 w-full group">
+                    <select name="item_id" id="item_id"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300">
+
+                        <option value="" disabled selected>Selecciona un producto...</option>
+
+                        {% for p in productos %}
+                        <option value="{{ p.id }}">
+                            {{ p.receta.nombre_perfume }}
+                            (Stock: {{ p.stock_disponible_venta }} piezas)
+                        </option>
+                        {% endfor %}
+
+                    </select>
+
+                    <label for="item_id"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">
+                        ID-Producto
+                    </label>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-                
+
                 <div class="relative z-0 w-full group">
-                    <select name="etapa" id="etapa" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
+                    <select name="etapa" id="etapa"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
                         <option value="Almacén">Almacén</option>
                         <option value="Producción">Producción</option>
                         <option value="Transporte">Transporte</option>
                         <option value="Venta">Punto de Venta</option>
                     </select>
-                    <label for="etapa" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Etapa</label>
+                    <label for="etapa"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Etapa</label>
                 </div>
 
                 <div class="relative z-0 w-full group">
-                    <input type="number" step="0.01" name="cantidad_perdida" id="cantidad_perdida" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="cantidad_perdida" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Cantidad Perdida</label>
+                    <input type="number" step="0.01" name="cantidad_perdida" id="cantidad_perdida"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                        placeholder=" " required />
+                    <label for="cantidad_perdida"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Cantidad
+                        Perdida</label>
                 </div>
 
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="unidad" id="unidad" value="Botellas" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none peer cursor-not-allowed" placeholder=" " readonly />
-                    <label for="unidad" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Unidad</label>
+                    <input type="text" name="unidad" id="unidad" value="Botellas"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none peer cursor-not-allowed"
+                        placeholder=" " readonly />
+                    <label for="unidad"
+                        class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Unidad</label>
                 </div>
 
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                
+
                 <div class="relative z-0 w-full group">
-                    <input type="text" name="lote" id="lote" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                    <label for="lote" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Orden / Lote (Ej. L-2024-001)</label>
+                    <input type="text" name="lote" id="lote"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-not-allowed"
+                        placeholder=" " readonly />
+
+                    <label for="lote"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">
+                        Orden / Lote (Ej. L-2024-001)
+                    </label>
                 </div>
 
                 <div class="relative z-0 w-full group">
-                    <select name="motivo" id="motivo" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
+                    <select name="motivo" id="motivo"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer">
                         <option value="Ruptura">Ruptura</option>
                         <option value="Caducidad">Caducidad</option>
                         <option value="Defecto">Defecto</option>
                         <option value="Robo">Robo</option>
                         <option value="Otro">Otro</option>
                     </select>
-                    <label for="motivo" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Motivo</label>
+                    <label for="motivo"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Motivo</label>
                 </div>
 
             </div>
 
             <div class="relative z-0 w-full group pt-4">
-                <textarea name="descripcion" id="descripcion" rows="3" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none" placeholder=" "></textarea>
-                <label for="descripcion" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Descripción (Explica qué pasó...)</label>
+                <textarea name="descripcion" id="descripcion" rows="3"
+                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none"
+                    placeholder=" "></textarea>
+                <label for="descripcion"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Descripción
+                    (Explica qué pasó...)</label>
             </div>
 
             <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
-                <a href="{{ url_for('inventarioP.inventario_PM') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
+                <a href="{{ url_for('inventarioP.inventario_PM') }}"
+                    class="py-2.5 px-6 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-black transition-colors">
                     Cancelar
                 </a>
-                <button type="submit" class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
+                <button type="submit"
+                    class="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
                     Guardar
                 </button>
             </div>
@@ -92,4 +147,31 @@
 
     </div>
 </div>
+
+<script>
+    document.getElementById('item_id').addEventListener('change', function () {
+        const productoId = this.value;
+
+        if (!productoId) return;
+
+        fetch(`/ordenes_por_producto/${productoId}`)
+            .then(res => res.json())
+            .then(data => {
+
+                console.log("ORDENES:", data);
+
+                if (data.ordenes.length > 0) {
+                    document.getElementById('lote').value = `OP-${data.ordenes[0].id}`;
+                } else {
+                    document.getElementById('lote').value = 'Sin orden';
+                }
+
+            })
+            .catch(err => {
+                console.error("ERROR:", err);
+                document.getElementById('lote').value = 'Error';
+            });
+    });
+</script>
+
 {% endblock %}
