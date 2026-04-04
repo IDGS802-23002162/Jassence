@@ -12,33 +12,122 @@
                 </button>
             </div>
 
-            <form class="space-y-6">
-                <div class="relative z-0 w-full group">
-                    <input type="text" id="tar_nombre" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer uppercase" placeholder=" " required />
-                    <label for="tar_nombre" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nombre del Titular</label>
-                </div>
+            <form action="{{ url_for('ecommerce.modal_tipos_pago') }}" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <div class="relative z-0 w-full group">
-                    <input type="text" id="tar_numero" maxlength="19" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer tracking-widest" placeholder=" " required />
+                    <div class="absolute right-0 bottom-3 flex items-center pointer-events-none" id="card-brand-logo">
+                        </div>
+                    
+                    <input name="numero" type="text" id="tar_numero" maxlength="19" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer tracking-widest" placeholder=" " required />
                     <label for="tar_numero" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Número de Tarjeta</label>
                 </div>
 
                 <div class="grid grid-cols-2 gap-6">
                     <div class="relative z-0 w-full group">
-                        <input type="text" id="tar_exp" maxlength="5" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                        <input name="exp" type="text" id="tar_exp" maxlength="5" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
                         <label for="tar_exp" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">MM/AA</label>
-                    </div>
+                    </div> 
                     <div class="relative z-0 w-full group">
-                        <input type="password" id="tar_cvv" maxlength="4" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer tracking-widest" placeholder=" " required />
+                        <input name="cvv" type="password" id="tar_cvv" maxlength="4" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer tracking-widest" placeholder=" " required />
                         <label for="tar_cvv" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">CVV</label>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
                     <button type="button" onclick="cerrarModal('modal-pago')" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">Cancelar</button>
-                    <button type="button" onclick="cerrarModal('modal-pago')" class="text-white bg-black hover:bg-gray-800 font-medium rounded-lg text-sm px-8 py-2.5 shadow-lg transition-colors">Guardar Tarjeta</button>
+                    <button type="submit" onclick="cerrarModal('modal-pago')" class="text-white bg-black hover:bg-gray-800 font-medium rounded-lg text-sm px-8 py-2.5 shadow-lg transition-colors">Guardar Tarjeta</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+// Algoritmo de Luhn (Mismo que ya tienes)
+function validarLuhnJS(value) {
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = value.length - 1; i >= 0; i--) {
+        let digit = parseInt(value.charAt(i));
+        if (shouldDouble) { if ((digit *= 2) > 9) digit -= 9; }
+        sum += digit;
+        shouldDouble = !shouldDouble;
+    }
+    return (sum % 10) == 0;
+}
+
+document.getElementById('tar_numero').addEventListener('input', function (e) {
+    let target = e.target;
+    let value = target.value.replace(/\D/g, ''); 
+    let logoContainer = document.getElementById('card-brand-logo');
+    
+    // Detectar Marca
+    let brand = "";
+        // Dentro de tu evento 'input'
+    if (value.startsWith('4')) {
+        logoHtml = '<i class="fa-brands fa-cc-visa text-blue-700 text-2xl animate-fade-in"></i>';
+    } else if (/^5[1-5]/.test(value)) {
+        logoHtml = '<i class="fa-brands fa-cc-mastercard text-red-600 text-2xl animate-fade-in"></i>';
+    } else if (/^3[47]/.test(value)) {
+        logoHtml = '<i class="fa-brands fa-cc-amex text-cyan-600 text-2xl animate-fade-in"></i>';
+    } else {
+        brand = '';
+    }
+    logoContainer.innerHTML = brand;
+
+    // Validación de color
+    if (value.length >= 13) {
+        if (validarLuhnJS(value)) {
+            target.classList.replace('border-gray-300', 'border-green-500');
+            target.classList.remove('border-red-500');
+        } else {
+            target.classList.replace('border-gray-300', 'border-red-500');
+            target.classList.remove('border-green-500');
+        }
+    } else {
+        target.classList.add('border-gray-300');
+        target.classList.remove('border-green-500', 'border-red-500');
+    }
+});
+
+// Formateador de Fecha MM/AA
+document.getElementById('tar_exp').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        e.target.value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+});
+
+// Busca el formulario por su clase o ID (puedes ponerle id="form-pago" al <form>)
+const formulario = document.querySelector('form[action*="modal_tipos_pago"]');
+
+formulario.addEventListener('submit', function (e) {
+    const numero = document.getElementById('tar_numero').value.replace(/\D/g, '');
+    const exp = document.getElementById('tar_exp').value;
+    const cvv = document.getElementById('tar_cvv').value;
+
+    let errores = [];
+
+    // 1. Validar Algoritmo de Luhn
+    if (!validarLuhnJS(numero) || numero.length < 13) {
+        errores.push("El número de tarjeta no es válido.");
+    }
+
+    // 2. Validar Fecha (Formato MM/AA y que no sea pasado)
+    if (!/^\d{2}\/\d{2}$/.test(exp)) {
+        errores.push("Formato de fecha inválido (MM/AA).");
+    }
+
+    // 3. Validar CVV (mínimo 3 dígitos)
+    if (cvv.length < 3) {
+        errores.push("El CVV debe tener al menos 3 dígitos.");
+    }
+
+    // SI HAY ERRORES, BLOQUEAMOS TODO
+    if (errores.length > 0) {
+        e.preventDefault(); // <--- ESTO EVITA QUE EL FORMULARIO SE ENVÍE
+        alert(errores.join("\n")); // Puedes cambiar esto por un mensaje más bonito en el modal
+    }
+});
+</script>

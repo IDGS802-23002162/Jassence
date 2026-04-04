@@ -233,12 +233,13 @@
             <div class="relative overflow-hidden rounded-xl h-[3450px] sm:h-[1800px] lg:h-[920px]">
 
                 <div class="hidden duration-500 ease-in-out" data-carousel-item="active">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 p-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 p-1 min-h-[600px] content-start">
                         {% for receta in recetas %}
                         <div class="relative tarjeta-coleccion bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group" 
                         data-familia="{{ receta.familia_olfativa | lower }}"  
                         data-genero="{{ receta.genero | lower if receta.genero else '' }}"
-                        data-ocasion="{{ receta.ocasion | lower if receta.ocasion else '' }}">
+                        data-ocasion="{{ receta.ocasion | lower if receta.ocasion else '' }}"
+                        data-nombre="{{ receta.nombre_perfume | lower }}">
 
                             <div>
                                 <div class="overflow-hidden rounded-lg mb-4 text-center sm:text-left">
@@ -338,74 +339,98 @@
 
 <script>
     // NUEVA FUNCIÓN PARA ACTUALIZAR EL BADGE DE ENVÍO
-function actualizarEnvio(selectElement, recetaIdPrefijado) {
-    const opcionSeleccionada = selectElement.options[selectElement.selectedIndex];
-    const nuevoEnvio = opcionSeleccionada.getAttribute('data-envio');
-    const badge = document.getElementById(`badge-envio-${recetaIdPrefijado}`);
-    
-    if (badge && nuevoEnvio) {
-        badge.textContent = nuevoEnvio;
-        
-        // Evaluamos si el string contiene "rápido" o "rapido"
-        const envioLimpio = nuevoEnvio.toLowerCase();
-        if (envioLimpio.includes('rápido') || envioLimpio.includes('rapido')) {
-            // Solo letras verdes
-            badge.className = "text-emerald-600 text-xs italic";
-        } else {
-            // Solo letras grises
-            badge.className = "text-xs text-gray-400 italic";
-        }
-    }
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const filterGender = document.getElementById('filter-gender');
+    const filterOccasion = document.getElementById('filter-occasion');
+    const filterFamily = document.getElementById('filter-family');
+    const buscadorEscritorio = document.getElementById('buscador-escritorio');
+    const buscadorMovil = document.getElementById('buscador-movil');
+    const tarjetas = document.querySelectorAll('.tarjeta-coleccion');
 
-    function resetFilters() {
-        const filters = ['filter-gender', 'filter-occasion', 'filter-family'];
-        filters.forEach(id => {
-            document.getElementById(id).selectedIndex = 0;
+    // Mantenemos sincronizados los dos buscadores (móvil y escritorio)
+    window.buscarYFiltrar = function(terminoBusqueda) {
+        // Desplazarse a la colección si aún no estamos ahí
+        const seccionColeccion = document.getElementById('tienda-seccion');
+        if (seccionColeccion && window.scrollY < (seccionColeccion.offsetTop - 100)) {
+             seccionColeccion.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Sincronizar el texto en ambos inputs para que no haya confusión
+        if(buscadorEscritorio) buscadorEscritorio.value = terminoBusqueda;
+        if(buscadorMovil) buscadorMovil.value = terminoBusqueda;
+
+        // Llamar a la función maestra de filtros
+        aplicarFiltrosMaestros();
+    };
+
+    // Función unificada que combina los selectores (género, etc.) con el buscador de texto
+    window.aplicarFiltrosMaestros = function() {
+        const valFamily = filterFamily ? filterFamily.value.toLowerCase() : '';
+        const valGender = filterGender ? filterGender.value.toLowerCase() : '';
+        const valOccasion = filterOccasion ? filterOccasion.value.toLowerCase() : '';
+        
+        // Tomamos el valor de cualquiera de los buscadores (estarán sincronizados)
+        const valBusqueda = buscadorEscritorio ? buscadorEscritorio.value.toLowerCase().trim() : '';
+
+        let visibles = 0;
+
+        tarjetas.forEach(tarjeta => {
+            const familiaTarjeta = tarjeta.getAttribute('data-familia') || '';
+            const generoTarjeta = tarjeta.getAttribute('data-genero') || '';
+            const ocasionTarjeta = tarjeta.getAttribute('data-ocasion') || '';
+            const nombreTarjeta = tarjeta.getAttribute('data-nombre') || '';
+            
+            // Validaciones
+            let coincideFamilia = (valFamily === '') || (familiaTarjeta.includes(valFamily));
+            let coincideGenero = (valGender === '') || (generoTarjeta.includes(valGender));
+            let coincideOcasion = (valOccasion === '') || (ocasionTarjeta.includes(valOccasion));
+            
+            // Lógica del buscador: revisa si el nombre del perfume o la familia incluyen el texto escrito
+            let coincideBusqueda = (valBusqueda === '') || 
+                                   (nombreTarjeta.includes(valBusqueda)) || 
+                                   (familiaTarjeta.includes(valBusqueda));
+            
+            // Si pasa TODOS los filtros (los combos Y el texto)
+            if (coincideFamilia && coincideGenero && coincideOcasion && coincideBusqueda) {
+                tarjeta.style.display = ''; 
+                visibles++;
+            } else {
+                tarjeta.style.display = 'none'; 
+            }
         });
-        console.log("Filtros restablecidos");
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterGender = document.getElementById('filter-gender');
-        const filterOccasion = document.getElementById('filter-occasion');
-        const filterFamily = document.getElementById('filter-family');
-        const tarjetas = document.querySelectorAll('.tarjeta-coleccion');
-
-        function aplicarFiltros() {
-            const valFamily = filterFamily.value.toLowerCase();
-            const valGender = filterGender.value.toLowerCase();
-            const valOccasion = filterOccasion.value.toLowerCase();
-
-            tarjetas.forEach(tarjeta => {
-                const familiaTarjeta = tarjeta.getAttribute('data-familia') || '';
-                const generoTarjeta = tarjeta.getAttribute('data-genero') || '';
-                const ocasionTarjeta = tarjeta.getAttribute('data-ocasion') || '';
-                
-                let coincideFamilia = (valFamily === '') || (familiaTarjeta.includes(valFamily));
-                let coincideGenero = (valGender === '') || (generoTarjeta.includes(valGender));
-                let coincideOcasion = (valOccasion === '') || (ocasionTarjeta.includes(valOccasion));
-                
-                if (coincideFamilia && coincideGenero && coincideOcasion) {
-                    tarjeta.style.display = ''; 
-                } else {
-                    tarjeta.style.display = 'none'; 
-                }
-            });
+        // Opcional: Mostrar mensaje si no hay resultados
+        const mensajeVacio = document.getElementById('mensaje-sin-resultados');
+        if (visibles === 0) {
+            if (!mensajeVacio) {
+                const contenedor = document.querySelector('#coleccion-carousel .grid');
+                contenedor.insertAdjacentHTML('beforeend', '<div id="mensaje-sin-resultados" class="col-span-full text-center py-12 text-gray-500 italic">No se encontraron fragancias con esos filtros o búsqueda.</div>');
+            }
+        } else {
+            if (mensajeVacio) mensajeVacio.remove();
         }
-
-        if(filterGender) filterGender.addEventListener('change', aplicarFiltros);
-        if(filterOccasion) filterOccasion.addEventListener('change', aplicarFiltros);
-        if(filterFamily) filterFamily.addEventListener('change', aplicarFiltros);
-    });
-
-    function resetFilters() {
-        document.getElementById('filter-gender').selectedIndex = 0;
-        document.getElementById('filter-occasion').selectedIndex = 0;
-        document.getElementById('filter-family').selectedIndex = 0;
-        
-        document.getElementById('filter-family').dispatchEvent(new Event('change'));
     }
+
+    // Escuchadores para los selects (combos)
+    if(filterGender) filterGender.addEventListener('change', aplicarFiltrosMaestros);
+    if(filterOccasion) filterOccasion.addEventListener('change', aplicarFiltrosMaestros);
+    if(filterFamily) filterFamily.addEventListener('change', aplicarFiltrosMaestros);
+});
+
+// Función para el botón "Limpiar"
+function resetFilters() {
+    document.getElementById('filter-gender').selectedIndex = 0;
+    document.getElementById('filter-occasion').selectedIndex = 0;
+    document.getElementById('filter-family').selectedIndex = 0;
+    
+    document.getElementById('buscador-escritorio').value = '';
+    const buscadorMovil = document.getElementById('buscador-movil');
+    if(buscadorMovil) buscadorMovil.value = '';
+    
+    // Forzamos la actualización visual
+    window.aplicarFiltrosMaestros();
+    console.log("Filtros y búsqueda restablecidos");
+}
 </script>
 
 {% endblock %}

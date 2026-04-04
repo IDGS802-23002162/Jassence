@@ -1,0 +1,219 @@
+{% extends "layout_tienda.html" %}
+
+{% block title %}Mi Cuenta | Jassence{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in space-y-16">
+
+    <div class="text-center border-b border-gray-300 pb-6">
+        <h1 class="font-elegant text-5xl md:text-6xl text-black cursor-default">Mi Cuenta</h1>
+        <p class="text-gray-500 mt-2 text-sm uppercase tracking-widest">Administra tu información personal</p>
+    </div>
+
+    <section>
+        <br>
+        <h2 class="font-elegant text-3xl text-black mb-6 flex items-center gap-3">
+            Datos Personales
+        </h2>
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+            <form action="{{ url_for('ecommerce.perfil') }}" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900">Nombre</label>
+                        <input name="nombre" type="text" id="nombre" value="{{ cliente.nombre }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-black focus:border-black block w-full p-3 transition-colors" required>
+                    </div>
+                    <div>
+                        <label for="apellidos" class="block mb-2 text-sm font-medium text-gray-900">Apellidos</label>
+                        <input name="apellidos" type="text" id="apellidos" value="{{ cliente.apellidos }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-black focus:border-black block w-full p-3 transition-colors" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="telefono" class="block mb-2 text-sm font-medium text-gray-900">Número de Teléfono</label>
+                        <input name="telefono" type="tel" id="telefono" value="{{ cliente.telefono }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-black focus:border-black block w-full p-3 transition-colors" required>
+                    </div>
+                    <div>
+                        <label for="correo" class="block mb-2 text-sm font-medium text-gray-900">Correo Electrónico</label>
+                        <input name="correo" type="email" id="correo" value="{{ cliente.usuario.email }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-black focus:border-black block w-full p-3 transition-colors" required>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" class="text-white bg-black hover:bg-gray-800 font-bold uppercase tracking-widest rounded-lg text-sm px-8 py-3 transition-colors shadow-md">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <section>
+        <br><br>
+        <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-2">
+            <h2 class="font-elegant text-3xl text-black">Mis Direcciones</h2>
+            <button onclick="limpiarYAbrirModalDireccion()" class="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors">
+                + Agregar Nueva
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for dir in direcciones %}
+            <div class="p-6 border border-black rounded-lg bg-gray-50 relative shadow-sm">
+                <div class="absolute top-4 right-4 flex gap-3">
+                    <button type="button" 
+                        onclick="prepararEditarDireccion(
+                            `{{ url_for('ecommerce.editar_direccion', id=dir.id) }}`,
+                            `{{ dir.nombre_receptor }}`,
+                            `{{ dir.telefono_contacto }}`,
+                            `{{ dir.calle_numero }}`,
+                            `{{ dir.colonia }}`,
+                            `{{ dir.ciudad }}`,
+                            `{{ dir.estado_provincia }}`,
+                            `{{ dir.codigo_postal }}`,
+                            `{{ dir.referencias }}`,
+                            `{{ 'true' if dir.es_principal else 'false' }}`
+                        )"
+                        class="text-xs text-gray-400 hover:text-black uppercase tracking-widest font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                </button>
+                    <button type="button" 
+                            onclick="prepararEliminar(`{{ url_for('ecommerce.eliminar_direccion', id=dir.id) }}`, `la dirección: {{ dir.calle_numero }}`)"
+                            class="text-xs text-gray-400 hover:text-red-500 uppercase tracking-widest font-bold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% if dir.es_principal %}
+                <span class="inline-block bg-black text-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest rounded-sm mb-3">
+                    Predeterminada
+                </span>
+                {% endif %}
+                <p class="font-bold text-black mb-1">{{ dir.nombre_receptor }}, {{ dir.telefono_contacto}}</p>
+                <p class="text-sm text-gray-600">{{ dir.colonia }} Calle: {{dir.calle_numero}}</p>
+                <p class="text-sm text-gray-600">{{ dir.ciudad }}, {{ dir.estado_provincia }} C.P.{{ dir.codigo_postal  }}</p>
+                <p class="text-sm text-gray-500 mt-2 italic">Ref: {{ dir.referencias }}</p>
+            </div>
+            {% endfor %}
+
+        </div>
+    </section>
+
+    <section>
+        <br>
+        <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-2">
+            <h2 class="font-elegant text-3xl text-black">Métodos de Pago</h2>
+            <button onclick="abrirModal('modal-pago')" class="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors">
+                + Agregar Tarjeta
+            </button>
+        </div>
+
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for m in metodos %}
+            <div class="flex items-center justify-between p-6 border border-gray-200 rounded-lg bg-white shadow-sm">
+                <div class="flex items-center gap-4">
+                   <div class="w-12 h-8 flex items-center justify-center text-2xl">
+                        {% if m.tipo_tarjeta == 'VISA' %}
+                            <i class="fa-brands fa-cc-visa text-blue-700"></i>
+                        {% elif m.tipo_tarjeta == 'MASTERCARD' %}
+                            <i class="fa-brands fa-cc-mastercard text-red-600"></i>
+                        {% elif m.tipo_tarjeta == 'AMEX' %}
+                            <i class="fa-brands fa-cc-amex text-cyan-600"></i>
+                        {% else %}
+                            <i class="fa-solid fa-credit-card text-gray-400"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <span class="font-bold text-gray-900 block">{{ m.ultimos_4 }}</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest">Expira:{{m.exp_mes}}/{{m.exp_anio}}</span>
+                    </div>
+                </div>
+                <button type="button" 
+                        class="text-gray-400 hover:text-red-500 transition-colors" 
+                        onclick="prepararEliminar(`{{ url_for('ecommerce.eliminar_metodo_pago', id=m.id) }}`, `la tarjeta terminada en {{ m.ultimos_4 }}`)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    
+
+</div>
+
+{% include 'modulos_front/ecommerce/modalDireccion.html' %}
+{% include 'modulos_front/ecommerce/modalPago.html' %}
+{% include 'modulos_front/ecommerce/eliminar_modal.html' %}
+
+<script>
+    function abrirModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function limpiarYAbrirModalDireccion() {
+    const form = document.querySelector('#modal-direccion form');
+    form.action = "{{ url_for('ecommerce.modal_direcciones') }}"; // Ruta de creación
+    form.reset(); // Limpia todos los inputs
+    document.querySelector('#modal-direccion h1').textContent = "Nueva Dirección";
+    abrirModal('modal-direccion');
+}
+
+function prepararEditarDireccion(url, nombre, tel, calle, col, ciudad, estado, cp, ref, principal) {
+    // 1. Cambiamos el action del formulario para que apunte a la ruta de EDITAR
+    const form = document.querySelector('#modal-direccion form');
+    form.action = url;
+
+    // 2. Cambiamos el título del modal para que diga "Editar" en vez de "Nueva"
+    document.querySelector('#modal-direccion h1').textContent = "Editar Dirección";
+
+    // 3. Rellenamos los campos
+    document.getElementById('dir_nombre').value = nombre;
+    document.getElementById('dir_telefono').value = tel;
+    document.getElementById('dir_calle').value = calle;
+    document.getElementById('dir_colonia').value = col;
+    document.getElementById('dir_ciudad').value = ciudad;
+    document.getElementById('dir_estado').value = estado;
+    document.getElementById('dir_cp').value = cp;
+    document.getElementById('dir_ref').value = ref;
+    
+    // 4. Manejamos el checkbox de principal
+    document.getElementById('dir_principal').checked = principal;
+
+    // 5. Abrimos el modal
+    abrirModal('modal-direccion');
+}
+
+    function cerrarModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    // Cerrar modal si el usuario da clic en el fondo negro
+    window.onclick = function(event) {
+        const modalDir = document.getElementById('modal-direccion');
+        const modalPago = document.getElementById('modal-pago');
+        if (event.target == modalDir) {
+            cerrarModal('modal-direccion');
+        }
+        if (event.target == modalPago) {
+            cerrarModal('modal-pago');
+        }
+    }
+
+    function prepararEliminar(url, nombre) {
+    // Cambiamos el action del form dinámicamente
+    document.getElementById('form-eliminar-global').action = url;
+    // Cambiamos el texto de confirmación
+    document.getElementById('nombre-a-eliminar').textContent = nombre;
+    // Mostramos el modal
+    abrirModal('modal-eliminar-global');
+}
+</script>
+{% endblock %}

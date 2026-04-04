@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import UserMixin, RoleMixin
 from datetime import datetime
@@ -86,13 +87,20 @@ class DireccionEntrega(db.Model):
 class MetodoPagoCliente(db.Model):
     __tablename__ = 'metodos_pago_cliente'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
-    tipo_pago = db.Column(db.String(50))
-    token_pasarela = db.Column(db.String(255))
-    ultimos_cuatro = db.Column(db.String(4))
-    marca_tarjeta = db.Column(db.String(50))
-    fecha_expiracion = db.Column(db.Date)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
+    
+    # Identificadores de Stripe (Seguros)
+    stripe_customer_id = db.Column(db.String(50), nullable=False)
+    stripe_payment_method_id = db.Column(db.String(50), nullable=False)
+    
+    # Datos para mostrar en la interfaz (Seguros)
+    tipo_tarjeta = db.Column(db.String(20)) # Ej: "Visa"
+    ultimos_4 = db.Column(db.String(4))    # Ej: "4242"
+    exp_mes = db.Column(db.Integer)
+    exp_anio = db.Column(db.Integer)
     estado = db.Column(db.Boolean, default=True)
+    es_principal = db.Column(db.Boolean, default=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 # ///////////////////////////////////////
@@ -246,6 +254,8 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
+    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True)
+
 
 class DetalleVenta(db.Model):
     __tablename__ = 'detalle_ventas'
@@ -253,6 +263,10 @@ class DetalleVenta(db.Model):
     producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'), primary_key=True)
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
+
+    producto_terminado = db.relationship('ProductoTerminado')
+
+    
 
 
 # ///////////////////////////////////////

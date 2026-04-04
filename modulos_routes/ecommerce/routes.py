@@ -1,7 +1,9 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import extract, func
-from models import db, Receta, ProductoTerminado, Carrito, CarritoItem, Venta, DetalleVenta, OrdenProduccion, DetalleReceta, MateriaPrima
+from models import db, Receta, ProductoTerminado, Carrito, CarritoItem, Venta, DetalleVenta, OrdenProduccion, DetalleReceta, MateriaPrima, Cliente, DireccionEntrega, MetodoPagoCliente
+import re
+from datetime import datetime
 
 ecommerce_bp=Blueprint('ecommerce',__name__)
 
@@ -138,17 +140,33 @@ def pagar():
         if not carrito or not carrito.items:
             return redirect(url_for('ecommerce.ecommerce'))
         
-        metodo = request.form.get('metodo_pago', 'Tarjeta Online')
+        # 1. Recuperamos los textos exactos que vienen del HTML
+        metodo_val = request.form.get('metodo_pago') 
+        direccion_id = request.form.get('direccion_id') # En el HTML le pusimos name="direccion_id"
+        
+        # 2. Variables iniciales
+        id_tarjeta = None
+        metodo_fisico = None
+
+        # 3. Lógica inteligente de asignación
+        if metodo_val and metodo_val.startswith('tarjeta_'):
+            # Si el valor es "tarjeta_5", lo separamos por el guion bajo y nos quedamos con el "5"
+            id_tarjeta = int(metodo_val.split('_')[1])
+        else:
+            # Si eligió "paypal", el ID de tarjeta queda nulo y guardamos "paypal" como físico
+            metodo_fisico = metodo_val
 
         requiere_produccion_lenta = False
 
-        # 1. Crear venta
+        # 4. Crear venta con los datos correctos
         nueva_venta = Venta(
             cliente_id=cliente_id,
             canal_venta='Online',
             estado_pedido='Procesando',  # temporal
             total_venta=total,
-            metodo_pago_fisico=metodo
+            direccion_envio_id=direccion_id,
+            metodo_pago_id=id_tarjeta,
+            metodo_pago_fisico=metodo_fisico
         )
         db.session.add(nueva_venta)
         db.session.flush()  # para obtener el ID
@@ -195,13 +213,253 @@ def pagar():
 
         return redirect(url_for('ecommerce.ticket_e', id=nueva_venta.id))
 
+    direcciones = DireccionEntrega.query.filter_by(cliente_id=cliente_id, estado=True).all()
+    metodos_pago = MetodoPagoCliente.query.filter_by(cliente_id=cliente_id, estado=True).all()
+    dir_principal = next((d for d in direcciones if d.es_principal), direcciones[0] if direcciones else None)
+
     return render_template(
         "modulos_front/ecommerce/pago.html",
         carrito=carrito,
         subtotal=subtotal,
         iva=iva,
-        total=total
+        total=total,
+        direcciones=direcciones,
+        metodos_pago=metodos_pago,
+        dir_principal=dir_principal
     )
+
+@ecommerce_bp.route("/perfil", methods=["GET", "POST"])
+def perfil():
+    cliente_id = 1  # Simulación de usuario logueado
+    cliente = Cliente.query.get(cliente_id)
+
+    if not cliente:
+        flash("Cliente no encontrado", "error")
+        return redirect(url_for('ecommerce.ecommerce'))
+
+    if request.method == "POST":
+        # 1. Actualizamos los datos en el objeto Cliente
+        cliente.nombre = request.form.get("nombre")
+        cliente.apellidos = request.form.get("apellidos")
+        cliente.telefono = request.form.get("telefono")
+
+        # 2. Actualizamos los datos en el objeto Usuario relacionado
+        if cliente.usuario:
+            cliente.usuario.email = request.form.get("correo")
+            # Sincronizamos nombre/teléfono en Usuario si así lo requiere tu lógica
+            cliente.usuario.nombre = request.form.get("nombre")
+            cliente.usuario.apellidos = request.form.get("apellidos")
+            cliente.usuario.telefono = request.form.get("telefono")
+
+        try:
+            # 3. Este commit guarda los cambios de AMBOS objetos (Cliente y Usuario)
+            db.session.commit()
+            flash("Datos actualizados correctamente", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Error al actualizar los datos", "error")
+            print(f"Error en DB: {e}")
+
+        return redirect(url_for('ecommerce.perfil'))
+
+    # Carga de datos para el GET
+    direcciones = DireccionEntrega.query.filter_by(cliente_id=cliente_id, estado=True).all()
+    metodos = MetodoPagoCliente.query.filter_by(cliente_id=cliente_id, estado=True).all()
+
+    return render_template(
+        "modulos_front/ecommerce/perfil.html",
+        cliente=cliente,
+        direcciones=direcciones,
+        metodos=metodos
+    )
+
+@ecommerce_bp.route("/direcciones", methods=["POST"])   
+def modal_direcciones():
+    cliente_id = 1 # Considera obtener esto de current_user después
+    
+    es_predeterminada = True if request.form.get("es_principal") else False
+
+    if es_predeterminada:
+        DireccionEntrega.query.filter_by(cliente_id=cliente_id, es_principal=True).update({"es_principal": False})
+
+    nueva = DireccionEntrega(
+        cliente_id=cliente_id,
+        nombre_receptor=request.form.get("nombre"),
+        telefono_contacto=request.form.get("telefono"),
+        calle_numero=request.form.get("calle"),
+        colonia=request.form.get("colonia"),
+        ciudad=request.form.get("ciudad"),
+        estado_provincia=request.form.get("estado"),
+        codigo_postal=request.form.get("cp"),
+        referencias=request.form.get("referencias"),
+        es_principal=es_predeterminada,
+        estado=True
+    )
+
+    try:
+        db.session.add(nueva)
+        db.session.commit()
+        flash("Dirección guardada exitosamente", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Error al guardar la dirección", "error")
+        print(f"Error: {e}")
+
+    return redirect(url_for('ecommerce.perfil'))
+
+@ecommerce_bp.route("/direcciones/eliminar/<int:id>", methods=["POST"])
+def eliminar_direccion(id):
+    direccion = DireccionEntrega.query.get_or_404(id)
+    cliente_id = direccion.cliente_id
+    direccion.estado = False
+    
+    # Si eliminamos la principal, buscamos otra para suplirla
+    if direccion.es_principal:
+        direccion.es_principal = False # Ya no es principal porque se "borró"
+        otra = DireccionEntrega.query.filter_by(cliente_id=cliente_id, estado=True).filter(DireccionEntrega.id != id).first()
+        if otra:
+            otra.es_principal = True
+            
+    db.session.commit()
+    flash("Dirección eliminada correctamente", "success")
+    return redirect(url_for('ecommerce.perfil'))
+
+@ecommerce_bp.route("/direcciones/editar/<int:id>", methods=["POST"])
+def editar_direccion(id):
+    direccion = DireccionEntrega.query.get_or_404(id)
+    cliente_id = 1 # Reemplazar por current_user.id
+    
+    es_predeterminada = True if request.form.get("es_principal") else False
+
+    if es_predeterminada:
+        # Quitamos principal a las otras
+        DireccionEntrega.query.filter_by(cliente_id=cliente_id, es_principal=True).update({"es_principal": False})
+
+    # Actualizamos campos
+    direccion.nombre_receptor = request.form.get("nombre")
+    direccion.telefono_contacto = request.form.get("telefono")
+    direccion.calle_numero = request.form.get("calle")
+    direccion.colonia = request.form.get("colonia")
+    direccion.ciudad = request.form.get("ciudad")
+    direccion.estado_provincia = request.form.get("estado")
+    direccion.codigo_postal = request.form.get("cp")
+    direccion.referencias = request.form.get("referencias")
+    direccion.es_principal = es_predeterminada
+
+    db.session.commit()
+    flash("Dirección actualizada", "success")
+    return redirect(url_for('ecommerce.perfil'))
+
+# VALIDACIONES PARA TIPOS DE PAGO
+
+def limpiar_numero(numero):
+    return re.sub(r"\D", "", numero)
+
+def detectar_marca(numero):
+    if numero.startswith("4"):
+        return "VISA"
+    elif re.match(r"^5[1-5]", numero):
+        return "MASTERCARD"
+    elif re.match(r"^3[47]", numero):
+        return "AMEX"
+    return "OTRA"
+
+def validar_luhn(numero):
+    suma = 0
+    reverso = numero[::-1]
+
+    for i, d in enumerate(reverso):
+        n = int(d)
+        if i % 2 == 1:
+            n *= 2
+            if n > 9:
+                n -= 9
+        suma += n
+
+    return suma % 10 == 0
+
+# ----------------------------------------------------
+
+@ecommerce_bp.route("/tipos_pago", methods=["POST"])
+def modal_tipos_pago():
+    cliente_id = 1
+
+    numero_raw = request.form.get("numero")
+    exp_raw = request.form.get("exp")
+
+    if not numero_raw or not exp_raw:
+        flash("Datos incompletos", "error")
+        return redirect(url_for('ecommerce.perfil'))
+
+    numero = limpiar_numero(numero_raw)
+    if not validar_luhn(numero):
+        flash("Tarjeta inválida", "error")
+        return redirect(url_for('ecommerce.perfil'))
+    marca = detectar_marca(numero)
+    try:
+        fecha = datetime.strptime(exp_raw, "%m/%y")
+        mes = fecha.month
+        anio = fecha.year
+    except:
+        flash("Fecha inválida", "error")
+        return redirect(url_for('ecommerce.perfil'))
+
+    # FAKE STRIPE IDS
+    stripe_customer_id = f"cus_test_{cliente_id}"
+    stripe_payment_method_id = f"pm_test_{numero[-4:]}"
+
+    es_primera = not MetodoPagoCliente.query.filter_by(cliente_id=cliente_id, estado=True).first()
+
+    nueva = MetodoPagoCliente(
+        cliente_id=cliente_id,
+
+        stripe_customer_id=stripe_customer_id,
+        stripe_payment_method_id=stripe_payment_method_id,
+
+        tipo_tarjeta=marca,
+        ultimos_4=numero[-4:],
+        exp_mes=mes,
+        exp_anio=anio, 
+
+        es_principal=es_primera,
+        estado=True
+    )
+
+    db.session.add(nueva)
+    db.session.commit()
+
+    flash("Tarjeta guardada correctamente", "success")
+    return redirect(url_for('ecommerce.perfil'))
+
+@ecommerce_bp.route("/metodo_pago/eliminar/<int:id>", methods=["POST"])
+def eliminar_metodo_pago(id):
+    metodo = MetodoPagoCliente.query.get_or_404(id)
+    cliente_id = metodo.cliente_id
+    
+    metodo.estado = False
+    
+    if metodo.es_principal:
+        metodo.es_principal = False
+        otro = MetodoPagoCliente.query.filter_by(cliente_id=cliente_id, estado=True).filter(MetodoPagoCliente.id != id).first()
+        if otro:
+            otro.es_principal = True
+
+    db.session.commit()
+    flash("Método de pago eliminado", "success")
+    return redirect(url_for('ecommerce.perfil'))
+
+@ecommerce_bp.route("/pedidos")
+def pedidos():
+    cliente_id = 1  # luego será current_user.id
+
+    ventas = Venta.query\
+        .filter_by(cliente_id=cliente_id)\
+        .order_by(Venta.id.desc())\
+        .all()
+
+    return render_template(
+        "modulos_front/ecommerce/pedidos.html",
+        ventas=ventas)
 
 # NUEVA RUTA PARA EL TICKET ONLINE
 @ecommerce_bp.route("/ticket_e/<int:id>")
