@@ -24,8 +24,6 @@ class Usuario(db.Model):
 
     rol = db.relationship('Rol')
 
-
-
 class LogAuditoria(db.Model):
     __tablename__ = 'log_auditoria'
     id = db.Column(db.Integer, primary_key=True)
@@ -93,7 +91,7 @@ class MateriaPrima(db.Model):
     cantidad_disponible = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))
     stock_minimo = db.Column(db.Float)
-    es_contenedor = db.Column(db.Boolean, default=False)
+    tipo = db.Column(db.String(50)) 
 
 
 class Proveedor(db.Model):
@@ -141,6 +139,8 @@ class Receta(db.Model):
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
 
+    detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
+
 
 class DetalleReceta(db.Model):
     __tablename__ = 'detalle_recetas'
@@ -149,6 +149,8 @@ class DetalleReceta(db.Model):
     materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'))
     porcentaje = db.Column(db.Float)
     tipo_componente = db.Column(db.String(50))
+
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_receta')
 
 
 class Presentacion(db.Model):
@@ -199,10 +201,8 @@ class MermaInventario(db.Model):
     item_id = db.Column(db.Integer)
     etapa = db.Column(db.String(50))  # produccion, almacen, etc
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-
     cantidad_perdida = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))
-
     motivo = db.Column(db.String(100))
     descripcion = db.Column(db.Text)
 
@@ -307,3 +307,4 @@ class ProduccionTemporal(db.Model):
     cantidad = db.Column(db.Integer)
     creado_por = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+

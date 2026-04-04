@@ -4,92 +4,162 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
-    
+
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
-        <a href="/produccion/solicitudes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
+        <a href="/produccion/solicitudes"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        
         <h1 class="font-elegant text-6xl text-black cursor-default">Órdenes</h1>
-        
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        <a href="/produccion/seguimiento" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Seguimiento</a>
+        <a href="/produccion/seguimiento"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Seguimiento</a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-        
+
         <div>
-            <form action="#" method="POST" class="space-y-6">
-                
+            <form action="/produccion/ordenes/crear" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800">Solicitud</label>
-                    <select name="id_solicitud" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
-                        <option value="" disabled selected>Seleccionar</option>
-                        <option value="1">SOL-001</option>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Solicitud de Origen</label>
+                    <select name="id_solicitud"
+                        class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm"
+                        required>
+                        <option value="" disabled selected>Seleccionar Solicitud</option>
+                        {% for s in solicitudes %}
+                        {% if s.estado == "pendiente" %}
+                        <option value="{{ s.id }}">{{ s.receta_nombre }} - Cant: {{ s.cantidad }}</option>
+                        {% endif %}
+                        {% endfor %}
                     </select>
                 </div>
 
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800">Producto</label>
-                    <input type="text" name="producto" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" readonly>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800">Cantidad</label>
-                    <input type="number" name="cantidad" value="0" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800">Responsable</label>
-                    <select name="responsable" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
-                        <option value="" disabled selected>Seleccionar</option>
-                        <option value="1">Erick (Admin)</option>
+                    <label class="block mb-2 text-sm font-medium text-gray-800">Responsable de Producción</label>
+                    <select name="responsable_id"
+                        class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm"
+                        required>
+                        <option value="" disabled selected>Seleccionar Responsable</option>
+                        {% for r in responsables %}
+                        <option value="{{ r.id }}">{{ r.nombre }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800 ">Fecha solicitada</label>
-                    <div class="grid grid-cols-3 gap-3 w-2/2">
-                        <input type="date" name="fecha" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
-                        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Crear orden</button>
-                        <button type="reset" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">Cancelar</button>
+                <div class="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Datos de Referencia (Solicitud)
+                    </p>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block mb-1 text-xs text-gray-500">Producto a fabricar</label>
+                            <input type="text" name="producto"
+                                class="w-full bg-gray-100 border-none rounded-lg p-2 text-sm font-medium" readonly>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-1 text-xs text-gray-500">Cantidad Solicitada</label>
+                            <input type="number" name="cantidad_producir"
+                                class="w-full bg-gray-100 border-none rounded-lg p-2 text-sm font-medium" readonly>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-xs text-gray-500">Fecha de la Solicitud</label>
+                            <input type="date" name="fecha"
+                                class="w-full bg-gray-100 border-none rounded-lg p-2 text-sm font-medium" readonly>
+                        </div>
                     </div>
                 </div>
 
-                
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="submit"
+                        class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md font-bold text-lg">Crear
+                        Orden</button>
+                    <button type="reset"
+                        class="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors shadow-md">Limpiar</button>
+                </div>
             </form>
         </div>
 
-        <div>
+        <div class="flex flex-col h-full">
             <div class="w-full flex justify-start mb-6">
-                <span class="px-8 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-bold bg-white shadow-sm">
-                    Lista de solicitudes
+                <span
+                    class="px-8 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-bold bg-white shadow-sm">
+                    Historial de Solicitudes
                 </span>
             </div>
-            
-            <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark">
-                <table class="w-full text-sm text-left text-gray-300">
-                    <thead class="text-xs text-white bg-[#3B3B3B] border-b border-table-dark">
-                        <tr>
-                            <th scope="col" class="px-6 py-4">Producto</th>
-                            <th scope="col" class="px-6 py-4">Cantidad</th>
-                            <th scope="col" class="px-6 py-4">Fecha</th>
-                            <th scope="col" class="px-6 py-4">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for i in range(5) %}
-                        <tr class="bg-[#3B3B3B] border-b border-table-dark h-12">
-                            <td class="px-6 py-4 border-r border-table-dark"></td>
-                            <td class="px-6 py-4 border-r border-table-dark"></td>
-                            <td class="px-6 py-4 border-r border-table-dark"></td>
-                            <td class="px-6 py-4"></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+            <div class="relative flex-grow shadow-xl rounded-lg border border-gray-800 bg-[#3B3B3B] overflow-hidden">
+                <div class="overflow-y-auto max-h-[650px]">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-white bg-[#2D2D2D] border-b border-gray-700 sticky top-0 z-10">
+                            <tr>
+                                <th scope="col" class="px-6 py-4">Producto</th>
+                                <th scope="col" class="px-6 py-4 text-center">Cant.</th>
+                                <th scope="col" class="px-6 py-4">Fecha</th>
+                                <th scope="col" class="px-6 py-4">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            {% for s in solicitudes %}
+                            <tr class="hover:bg-[#4a4a4a] transition-colors h-12">
+                                <td class="px-6 py-4 font-medium text-white">{{ s.receta_nombre }}</td>
+                                <td class="px-6 py-4 text-center">{{ s.cantidad }}</td>
+                                <td class="px-6 py-4">{{ s.fecha.strftime('%Y-%m-%d') }}</td>
+                                <td class="px-6 py-4">
+                                    {% if s.estado == 'pendiente' %}
+                                    <span
+                                        class="bg-yellow-900/50 text-yellow-300 border border-yellow-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Pendiente</span>
+                                    {% elif s.estado == 'en_proceso' %}
+                                    <span
+                                        class="bg-blue-900/50 text-blue-300 border border-blue-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">En
+                                        proceso</span>
+                                    {% elif s.estado == 'terminado' %}
+                                    <span
+                                        class="bg-green-900/50 text-green-300 border border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Finalizado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
     </div>
-</div> 
+</div>
+
+<script>
+    // Diccionario de datos desde Jinja
+    const solicitudes = {
+        {% for s in solicitudes %}
+    "{{ s.id }}": {
+        "nombre": "{{ s.receta_nombre }}",
+            "cantidad": "{{ s.cantidad }}",
+                "fecha": "{{ s.fecha.strftime('%Y-%m-%d') }}"
+    } {% if not loop.last %}, {% endif %}
+    {% endfor %}
+    };
+
+    // Lógica para autocompletar campos
+    document.querySelector('select[name="id_solicitud"]').addEventListener('change', function () {
+        const id = this.value;
+        const inputProducto = document.querySelector('input[name="producto"]');
+        const inputCantidad = document.querySelector('input[name="cantidad_producir"]');
+        const inputFecha = document.querySelector('input[name="fecha"]');
+
+        if (solicitudes[id]) {
+            inputProducto.value = solicitudes[id].nombre;
+            inputCantidad.value = solicitudes[id].cantidad;
+            inputFecha.value = solicitudes[id].fecha;
+        } else {
+            inputProducto.value = '';
+            inputCantidad.value = '';
+            inputFecha.value = '';
+        }
+    });
+</script>
 {% endblock %}
