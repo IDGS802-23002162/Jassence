@@ -34,29 +34,35 @@
         <div id="default-carousel" class="relative w-full" data-carousel="slide">
     <div class="relative overflow-hidden rounded-xl h-[1750px] sm:h-[900px] lg:h-[450px]">
 
-        <!-- SLIDE 1 -->
         <div class="hidden duration-700 ease-in-out px-2 sm:px-10 pt-4" data-carousel-item>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 h-full">
                 
                 {% for receta in nuevas %}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-transform hover:-translate-y-1 relative h-max">
                     
-                    <div class="absolute top-4 right-4 bg-black text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-sm z-10 shadow-sm">
-                        Nuevo
+                    <div class="absolute top-4 right-4 flex flex-col items-end gap-2 z-10">
+                        <div class="bg-black text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-sm shadow-sm">
+                            Nuevo 
+                        </div>
+                       
                     </div>
 
                     <div>
                         <div class="overflow-hidden rounded-lg mb-4 text-center sm:text-left">
-                            <!-- Aquí imprimimos el nombre real -->
                             <h3 class="font-elegant text-2xl text-black group-hover:text-gray-700 transition-colors">
                                 {{ receta.nombre_perfume }}
                             </h3>
-                            <!-- Aquí la familia olfativa -->
+                            {% if receta.productos_terminados and receta.productos_terminados[0].tipo_envio %}
+                                    {% set envio = receta.productos_terminados[0].tipo_envio %}
+                                    <div id="badge-envio-nuevas-{{ receta.id }}" 
+                                        class="text-xs text-gray-400 italic {% if 'rapido' in envio.lower() or 'rápido' in envio.lower() %}text-emerald-600{% else %}text-gray-400{% endif %}">
+                                        {{ envio }}
+                                    </div>
+                            {% endif %}
                             <p class="text-xs text-gray-400 italic">{{ receta.familia_olfativa | lower }}</p>
                         </div>
 
                         <div class="flex justify-center mb-6 h-48 relative">
-                            <!-- Aquí la imagen real -->
                             <img src="{{ url_for('static', filename='img/productos/' ~ receta.imagen_url) if receta.imagen_url else url_for('static', filename='img/ejemploPerfume.jpg') }}"
                                 alt="{{ receta.nombre_perfume }}" class="h-full object-contain">
                         </div>
@@ -65,15 +71,14 @@
                     <div>
                         <label class="block text-[10px] uppercase tracking-tighter text-gray-400 mb-1">Seleccionar Tamaño</label>
                         
-                        <!-- ESTO ES VITAL: El formulario para que el botón funcione sin recargar -->
                         <form action="{{ url_for('ecommerce.agregar_carrito') }}" method="POST" class="flex items-center gap-2 w-full" onsubmit="enviarFormularioCarrito(event, this)">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             
-                            <select name="producto_id" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
+                            <select name="producto_id" onchange="actualizarEnvio(this, 'nuevas-{{ receta.id }}')" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
                                 {% for producto in receta.productos_terminados %}
-                                    {% if producto.stock_disponible_venta > 0 %}
-                                        <option value="{{ producto.id }}">{{ producto.presentacion.mililitros }} ml - ${{ "%.2f"|format(producto.precio_venta) }}</option>
-                                    {% endif %}
+                                    <option value="{{ producto.id }}" data-envio="{{ producto.tipo_envio }}">
+                                        {{ producto.presentacion.mililitros }} ml - ${{ "%.2f"|format(producto.precio_venta) }}
+                                    </option>
                                 {% endfor %}
                             </select>
                             
@@ -98,7 +103,6 @@
 
     </div>
 
-    <!-- Controles del carrusel -->
     <div class="absolute z-30 flex -translate-x-1/2 -bottom-6 sm:-bottom-2 left-1/2 space-x-3 rtl:space-x-reverse">
         <button type="button" class="w-3 h-3 rounded-full bg-gray-300 aria-[current='true']:bg-black transition-colors" aria-current="true" aria-label="Slide 1" data-carousel-slide-to="0"></button>
     </div>
@@ -129,12 +133,20 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {% for receta in vendidos %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
+            <div class="relative bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
+
                 <div>
                     <div class="overflow-hidden rounded-lg mb-4 text-center sm:text-left">
                         <h3 class="font-elegant text-2xl text-black group-hover:text-gray-700 transition-colors">
                             {{ receta.nombre_perfume }}
                         </h3>
+                        {% if receta.productos_terminados and receta.productos_terminados[0].tipo_envio %}
+                            {% set envio = receta.productos_terminados[0].tipo_envio %}
+                            <div id="badge-envio-nuevas-{{ receta.id }}" 
+                                class="text-xs text-gray-400 italic {% if 'rapido' in envio.lower() or 'rápido' in envio.lower() %}text-emerald-600{% else %}text-gray-400{% endif %}">
+                                {{ envio }}
+                            </div>
+                        {% endif %}
                         <p class="text-xs text-gray-400 italic">{{ receta.familia_olfativa | lower }}</p>
                     </div>
 
@@ -150,11 +162,11 @@
                     <form action="{{ url_for('ecommerce.agregar_carrito') }}" method="POST" class="flex items-center gap-2 w-full" onsubmit="enviarFormularioCarrito(event, this)">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         
-                        <select name="producto_id" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
+                        <select name="producto_id" onchange="actualizarEnvio(this, 'vendidos-{{ receta.id }}')" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
                             {% for producto in receta.productos_terminados %}
-                                {% if producto.stock_disponible_venta > 0 %}
-                                    <option value="{{ producto.id }}">{{ producto.presentacion.mililitros }} ml - ${{ "%.2f"|format(producto.precio_venta) }}</option>
-                                {% endif %}
+                                <option value="{{ producto.id }}" data-envio="{{ producto.tipo_envio }}">
+                                    {{ producto.presentacion.mililitros }} ml - ${{ "%.2f"|format(producto.precio_venta) }}
+                                </option>
                             {% endfor %}
                         </select>
                         
@@ -165,11 +177,9 @@
                             </svg>
                         </button>
                     </form>
-                    
                 </div>
             </div>
             {% else %}
-            <!-- Mensaje por si acaso no hay perfumes en la base de datos -->
             <div class="col-span-full text-center py-12 text-gray-400 italic">
                 Estamos calculando las tendencias de nuestras nuevas fragancias...
             </div>
@@ -225,14 +235,21 @@
                 <div class="hidden duration-500 ease-in-out" data-carousel-item="active">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 p-1">
                         {% for receta in recetas %}
-                        <div class="tarjeta-coleccion bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group" 
+                        <div class="relative tarjeta-coleccion bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group" 
                         data-familia="{{ receta.familia_olfativa | lower }}"  
                         data-genero="{{ receta.genero | lower if receta.genero else '' }}"
                         data-ocasion="{{ receta.ocasion | lower if receta.ocasion else '' }}">
-                            
+
                             <div>
                                 <div class="overflow-hidden rounded-lg mb-4 text-center sm:text-left">
                                     <h3 class="font-elegant text-2xl text-black group-hover:text-gray-700 transition-colors">{{ receta.nombre_perfume }}</h3>
+                                     {% if receta.productos_terminados and receta.productos_terminados[0].tipo_envio %}
+                                            {% set envio = receta.productos_terminados[0].tipo_envio %}
+                                            <div id="badge-envio-nuevas-{{ receta.id }}" 
+                                                class="text-xs text-gray-400 italic {% if 'rapido' in envio.lower() or 'rápido' in envio.lower() %}text-emerald-600{% else %}text-gray-400{% endif %}">
+                                                {{ envio }}
+                                            </div>
+                                    {% endif %}
                                     <p class="text-xs text-gray-400 italic">{{ receta.familia_olfativa | lower }}</p>
                                 </div>
                                 <div class="flex justify-center mb-6 h-56 relative overflow-hidden">
@@ -245,15 +262,14 @@
                             <div>
                                 <label class="block text-[10px] uppercase tracking-tighter text-gray-400 mb-1">Seleccionar Tamaño</label>
                                 
-                                <!-- Inicia el mini-formulario para el Carrito -->
                                 <form action="{{ url_for('ecommerce.agregar_carrito') }}" method="POST" class="flex items-center gap-2 w-full" onsubmit="enviarFormularioCarrito(event, this)">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     
-                                    <select name="producto_id" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
+                                    <select name="producto_id" onchange="actualizarEnvio(this, 'coleccion-{{ receta.id }}')" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
                                         {% for producto in receta.productos_terminados %}
-                                            {% if producto.stock_disponible_venta > 0 %}
-                                                <option value="{{ producto.id }}">{{ producto.presentacion.mililitros }} ml - ${{ "%.2f"|format(producto.precio_venta) }}</option>
-                                            {% endif %}
+                                                <option value="{{ producto.id }}" data-envio="{{ producto.tipo_envio }}">
+                                                    {{ producto.presentacion.mililitros }} ml - ${{ "%.2f"|format(producto.precio_venta) }}
+                                                </option>
                                         {% endfor %}
                                     </select>
                                     
@@ -264,7 +280,6 @@
                                         </svg>
                                     </button>
                                 </form>
-                                <!-- Fin del formulario -->
 
                             </div>
                         </div>
@@ -322,6 +337,27 @@
 </div>
 
 <script>
+    // NUEVA FUNCIÓN PARA ACTUALIZAR EL BADGE DE ENVÍO
+function actualizarEnvio(selectElement, recetaIdPrefijado) {
+    const opcionSeleccionada = selectElement.options[selectElement.selectedIndex];
+    const nuevoEnvio = opcionSeleccionada.getAttribute('data-envio');
+    const badge = document.getElementById(`badge-envio-${recetaIdPrefijado}`);
+    
+    if (badge && nuevoEnvio) {
+        badge.textContent = nuevoEnvio;
+        
+        // Evaluamos si el string contiene "rápido" o "rapido"
+        const envioLimpio = nuevoEnvio.toLowerCase();
+        if (envioLimpio.includes('rápido') || envioLimpio.includes('rapido')) {
+            // Solo letras verdes
+            badge.className = "text-emerald-600 text-xs italic";
+        } else {
+            // Solo letras grises
+            badge.className = "text-xs text-gray-400 italic";
+        }
+    }
+}
+
     function resetFilters() {
         const filters = ['filter-gender', 'filter-occasion', 'filter-family'];
         filters.forEach(id => {
@@ -337,7 +373,6 @@
         const tarjetas = document.querySelectorAll('.tarjeta-coleccion');
 
         function aplicarFiltros() {
-            // Obtenemos los 3 valores al mismo tiempo
             const valFamily = filterFamily.value.toLowerCase();
             const valGender = filterGender.value.toLowerCase();
             const valOccasion = filterOccasion.value.toLowerCase();
@@ -347,12 +382,10 @@
                 const generoTarjeta = tarjeta.getAttribute('data-genero') || '';
                 const ocasionTarjeta = tarjeta.getAttribute('data-ocasion') || '';
                 
-                // Evaluamos si coincide o si el filtro no se ha seleccionado (vacío)
                 let coincideFamilia = (valFamily === '') || (familiaTarjeta.includes(valFamily));
                 let coincideGenero = (valGender === '') || (generoTarjeta.includes(valGender));
                 let coincideOcasion = (valOccasion === '') || (ocasionTarjeta.includes(valOccasion));
                 
-                // Si cumple con LOS 3 FILTROS al mismo tiempo, lo mostramos
                 if (coincideFamilia && coincideGenero && coincideOcasion) {
                     tarjeta.style.display = ''; 
                 } else {
@@ -361,7 +394,6 @@
             });
         }
 
-        // Activamos los escuchadores para los 3
         if(filterGender) filterGender.addEventListener('change', aplicarFiltros);
         if(filterOccasion) filterOccasion.addEventListener('change', aplicarFiltros);
         if(filterFamily) filterFamily.addEventListener('change', aplicarFiltros);

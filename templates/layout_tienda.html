@@ -238,7 +238,7 @@
             </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 overflow-y-auto p-6">    
             {% if cantidad_total > 0 %}
                 <div class="space-y-6">
                     {% for item in carrito_global.items %}
@@ -315,53 +315,70 @@
 </div>
 
 <script>
-    function toggleCarritoSidebar() {
+   function toggleCarritoSidebar() {
         const sidebar = document.getElementById('carrito-sidebar-container');
+        // Buscamos el panel blanco que contiene los productos
+        const panel = sidebar.querySelector('.max-w-md'); 
+
         if (sidebar.classList.contains('hidden')) {
             sidebar.classList.remove('hidden');
+            // Nos aseguramos de devolverle la animación al abrirlo
+            if (panel) panel.classList.add('animate-slide-in-right');
         } else {
             sidebar.classList.add('hidden');
         }
     }
 
-
-    // NUEVA MAGIA: Enviar sin recargar
+    // NUEVA MAGIA: Enviar sin recargar (Corregido)
     async function enviarFormularioCarrito(event, formulario) {
-        event.preventDefault(); // Detiene la molesta recarga de la página
+        event.preventDefault(); 
         
-        // Le damos un efecto visual al botón mientras procesa
         const boton = formulario.querySelector('button');
         boton.style.opacity = '0.5';
         
         try {
-            // 1. Enviamos el perfume al servidor en secreto
+            // 1. Enviamos el formulario
             await fetch(formulario.action, {
                 method: formulario.method,
                 body: new FormData(formulario)
             });
 
-            // 2. Traemos la página actual por detrás para ver cómo quedó el carrito
+            // 2. Traemos la página actualizada
             const respuesta = await fetch(window.location.href);
             const html = await respuesta.text();
             
-            // 3. Extraemos solo el carrito y el numerito del HTML que llegó
+            // 3. Extraemos el nuevo HTML
             const doc = new DOMParser().parseFromString(html, 'text/html');
             const nuevoSidebar = doc.getElementById('carrito-sidebar-container');
             const nuevoBotonNav = doc.getElementById('boton-carrito-nav');
             
-            // 4. Reemplazamos lo viejo por lo nuevo en la pantalla
-            if(nuevoSidebar) document.getElementById('carrito-sidebar-container').innerHTML = nuevoSidebar.innerHTML;
+            // ¡AQUÍ ESTÁ LA CORRECCIÓN!
+            // Verificamos si el carrito ya está abierto en la pantalla actual
+            const sidebarActual = document.getElementById('carrito-sidebar-container');
+            const estabaAbierto = !sidebarActual.classList.contains('hidden');
+
+            // 4. Reemplazamos lo viejo por lo nuevo
+            if(nuevoSidebar) sidebarActual.innerHTML = nuevoSidebar.innerHTML;
             if(nuevoBotonNav) document.getElementById('boton-carrito-nav').innerHTML = nuevoBotonNav.innerHTML;
 
-            // 5. ¡Detalle Pro! Si agregamos un producto desde el catálogo, abrimos el carrito automáticamente
-            if(formulario.action.includes('agregar_carrito')) {
-                document.getElementById('carrito-sidebar-container').classList.remove('hidden');
+            // 5. Lógica de animación
+            if (estabaAbierto) {
+                // Si ya estaba abierto, le quitamos la animación al panel que acabamos de inyectar 
+                // para que los números cambien sin que el carrito vuelva a entrar.
+                const panelInyectado = sidebarActual.querySelector('.animate-slide-in-right');
+                if (panelInyectado) {
+                    panelInyectado.classList.remove('animate-slide-in-right');
+                }
+            } else if (formulario.action.includes('agregar_carrito')) {
+                // Si agregamos desde el catálogo (estaba cerrado), lo abrimos 
+                // (la animación se reproducirá sola porque el HTML nuevo trae la clase)
+                sidebarActual.classList.remove('hidden');
             }
 
         } catch (error) {
             console.error("Error al actualizar el carrito:", error);
         } finally {
-            boton.style.opacity = '1'; // Regresamos el botón a la normalidad
+            boton.style.opacity = '1'; 
         }
     }
 </script>

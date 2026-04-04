@@ -1,13 +1,31 @@
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import extract, func
-from models import db, Receta, ProductoTerminado, Carrito, CarritoItem, Venta, DetalleVenta
+from models import db, Receta, ProductoTerminado, Carrito, CarritoItem, Venta, DetalleVenta, OrdenProduccion, DetalleReceta, MateriaPrima
+
 ecommerce_bp=Blueprint('ecommerce',__name__)
+
+
+def tiene_materia_prima_suficiente(producto, cantidad=1):
+    detalles = DetalleReceta.query.filter_by(receta_id=producto.receta_id).all()
+    if not detalles:
+        return False
+
+    ml = producto.presentacion.mililitros
+
+    for det in detalles:
+        materia = MateriaPrima.query.get(det.materia_prima_id)
+        requerido = (det.porcentaje / 100) * ml * cantidad
+
+        if not materia or materia.cantidad_disponible < requerido:
+            return False
+
+    return True
 
 
 @ecommerce_bp.route("/", methods=["GET", "POST"])
 def ecommerce():
-    recetas = Receta.query.filter(Receta.productos_terminados.any(ProductoTerminado.stock_disponible_venta > 0)).all()
+    recetas = Receta.query.all()
     nuevas = recetas[-4:] if len(recetas) >= 4 else recetas
 
     vendidos = db.session.query(Receta)\
@@ -19,6 +37,13 @@ def ecommerce():
     
     if not vendidos:
         vendidos = recetas[:4] if len(recetas) >= 4 else recetas
+
+    for receta in recetas:
+        for producto in receta.productos_terminados:
+            if tiene_materia_prima_suficiente(producto):
+                producto.tipo_envio = "Envío rápido"
+            else:
+                producto.tipo_envio = "Envío en 10-15 días"
     
     return render_template("modulos_front/ecommerce/ecommerce.html", recetas=recetas,nuevas=nuevas,vendidos=vendidos)
 
@@ -52,7 +77,7 @@ def agregar_carrito():
     
     db.session.commit()
     # Aquí podríamos poner un flash('Producto agregado al carrito'), pero por ahora solo recargamos
-    return redirect(url_for('ecommerce.ecommerce'))
+    return jsonify({"success": True})
 
 
 # --- INYECTOR GLOBAL PARA EL CARRITO ---
@@ -109,44 +134,74 @@ def pagar():
     iva = subtotal * 0.16
     total = subtotal + iva
 
-    if request.method == "POST": 
+    if request.method == "POST":
         if not carrito or not carrito.items:
             return redirect(url_for('ecommerce.ecommerce'))
-            
+        
         metodo = request.form.get('metodo_pago', 'Tarjeta Online')
 
-        # 1. Creamos la venta
+        requiere_produccion_lenta = False
+
+        # 1. Crear venta
         nueva_venta = Venta(
             cliente_id=cliente_id,
             canal_venta='Online',
-            estado_pedido='Pagado - Preparando Envío',
+            estado_pedido='Procesando',  # temporal
             total_venta=total,
             metodo_pago_fisico=metodo
         )
         db.session.add(nueva_venta)
-        db.session.flush()
+        db.session.flush()  # para obtener el ID
 
-        # 2. Pasamos los items a Detalles y descontamos stock
+        # 2. Procesar cada item del carrito
         for item in carrito.items:
             prod = item.producto_terminado
-            if prod.stock_disponible_venta >= item.cantidad:
-                prod.stock_disponible_venta -= item.cantidad
-                
-                det = DetalleVenta(
-                    venta_id=nueva_venta.id, 
-                    producto_terminado_id=prod.id, 
-                    cantidad=item.cantidad, 
-                    precio_unitario=prod.precio_venta
-                )
-                db.session.add(det)
-            
-            # 3. Borramos el item del carrito
+
+            # 🔹 Crear detalle de venta
+            det = DetalleVenta(
+                venta_id=nueva_venta.id,
+                producto_terminado_id=prod.id,
+                cantidad=item.cantidad,
+                precio_unitario=prod.precio_venta
+            )
+            db.session.add(det)
+
+            # 🔹 Validar materia prima
+            hay_materia = tiene_materia_prima_suficiente(prod, item.cantidad)
+
+            if not hay_materia:
+                requiere_produccion_lenta = True
+
+            # 🔹 Crear orden de producción SIEMPRE
+            orden = OrdenProduccion(
+                receta_id=prod.receta.id,
+                venta_id=nueva_venta.id,
+                producto_terminado_id=prod.id,
+                cantidad_producir=item.cantidad,
+                estado = 'pendiente_mp' if not hay_materia else 'lista_para_producir'
+            )
+            db.session.add(orden)
+
+            # 🔹 Limpiar carrito
             db.session.delete(item)
 
+        # 3. Definir estado final de la venta
+        if requiere_produccion_lenta:
+            nueva_venta.estado_pedido = 'Pagado - Producción Pendiente (10-15 días)'
+        else:
+            nueva_venta.estado_pedido = 'Pagado - En Producción (Envío rápido)'
+
         db.session.commit()
+
         return redirect(url_for('ecommerce.ticket_e', id=nueva_venta.id))
 
-    return render_template("modulos_front/ecommerce/pago.html", carrito=carrito, subtotal=subtotal, iva=iva, total=total)
+    return render_template(
+        "modulos_front/ecommerce/pago.html",
+        carrito=carrito,
+        subtotal=subtotal,
+        iva=iva,
+        total=total
+    )
 
 # NUEVA RUTA PARA EL TICKET ONLINE
 @ecommerce_bp.route("/ticket_e/<int:id>")
@@ -154,11 +209,6 @@ def ticket_e(id):
     venta = Venta.query.get_or_404(id)
     return render_template("modulos_front/ecommerce/ticket_e.html", venta=venta)
 
-
-@ecommerce_bp.route("/ticket", methods=["GET", "POST"])
-def ticket():
-
-    return render_template("modulos_front/ecommerce/ticket.html")
 
     
 @ecommerce_bp.route("/nosotros")

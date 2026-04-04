@@ -3,7 +3,6 @@ from flask import flash
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from flask import g
-  
 
 
 from models import db
@@ -67,5 +66,5 @@ if __name__ == '__main__':
 	csrf.init_app(app)
 	with app.app_context():
 		db.create_all()
-	app.run()
+app.run()
 

@@ -1,39 +1,56 @@
-import datetime
 from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin
+from datetime import datetime
 
 db = SQLAlchemy()
 
-# ///////////////////////////////////////
-# SEGURIDAD 
-# ///////////////////////////////////////
+# ==========================================
+# SEGURIDAD (Adaptado para Flask-Security-Too)
+# ==========================================
 
-class Rol(db.Model):
+# Tabla intermedia obligatoria para relacionar Usuarios y Roles
+roles_users = db.Table('roles_users',
+    db.Column('usuario_id', db.Integer(), db.ForeignKey('usuarios.id')),
+    db.Column('rol_id', db.Integer(), db.ForeignKey('roles.id'))
+)
+
+class Rol(db.Model, RoleMixin):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    name = db.Column(db.String(80), unique=True) # Flask-Security exige que se llame 'name'
+    description = db.Column(db.String(255))      # Flask-Security exige 'description'
 
-
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     __tablename__ = 'usuarios'
-    id = db.Column(db.Integer, primary_key=True)
-    rol_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    nombre = db.Column(db.String(150))
-    correo = db.Column(db.String(150), unique=True)
-    password_hash = db.Column(db.String(255))
-    estado = db.Column(db.Boolean, default=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    # --- CAMPOS OBLIGATORIOS FLASK-SECURITY ---
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
+    # -------------------------------------------
 
-    rol = db.relationship('Rol')
+    # --- NUEVO: CAMPOS OBLIGATORIOS PARA 2FA (Flask-Security) ---
+    tf_primary_method = db.Column(db.String(64), nullable=True)
+    tf_totp_secret = db.Column(db.String(255), nullable=True)
+    tf_phone_number = db.Column(db.String(128), nullable=True)
 
+    nombre = db.Column(db.String(150), nullable=True) 
+    apellidos = db.Column(db.String(150), nullable=True) 
+    telefono = db.Column(db.String(20), nullable=True)
+    roles = db.relationship('Rol', secondary=roles_users, backref=db.backref('usuarios', lazy='dynamic'))
 
 class LogAuditoria(db.Model):
-    __tablename__ = 'logs_auditoria'
+    __tablename__ = 'log_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    accion = db.Column(db.String(255))
+    usuario = db.relationship('Usuario')
+    accion = db.Column(db.String(50))  # CREATE, UPDATE, DELETE
     tabla_afectada = db.Column(db.String(100))
+    registro_id = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
-
 
 # ///////////////////////////////////////
 # CLIENTES 
@@ -43,12 +60,11 @@ class Cliente(db.Model):
     __tablename__ = 'clientes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
-    apellido = db.Column(db.String(100))
-    correo = db.Column(db.String(150), unique=True)
+    apellidos = db.Column(db.String(100))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), unique=True)
     telefono = db.Column(db.String(20))
-    password_hash = db.Column(db.String(255))
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-    estado = db.Column(db.Boolean, default=True)
+    usuario = db.relationship('Usuario', backref=db.backref('cliente', uselist=False))
 
 
 class DireccionEntrega(db.Model):
@@ -88,9 +104,9 @@ class MateriaPrima(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
     cantidad_disponible = db.Column(db.Float)
-    unidad_medida = db.Column(db.String(50))
+    unidad_medida = db.Column(db.String(50))    
     stock_minimo = db.Column(db.Float)
-    es_contenedor = db.Column(db.Boolean, default=False)
+    tipo = db.Column(db.String(30)) 
 
 
 class Proveedor(db.Model):
@@ -100,9 +116,6 @@ class Proveedor(db.Model):
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.Text)
     tipo_insumos = db.Column(db.String(100))
-
-    activo = db.Column(db.Boolean, default=True)
-    compras = db.relationship('Compra', backref='proveedor', lazy=True)
 
 
 class Compra(db.Model):
@@ -115,10 +128,6 @@ class Compra(db.Model):
 
     estado = db.Column(db.String(50), default="pendiente")  # pendiente, pedido, entregado, cancelado
 
-    notas = db.Column(db.Text) 
-    total = db.Column(db.Float, default=0.0)
-    detalles = db.relationship('DetalleCompra', backref='compra', lazy=True, cascade="all, delete-orphan")
-    usuario = db.relationship('Usuario', backref='compras_registradas', lazy=True)
 
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'
@@ -128,9 +137,7 @@ class DetalleCompra(db.Model):
     unidad_compra = db.Column(db.String(50))
     cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
-    
-    subtotal = db.Column(db.Float)
-    materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
+
 
 # ///////////////////////////////////////
 # PRODUCCION 
@@ -146,8 +153,9 @@ class Receta(db.Model):
     genero = db.Column(db.String(50))
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
-    
+
     productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
+
 
 
 class DetalleReceta(db.Model):
@@ -165,19 +173,18 @@ class Presentacion(db.Model):
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
 
-    productos_terminados = db.relationship('ProductoTerminado', backref='presentacion', lazy=True)
-
-
 class ProductoTerminado(db.Model):
-    __tablename__ = 'productos_terminados'
+    __tablename__= 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     stock_disponible_venta = db.Column(db.Integer)
-    stock_comprometido = db.Column(db.Integer)
     stock_minimo = db.Column(db.Integer)
+    stock_comprometido = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
+
+    presentacion = db.relationship('Presentacion')
 
 
 class OrdenProduccion(db.Model):
@@ -239,8 +246,6 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
-    detalles = db.relationship('DetalleVenta', backref='venta_asociada', lazy=True, cascade="all, delete-orphan")
-
 
 class DetalleVenta(db.Model):
     __tablename__ = 'detalle_ventas'
@@ -248,8 +253,6 @@ class DetalleVenta(db.Model):
     producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'), primary_key=True)
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
-
-    producto_terminado = db.relationship('ProductoTerminado', backref='detalles_venta', lazy=True)
 
 
 # ///////////////////////////////////////
@@ -284,17 +287,16 @@ class Carrito(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+    items = db.relationship('CarritoItem', backref='carrito', lazy=True)
 
 
 class CarritoItem(db.Model):
     __tablename__ = 'carrito_items'
     id = db.Column(db.Integer, primary_key=True)
     carrito_id = db.Column(db.Integer, db.ForeignKey('carrito.id'))
-    producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'))
     cantidad = db.Column(db.Integer)
-
-    producto_terminado = db.relationship('ProductoTerminado', lazy=True)
-    carrito = db.relationship('Carrito', backref=db.backref('items', cascade="all, delete-orphan"), lazy=True)
+    producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'))
+    producto_terminado = db.relationship('ProductoTerminado')
 
 
 # POS
