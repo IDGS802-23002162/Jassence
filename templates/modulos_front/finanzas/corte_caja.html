@@ -19,7 +19,7 @@
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Ventas Totales</label>
-                <input type="number" name="ventas_totales" value="{{ ventas_totales }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+                <input type="number" name="ventas_totales" value="{{ ventas_totales }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly disabled>
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -93,7 +93,7 @@
             
             <div class="bg-white p-6 rounded-xl shadow-md border-2 border-black"> 
                 <label class="block mb-3 text-sm font-bold text-black">Efectivo Real</label>
-                <input type="number" step="0.01" id="efectivo_real" name="efectivo_real" value="{{ efectivo_esperado }}" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm font-bold" required oninput="calcularDiferencia()">
+                <input type="number" step="0.01" id="efectivo_real" name="efectivo_real" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm font-bold" required oninput="calcularDiferencia()">
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">

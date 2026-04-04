@@ -2,7 +2,6 @@ from models import db, CorteCaja, Venta
 from . import finanzas_bp
 from flask import render_template, request, redirect, url_for, flash
 from datetime import date
-from sqlalchemy import text
 
 @finanzas_bp.route('/corte_caja', methods=['GET', 'POST'])
 def corte_caja():
@@ -22,38 +21,58 @@ def corte_caja():
         ingresos[metodo]["total"] += v.total_venta
         total_ventas += v.total_venta
 
-    # Egresos: como no hay tabla 'egresos', tomamos corte previo del mismo usuario o cero
+    # Obtener último corte del usuario
     ultimo_corte = db.session.query(CorteCaja)\
                     .filter_by(usuario_id=usuario_id)\
                     .order_by(CorteCaja.fecha.desc())\
                     .first()
     
-    # Usamos egresos del último corte o 0
+    # Valor inicial de apertura (último efectivo_real o 0 si no hay corte)
+    apertura_valor = ultimo_corte.efectivo_real if ultimo_corte else 0
+
+    # Egresos del último corte o cero
     total_egresos = ultimo_corte.egresos_gastos if ultimo_corte else 0
     egresos = [{"categoria": "Gastos previos", "cantidad": 1, "total": total_egresos}] if total_egresos else []
 
     # Calcular utilidad neta y efectivo esperado
-    apertura_valor = ultimo_corte.efectivo_real if ultimo_corte else 0
     utilidad_neta = total_ventas - total_egresos
     efectivo_esperado = apertura_valor + total_ventas - total_egresos
 
     if request.method == 'POST':
+        apertura_valor = float(request.form['apertura'])
         efectivo_real = float(request.form['efectivo_real'])
         diferencia = efectivo_real - efectivo_esperado
 
-        corte = CorteCaja(
-            usuario_id=usuario_id,
-            fecha=date.today(),
-            apertura=apertura_valor,
-            ventas_totales=total_ventas,
-            egresos_gastos=total_egresos,
-            utilidad_neta=utilidad_neta,
-            efectivo_esperado=efectivo_esperado,
-            efectivo_real=efectivo_real,
-            diferencia=diferencia
-        )
-        db.session.add(corte)
-        db.session.commit()
+        # Verificar si ya existe corte para hoy
+        corte_existente = db.session.query(CorteCaja)\
+                            .filter_by(usuario_id=usuario_id, fecha=date.today())\
+                            .first()
+        if corte_existente:
+            # Actualizar corte existente
+            corte_existente.apertura = apertura_valor
+            corte_existente.ventas_totales = total_ventas
+            corte_existente.egresos_gastos = total_egresos
+            corte_existente.utilidad_neta = utilidad_neta
+            corte_existente.efectivo_esperado = efectivo_esperado
+            corte_existente.efectivo_real = efectivo_real
+            corte_existente.diferencia = diferencia
+            db.session.commit()
+        else:
+            # Crear nuevo corte
+            corte = CorteCaja(
+                usuario_id=usuario_id,
+                fecha=date.today(),
+                apertura=apertura_valor,
+                ventas_totales=total_ventas,
+                egresos_gastos=total_egresos,
+                utilidad_neta=utilidad_neta,
+                efectivo_esperado=efectivo_esperado,
+                efectivo_real=efectivo_real,
+                diferencia=diferencia
+            )
+            db.session.add(corte)
+            db.session.commit()
+
         flash("Corte de caja cerrado con éxito!", "success")
         return redirect(url_for('finanzas.corte_caja'))
 
