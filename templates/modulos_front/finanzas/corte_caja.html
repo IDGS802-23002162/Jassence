@@ -9,27 +9,27 @@
         <h1 class="font-elegant text-6xl text-black cursor-default">Corte de Caja</h1>
     </div>
 
-    <form action="#" method="POST">
-        
+    <form action="{{ url_for('finanzas.corte_caja') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Apertura</label>
-                <input type="number" name="apertura" value="1000" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+                <input type="number" name="apertura" value="{{ apertura }}" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Ventas Totales</label>
-                <input type="number" name="ventas_totales" value="2300" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+                <input type="number" name="ventas_totales" value="{{ ventas_totales }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Egresos/Gastos</label>
-                <input type="number" name="egresos" value="200" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+                <input type="number" name="egresos" value="{{ egresos_gastos }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Utilidad Neta Diaria</label>
-                <input type="number" name="utilidad" value="1200" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+                <input type="number" name="utilidad" value="{{ utilidad_neta }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
             </div>
         </div>
 
@@ -47,21 +47,13 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for metodo, info in ingresos.items() %}
                             <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">Efectivo</td>
-                                <td class="px-6 py-4 text-center">3</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ 800.00</td>
+                                <td class="px-6 py-4">{{ metodo }}</td>
+                                <td class="px-6 py-4 text-center">{{ info.transacciones }}</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ {{ "{:,.2f}".format(info.total) }}</td>
                             </tr>
-                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">Tarjeta</td>
-                                <td class="px-6 py-4 text-center">4</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ 1,200.00</td>
-                            </tr>
-                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">Transferencia</td>
-                                <td class="px-6 py-4 text-center">2</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ 300.00</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -79,21 +71,13 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for e in egresos %}
                             <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">Envios</td>
-                                <td class="px-6 py-4 text-center">4</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ 200.00</td>
+                                <td class="px-6 py-4">{{ e.categoria }}</td>
+                                <td class="px-6 py-4 text-center">{{ e.cantidad }}</td>
+                                <td class="px-6 py-4 text-center text-white font-bold">$ {{ "{:,.2f}".format(e.total) }}</td>
                             </tr>
-                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">Escencias</td>
-                                <td class="px-6 py-4 text-center">0</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ 0.00</td>
-                            </tr>
-                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">Varios</td>
-                                <td class="px-6 py-4 text-center">0</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ 0.00</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -104,16 +88,17 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Efectivo Esperado</label>
-                <input type="number" name="efectivo_esperado" value="800" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+                <input type="number" id="efectivo_esperado" name="efectivo_esperado" value="{{ efectivo_esperado }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
             </div>
             
-            <div class="bg-white p-6 rounded-xl shadow-md border-2 border-black"> <label class="block mb-3 text-sm font-bold text-black">Efectivo Real</label>
-                <input type="number" name="efectivo_real" value="800" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm font-bold" required>
+            <div class="bg-white p-6 rounded-xl shadow-md border-2 border-black"> 
+                <label class="block mb-3 text-sm font-bold text-black">Efectivo Real</label>
+                <input type="number" step="0.01" id="efectivo_real" name="efectivo_real" value="{{ efectivo_esperado }}" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm font-bold" required oninput="calcularDiferencia()">
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <label class="block mb-3 text-sm font-medium text-gray-800">Diferencia</label>
-                <input type="number" name="diferencia" value="0" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+                <input type="number" id="diferencia" name="diferencia" value="0" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
             </div>
         </div>
 
@@ -126,5 +111,15 @@
         </div>
 
     </form>
-</div> 
+</div>
+
+<script>
+// Pequeño script para que la diferencia se vea en tiempo real sin perder tus estilos
+function calcularDiferencia() {
+    const esperado = parseFloat(document.getElementById('efectivo_esperado').value) || 0;
+    const real = parseFloat(document.getElementById('efectivo_real').value) || 0;
+    const diferencia = real - esperado;
+    document.getElementById('diferencia').value = diferencia.toFixed(2);
+}
+</script>
 {% endblock %}

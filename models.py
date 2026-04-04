@@ -24,13 +24,14 @@ class Usuario(db.Model):
 
     rol = db.relationship('Rol')
 
-
 class LogAuditoria(db.Model):
-    __tablename__ = 'logs_auditoria'
+    __tablename__ = 'log_auditoria'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    accion = db.Column(db.String(255))
+    usuario = db.relationship('Usuario')
+    accion = db.Column(db.String(50))  # CREATE, UPDATE, DELETE
     tabla_afectada = db.Column(db.String(100))
+    registro_id = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
 
@@ -90,7 +91,7 @@ class MateriaPrima(db.Model):
     cantidad_disponible = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))
     stock_minimo = db.Column(db.Float)
-    es_contenedor = db.Column(db.Boolean, default=False)
+    tipo = db.Column(db.String(50)) 
 
 
 class Proveedor(db.Model):
@@ -100,9 +101,6 @@ class Proveedor(db.Model):
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.Text)
     tipo_insumos = db.Column(db.String(100))
-
-    activo = db.Column(db.Boolean, default=True)
-    compras = db.relationship('Compra', backref='proveedor', lazy=True)
 
 
 class Compra(db.Model):
@@ -115,10 +113,6 @@ class Compra(db.Model):
 
     estado = db.Column(db.String(50), default="pendiente")  # pendiente, pedido, entregado, cancelado
 
-    notas = db.Column(db.Text) 
-    total = db.Column(db.Float, default=0.0)
-    detalles = db.relationship('DetalleCompra', backref='compra', lazy=True, cascade="all, delete-orphan")
-    usuario = db.relationship('Usuario', backref='compras_registradas', lazy=True)
 
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'
@@ -128,9 +122,7 @@ class DetalleCompra(db.Model):
     unidad_compra = db.Column(db.String(50))
     cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
-    
-    subtotal = db.Column(db.Float)
-    materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
+
 
 # ///////////////////////////////////////
 # PRODUCCION 
@@ -147,7 +139,7 @@ class Receta(db.Model):
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
 
-    productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
+    detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
 
 
 class DetalleReceta(db.Model):
@@ -158,14 +150,14 @@ class DetalleReceta(db.Model):
     porcentaje = db.Column(db.Float)
     tipo_componente = db.Column(db.String(50))
 
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_receta')
+
 
 class Presentacion(db.Model):
     __tablename__ = 'presentaciones'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
-
-    productos_terminados = db.relationship('ProductoTerminado', backref='presentacion', lazy=True)
 
 
 class ProductoTerminado(db.Model):
@@ -209,10 +201,8 @@ class MermaInventario(db.Model):
     item_id = db.Column(db.Integer)
     etapa = db.Column(db.String(50))  # produccion, almacen, etc
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-
     cantidad_perdida = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))
-
     motivo = db.Column(db.String(100))
     descripcion = db.Column(db.Text)
 
@@ -239,8 +229,6 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
-    detalles = db.relationship('DetalleVenta', backref='venta_asociada', lazy=True, cascade="all, delete-orphan")
-
 
 class DetalleVenta(db.Model):
     __tablename__ = 'detalle_ventas'
@@ -248,8 +236,6 @@ class DetalleVenta(db.Model):
     producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'), primary_key=True)
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
-
-    producto_terminado = db.relationship('ProductoTerminado', backref='detalles_venta', lazy=True)
 
 
 # ///////////////////////////////////////
