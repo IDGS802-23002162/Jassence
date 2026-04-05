@@ -122,7 +122,7 @@ class MateriaPrima(db.Model):
     cantidad_disponible = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))    
     stock_minimo = db.Column(db.Float)
-    tipo = db.Column(db.String(30)) 
+    tipo = db.Column(db.String(50)) 
 
 
 class Proveedor(db.Model):

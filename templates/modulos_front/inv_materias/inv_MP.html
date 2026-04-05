@@ -26,18 +26,17 @@
         <div class="relative flex-1 w-full">
             <input type="text" id="buscador"
                 class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm"
-                placeholder="Buscar por nombre de insumo (Esencia, fijador...)...">
-            <div  id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 ">
+                placeholder="Buscar por nombre de insumo...">
+            <div id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
                 <svg id="icono-svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                 </svg>
-
             </div>
         </div>
 
         <div class="w-full md:w-auto">
-            <select
+            <select id="filtro-categoria"
                 class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 pr-8 focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
                 <option selected>Todas las categorías</option>
                 <option>Esencia</option>
@@ -49,11 +48,12 @@
         </div>
     </div>
 
-    <div class="relative overflow-x-auto shadow-xl rounded-lg">
+    <div class="relative overflow-x-auto shadow-xl rounded-lg border border-gray-200">
         <table class="w-full text-sm text-left text-gray-300">
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
-                    <th class="px-6 py-4">Nombre</th>
+                    <th class="px-6 py-4">Tipo</th>
+                    <th class="px-6 py-4">Insumo</th>
                     <th class="px-6 py-4">Cantidad</th>
                     <th class="px-6 py-4">Unidad</th>
                     <th class="px-6 py-4">Stock mínimo</th>
@@ -66,10 +66,16 @@
             <tbody id="tabla-materias">
                 {% for materia in materias %}
                 <tr class="fila-materia bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="nombre px-6 py-4">{{ materia.nombre }}</td>
-                    <td class="cantidad px-6 py-4">{{ materia.cantidad_disponible }}</td>
-                    <td class="unidad px-6 py-4">{{ materia.unidad_medida }}</td>
-                    <td class="stock-minimo px-6 py-4">{{ materia.stock_minimo }}</td>
+                    <td class="px-6 py-4 text-gray-400 uppercase tracking-widest">{{ materia.tipo }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="nombre font-bold text-white text-base">{{ materia.nombre }}</span>
+                            <span class="tipo text-[10px] text-gray-500 uppercase tracking-widest">{{ 'Materia Prima' }}</span>
+                        </div>
+                    </td>
+                    <td class="cantidad px-6 py-4 font-mono text-white">{{ materia.cantidad_disponible }}</td>
+                    <td class="unidad px-6 py-4 text-gray-400">{{ materia.unidad_medida }}</td>
+                    <td class="stock-minimo px-6 py-4 text-gray-500">{{ materia.stock_minimo }}</td>
                     <td class="px-6 py-4 text-center border-l border-table-dark">
                         <a href="{{ url_for('inv_materias.detalle_MP', id=materia.id) }}"
                             class="font-medium text-gray-300 hover:text-blue-400 transition-colors">
@@ -100,7 +106,7 @@
 
 <script>
     const buscador = document.getElementById('buscador');
-    const filtro = document.querySelector('select');
+    const filtro = document.getElementById('filtro-categoria');
     const filas = document.querySelectorAll('.fila-materia');
     const iconoContainer = document.getElementById('icono-buscador');
 
@@ -113,65 +119,53 @@
     buscador.value = sessionStorage.getItem('busqueda_mp') || '';
     filtro.value = sessionStorage.getItem('filtro_mp') || 'Todas las categorías';
 
-    const lupa = `
-        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-        </svg>
-    `;
+    const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
+    const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
 
-    const cerrar = `
-        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M6 18L18 6M6 6l12 12" />
-        </svg>
-    `;
+    function filtrar() {
+        const texto = buscador.value.toLowerCase();
+        const filtroSelect = filtro.value.toLowerCase();
 
-function filtrar() {
-    const texto = buscador.value.toLowerCase();
-    const filtroSelect = filtro.value.toLowerCase();
+        sessionStorage.setItem('busqueda_mp', buscador.value);
+        sessionStorage.setItem('filtro_mp', filtro.value);
 
-    sessionStorage.setItem('busqueda_mp', buscador.value);
-    sessionStorage.setItem('filtro_mp', filtro.value);
+        filas.forEach(fila => {
+            const nombre = fila.querySelector('.nombre').textContent.toLowerCase();
+            const tipo = fila.querySelector('.tipo').textContent.toLowerCase();
 
-    filas.forEach(fila => {
-        const nombre = fila.querySelector('.nombre').textContent.toLowerCase();
+            const coincideTexto = nombre.includes(texto);
+            
+            let coincideFiltro = true;
+            if (filtroSelect !== "todas las categorías") {
+                // Ahora comparamos contra el campo 'tipo' de la base de datos
+                coincideFiltro = tipo.includes(filtroSelect);
+            }
 
-        const coincideTexto = nombre.includes(texto);
+            fila.style.display = (coincideTexto && coincideFiltro) ? '' : 'none';
+        });
 
-        let coincideFiltro = true;
-        if (filtroSelect !== "todas las categorías") {
-            coincideFiltro = nombre.includes(filtroSelect);
+        iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
+    }
+
+    buscador.addEventListener('input', filtrar);
+    filtro.addEventListener('change', filtrar);
+
+    iconoContainer.addEventListener('click', () => {
+        if (buscador.value) {
+            buscador.value = '';
+            sessionStorage.removeItem('busqueda_mp');
+            filtrar();
         }
-
-        fila.style.display = (coincideTexto && coincideFiltro) ? '' : 'none';
     });
 
-    iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
-}
+    filtrar();
 
-buscador.addEventListener('input', filtrar);
-filtro.addEventListener('change', filtrar);
-
-iconoContainer.addEventListener('click', () => {
-    if (buscador.value) {
-        buscador.value = '';
-        sessionStorage.removeItem('busqueda_mp');
-        filtrar();
+    function resetFiltros() {
+        sessionStorage.setItem('reset_filtros', 'true');
     }
-});
 
-filtrar();
-
-function resetFiltros() {
-    sessionStorage.setItem('reset_filtros', 'true');
-}
-
-function cerrarModal(id) {
-    document.getElementById(id).classList.add('hidden');
-}
+    function cerrarModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
 </script>
-
-
-
 {% endblock %}
