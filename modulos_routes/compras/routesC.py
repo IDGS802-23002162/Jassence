@@ -147,7 +147,8 @@ def marcar_recibido(id):
                     mp.cantidad_disponible += detalle.cantidad_convertida
                     
             db.session.commit()
-            flash('¡Mercancía recibida físicamente! El stock ha sido sumado al inventario. UwU', 'success')
+            
+            flash('¡Mercancía recibida físicamente! El stock ha sido sumado al inventario.', 'success')
             
         except Exception as e:
             db.session.rollback()

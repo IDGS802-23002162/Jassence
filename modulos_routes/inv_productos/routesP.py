@@ -1,7 +1,7 @@
 from models import db, LogAuditoria, MermaInventario, ProductoTerminado, OrdenProduccion
 from . import inventarioP_bp
 from flask import render_template, request, redirect, url_for
-from flask_security import roles_required, current_user
+from flask_security import roles_accepted, current_user
 from modulos_routes.auditoria.utils import registrar_log
 
 class Usuario:
@@ -16,7 +16,7 @@ class Usuario:
 
 
 @inventarioP_bp.route('/inventario_P')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def inventario_P():
     productos = ProductoTerminado.query.all()
 
@@ -28,7 +28,7 @@ def inventario_P():
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_P/<int:id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def detalle_P(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
@@ -46,7 +46,7 @@ def detalle_P(id):
 # ------------------------------------------
 
 @inventarioP_bp.route('/merma_Pmodel/<int:id>', methods=['POST'])
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def merma_Pmodel(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
@@ -72,8 +72,7 @@ def merma_Pmodel(id):
     db.session.add(nueva_merma)
 
     registrar_log(
-        usuario_id=current_user.id,
-        accion="CREATE",
+        accion="UPDATE",
         tabla="MermaInventario",
         registro_id=id,
         detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
@@ -84,7 +83,7 @@ def merma_Pmodel(id):
     return redirect(url_for('inventarioP.inventario_P'))
 
 @inventarioP_bp.route('/ordenes_por_producto/<int:producto_id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def ordenes_por_producto(producto_id):
     ordenes = OrdenProduccion.query.filter_by(
         producto_terminado_id=producto_id
@@ -103,14 +102,13 @@ def ordenes_por_producto(producto_id):
 # ------------------------------------------
 
 @inventarioP_bp.route('/eliminar_P/<int:id>', methods=['POST'])
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def eliminar_P(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
     db.session.delete(producto)
 
     registrar_log(
-        usuario_id=current_user.id,
         accion="DELETE",
         tabla="productos_terminados",
         registro_id=id,
@@ -126,7 +124,7 @@ def eliminar_P(id):
 # ==========================================
 
 @inventarioP_bp.route('/inventario_PM')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def inventario_PM():
     mermas = MermaInventario.query.all()
 
@@ -138,7 +136,7 @@ def inventario_PM():
 # ------------------------------------------
 
 @inventarioP_bp.route('/registrar_PM', methods=['GET', 'POST'])
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def registrar_PM():
     if request.method == 'POST':
         item_id = request.form.get('item_id')
@@ -166,7 +164,6 @@ def registrar_PM():
         )
 
         registrar_log(
-        usuario_id=current_user.id,
         accion="CREATE",
         tabla="MermaInventario",
         registro_id=id,
@@ -188,7 +185,7 @@ def registrar_PM():
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_Pmerma/<int:id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def detalle_Pmerma(id):
     merma = MermaInventario.query.get_or_404(id)
 
@@ -202,7 +199,7 @@ def detalle_Pmerma(id):
 # ==========================================
 
 @inventarioP_bp.route('/historial_P')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def historial_P():
     historial = LogAuditoria.query\
         .filter_by(tabla_afectada='productos_terminados')\
@@ -218,7 +215,7 @@ def historial_P():
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_PH/<int:id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def detalle_PH(id):
     historial = LogAuditoria.query.get_or_404(id)
 

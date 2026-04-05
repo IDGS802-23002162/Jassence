@@ -4,7 +4,7 @@ from datetime import datetime
 
 def registrar_log(accion, tabla, registro_id, detalle):
     # Verificamos si hay un usuario en sesión, de lo contrario registramos None (Ej. intentos fallidos)
-    user_id = current_user.id if current_user and current_user.is_authenticated else None
+    user_id = current_user.id
     
     nuevo_log = LogAuditoria(
         usuario_id=user_id,
