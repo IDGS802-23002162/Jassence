@@ -181,6 +181,7 @@ class Receta(db.Model):
 
     productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
 
+    # detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
 
 
 class DetalleReceta(db.Model):

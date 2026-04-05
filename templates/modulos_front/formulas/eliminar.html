@@ -15,6 +15,7 @@
                 <p class="mb-6 text-sm text-gray-500">Estás a punto de eliminar la fórmula de <strong id="nombre-formula-a-eliminar" class="text-black"></strong>. Esta acción no se puede deshacer.</p>
                 
                 <form id="form-eliminar-formula" action="#" method="POST" class="flex justify-center gap-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button data-modal-hide="modal-eliminar-formula" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
                         Cancelar
                     </button>
