@@ -133,6 +133,9 @@ class Proveedor(db.Model):
     direccion = db.Column(db.Text)
     tipo_insumos = db.Column(db.String(100))
 
+    activo = db.Column(db.Boolean, default=True)
+    compras = db.relationship('Compra', backref='proveedor', lazy=True)
+
 
 class Compra(db.Model):
     __tablename__ = 'compras'
@@ -157,7 +160,9 @@ class DetalleCompra(db.Model):
     unidad_compra = db.Column(db.String(50))
     cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
-
+    
+    subtotal = db.Column(db.Float)
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
 
 # ///////////////////////////////////////
 # PRODUCCION 

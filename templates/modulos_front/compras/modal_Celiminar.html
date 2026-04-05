@@ -13,7 +13,7 @@
                     </svg>
                 </div>
                 
-                <h3 class="mb-2 text-2xl font-elegant text-black">¿Anular Registro?</h3>
+                <h3 class="mb-2 text-2xl font-bold text-black">¿Anular Registro?</h3>
                 <p class="mb-6 text-sm text-gray-500 leading-relaxed">
                     Estás por eliminar la compra del <strong id="fecha-compra-txt" class="text-black"></strong> <br>
                     del proveedor <span id="proveedor-compra-txt" class="font-bold text-black"></span>.
@@ -46,7 +46,7 @@
         proveedorTxt.textContent = proveedor;
         
         // Construir la URL de eliminación
-        formularioC.action = "{{ url_for('compras.modal_Celiminar', id=0) }}".replace('0', id);
+        formularioC.action = "{{ url_for('compras.cancelar_C', id=0) }}".replace('0', id);
         
         // Mostrar modal con animación
         modalC.classList.remove('hidden');

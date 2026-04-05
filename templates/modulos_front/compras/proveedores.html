@@ -13,12 +13,12 @@
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('compras.compras') }}"
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Historial de Compras
+            Compras
         </a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('compras.historial_PC') }}"
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
-            Logs
+            Historial
         </a>
     </div>
 
@@ -52,8 +52,8 @@
             <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                 <tr>
                     <th scope="col" class="px-6 py-4">Empresa</th>
-                    <th scope="col" class="px-6 py-4">Teléfono</th>
                     <th scope="col" class="px-6 py-4">Tipo de Insumos</th>
+                    <th scope="col" class="px-6 py-4">Teléfono</th>
                     <th scope="col" class="px-6 py-4">Dirección</th>
                     <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Detalles</th>
                     <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Editar</th>
@@ -61,32 +61,67 @@
                 </tr>
             </thead>
             <tbody>
+                {% for proveedor in proveedores %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">Envases de Vidrio S.A.</td>
-                    <td class="px-6 py-4">555-0123-456</td>
-                    <td class="px-6 py-4">
-                        <span
-                            class="px-2 py-1 bg-gray-700 text-gray-300 rounded-full text-[10px] uppercase font-bold">Empaques</span>
+                    
+                    <td class="px-6 py-4 font-medium text-white">{{ proveedor.nombre_empresa }}</td>
+                    <td class="px-6 py-4">{{ proveedor.tipo_insumos }}</td>
+                    <td class="px-6 py-4">{{ proveedor.telefono }}</td>
+                    <td class="px-6 py-4">{{ proveedor.direccion }}</td>
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="{{ url_for('compras.detalle_P', id=proveedor.id) }}" class="font-medium text-white-400 hover:text-blue-300 transition-colors">
+                            Ver Detalle
+                        </a>
                     </td>
-                    <td class="px-6 py-4 text-gray-400 text-xs">Calle Falsa 123, León</td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
-                        <a href="{{ url_for('compras.detalle_P', id=1) }}" class="font-medium text-400 hover:text-green-300 transition-colors">Ver Detalle</a>
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <a href="{{ url_for('compras.editar_P', id=proveedor.id) }}" class="font-medium text-white-400 hover:text-blue-300 transition-colors">
+                            Editar
+                        </a>
                     </td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
-                        <a href="{{ url_for('compras.editar_P', id=1) }}" class="font-medium text-400 hover:text-green-300 transition-colors">Editar</a>
-                    </td>
-                    <td class="px-6 py-4 text-center border-l border-table-dark space-x-2">
-                        <button onclick="abrirModalEliminar('1', 'Envases de Vidrio S.A.')"
-                            class="font-medium hover:text-red-400 transition-colors">
-                            Eliminar
+                    
+                    <td class="px-6 py-4 text-center border-l border-table-dark">
+                        <button onclick="abrirModalEliminar('{{ proveedor.id }}', '{{ proveedor.nombre_empresa }}')" class="font-medium text-white-400 hover:text-red-300 transition-colors">
+                            Dar de baja
                         </button>
                     </td>
                 </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">
+                        Aún no hay proveedores registrados. ¡Agrega el primero!
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
 {% include 'modulos_front/compras/modal_Peliminar.html' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscador = document.getElementById('buscador');
+        
+        if (buscador) {
+            buscador.addEventListener('keyup', function(e) {
+                const terminoBusqueda = e.target.value.toLowerCase();
+                
+                const filasTabla = document.querySelectorAll('tbody tr');
 
+                filasTabla.forEach(fila => {
+                    const textoFila = fila.textContent.toLowerCase();
+                    
+                    // Si la fila contiene el texto buscado, la mostramos. Si no, la ocultamos.
+                    if(textoFila.includes(terminoBusqueda)) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}
