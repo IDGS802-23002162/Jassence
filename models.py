@@ -193,6 +193,9 @@ class Presentacion(db.Model):
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
 
+    productos_terminados = db.relationship('ProductoTerminado', back_populates='presentacion', lazy=True)
+
+
 class ProductoTerminado(db.Model):
     __tablename__= 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
@@ -203,7 +206,8 @@ class ProductoTerminado(db.Model):
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
     stock_comprometido = db.Column(db.Integer)
-    presentacion = db.relationship('Presentacion')
+    
+    presentacion = db.relationship('Presentacion', back_populates='productos_terminados')
 
 
 class OrdenProduccion(db.Model):
@@ -265,7 +269,8 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
-    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True)
+    usuario = db.relationship('Usuario', backref='ventas_realizadas')
+    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")
 
 
 class DetalleVenta(db.Model):
@@ -275,9 +280,7 @@ class DetalleVenta(db.Model):
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
 
-    producto_terminado = db.relationship('ProductoTerminado')
-
-    
+    producto_terminado = db.relationship('ProductoTerminado', backref='detalles_venta', lazy=True)
 
 
 # ///////////////////////////////////////
