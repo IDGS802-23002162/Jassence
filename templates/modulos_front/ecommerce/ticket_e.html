@@ -73,7 +73,7 @@
 
         <div class="mt-6 p-2 bg-gray-50 text-center rounded">
             <span class="text-xs uppercase font-bold text-gray-500">Método de Pago:</span>
-            <span class="ml-2 font-bold uppercase">{{ venta.metodo_pago_fisico|capitalize if venta.metodo_pago_fisico else 'Tarjeta' }}</span>
+            <span class="ml-2 font-bold uppercase">{{ venta.pasarela_online }}</span>
         </div>
 
         <div class="text-center mt-8 space-y-2">

@@ -54,7 +54,11 @@
                     <th scope="col" class="px-6 py-4">Fecha</th>
                     <th scope="col" class="px-6 py-4">Usuario</th>
                     <th scope="col" class="px-6 py-4">Proveedor Afectado</th>
+<<<<<<< HEAD
                     <th scope="col" class="px-6 py-4">Estado</th>
+=======
+                    <th scope="col" class="px-6 py-4">Acción</th>
+>>>>>>> finanzas
                     <th scope="col" class="px-6 py-4">Factura</th>
                     <th scope="col" class="px-6 py-4 text-center border-l border-table-dark">Detalle</th>
                 </tr>
@@ -74,6 +78,7 @@
                     
                     <td class="px-6 py-4">
                         {% if log.estado == 'cancelado' %}
+<<<<<<< HEAD
                             <span class="px-2 py-1 bg-red-900 text-red-300 rounded-full text-[10px] uppercase font-bold border border-red-700">
                                 Compra Anulada
                             </span>
@@ -85,6 +90,15 @@
                             <span class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold border border-green-700">
                                 Recibido 
                             </span>
+=======
+                        <span class="px-2 py-1 bg-red-900 text-red-300 rounded-full text-[10px] uppercase font-bold">
+                            Compra Anulada
+                        </span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-green-900 text-green-300 rounded-full text-[10px] uppercase font-bold">
+                            Nueva Compra
+                        </span>
+>>>>>>> finanzas
                         {% endif %}
                     </td>
                     

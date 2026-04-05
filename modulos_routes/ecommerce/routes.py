@@ -150,14 +150,16 @@ def pagar():
         # 2. Variables iniciales
         id_tarjeta = None
         metodo_fisico = None
+        pasarela = None
 
         # 3. Lógica inteligente de asignación
         if metodo_val and metodo_val.startswith('tarjeta_'):
             # Si el valor es "tarjeta_5", lo separamos por el guion bajo y nos quedamos con el "5"
             id_tarjeta = int(metodo_val.split('_')[1])
+            pasarela = 'Stripe'
         else:
             # Si eligió "paypal", el ID de tarjeta queda nulo y guardamos "paypal" como físico
-            metodo_fisico = metodo_val
+            pasarela = 'PayPal'
 
         requiere_produccion_lenta = False
 
@@ -169,7 +171,8 @@ def pagar():
             total_venta=total,
             direccion_envio_id=direccion_id,
             metodo_pago_id=id_tarjeta,
-            metodo_pago_fisico=metodo_fisico
+            metodo_pago_fisico=metodo_fisico,
+            pasarela_online=pasarela
         )
         db.session.add(nueva_venta)
         db.session.flush()  # para obtener el ID

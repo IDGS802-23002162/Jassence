@@ -191,6 +191,8 @@ class DetalleReceta(db.Model):
     porcentaje = db.Column(db.Float)
     tipo_componente = db.Column(db.String(50))
 
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_receta')
+
 
 class Presentacion(db.Model):
     __tablename__ = 'presentaciones'
@@ -244,10 +246,8 @@ class MermaInventario(db.Model):
     item_id = db.Column(db.Integer)
     etapa = db.Column(db.String(50))  # produccion, almacen, etc
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-
     cantidad_perdida = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))
-
     motivo = db.Column(db.String(100))
     descripcion = db.Column(db.Text)
 
@@ -266,6 +266,7 @@ class Venta(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
     direccion_envio_id = db.Column(db.Integer, db.ForeignKey('direcciones_entrega.id'))
+    pasarela_online = db.Column(db.String(30))
     metodo_pago_id = db.Column(db.Integer, db.ForeignKey('metodos_pago_cliente.id'))
 
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
