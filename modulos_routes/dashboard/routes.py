@@ -3,10 +3,12 @@ from models import db, Venta, Cliente, DetalleVenta, Compra, ProductoTerminado, 
 from sqlalchemy import func
 from datetime import datetime
 import math
+from flask_security import roles_accepted
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/dashboard', methods=['GET'])
+@roles_accepted('admin')
 def index_dashboard():
     # Capturamos lo que el usuario mande por la URL
     filtro = request.args.get('filtro')
