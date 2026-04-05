@@ -1,6 +1,7 @@
 from flask_security import RegisterForm, LoginForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, EqualTo
+from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
+from flask_wtf import FlaskForm
 
 
 # UTILIZACION DE SUPER PARA NO SUSTITUIR FLASK-SECURITY
@@ -25,3 +26,13 @@ class CustomLoginForm(LoginForm):
         self.email.description = "El correo es necesario para iniciar sesión."
 
 # --------------------------------------------------------------------------------
+
+class PerfilValidacionForm(FlaskForm):
+    nombre = StringField(validators=[DataRequired(), Length(min=2, max=50)])
+    apellidos = StringField(validators=[DataRequired(), Length(min=2, max=50)])
+    # Regex para exactamente 10 dígitos (ajusta según tu país)
+    telefono = StringField(validators=[
+        DataRequired(), 
+        Regexp(r'^\d{10}$', message="El teléfono debe tener 10 dígitos.")
+    ])
+    correo = StringField(validators=[DataRequired(), Email()])

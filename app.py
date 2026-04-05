@@ -6,6 +6,7 @@ from forms import CustomRegisterForm, CustomLoginForm
 from flask_mailman import Mail
 from flask_security import auth_required, current_user, roles_required, roles_accepted
 from initRoles import inicializar_roles
+from flask import g
 
 from models import db, Usuario, Rol
 

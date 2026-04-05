@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import UserMixin, RoleMixin
 from datetime import datetime
@@ -40,6 +41,12 @@ class Usuario(db.Model, UserMixin):
     apellidos = db.Column(db.String(150), nullable=True) 
     telefono = db.Column(db.String(20), nullable=True)
     roles = db.relationship('Rol', secondary=roles_users, backref=db.backref('usuarios', lazy='dynamic'))
+    cliente = db.relationship(
+        "Cliente",
+        back_populates="usuario",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
 
 class LogAuditoria(db.Model):
     __tablename__ = 'log_auditoria'
@@ -58,14 +65,16 @@ class LogAuditoria(db.Model):
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100))
-    apellidos = db.Column(db.String(100))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), unique=True)
-    telefono = db.Column(db.String(20))
+    id = db.Column(
+        db.Integer,
+        db.ForeignKey('usuarios.id'),
+        primary_key=True
+    )
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-    usuario = db.relationship('Usuario', backref=db.backref('cliente', uselist=False))
-
+    usuario = db.relationship(
+        "Usuario",
+        back_populates="cliente"
+    )
 
 class DireccionEntrega(db.Model):
     __tablename__ = 'direcciones_entrega'
@@ -86,13 +95,20 @@ class DireccionEntrega(db.Model):
 class MetodoPagoCliente(db.Model):
     __tablename__ = 'metodos_pago_cliente'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
-    tipo_pago = db.Column(db.String(50))
-    token_pasarela = db.Column(db.String(255))
-    ultimos_cuatro = db.Column(db.String(4))
-    marca_tarjeta = db.Column(db.String(50))
-    fecha_expiracion = db.Column(db.Date)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
+    
+    # Identificadores de Stripe (Seguros)
+    stripe_customer_id = db.Column(db.String(50), nullable=False)
+    stripe_payment_method_id = db.Column(db.String(50), nullable=False)
+    
+    # Datos para mostrar en la interfaz (Seguros)
+    tipo_tarjeta = db.Column(db.String(20)) # Ej: "Visa"
+    ultimos_4 = db.Column(db.String(4))    # Ej: "4242"
+    exp_mes = db.Column(db.Integer)
+    exp_anio = db.Column(db.Integer)
     estado = db.Column(db.Boolean, default=True)
+    es_principal = db.Column(db.Boolean, default=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 # ///////////////////////////////////////
@@ -154,6 +170,9 @@ class Receta(db.Model):
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
 
+    productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
+
+
 
 class DetalleReceta(db.Model):
     __tablename__ = 'detalle_recetas'
@@ -171,7 +190,7 @@ class Presentacion(db.Model):
     mililitros = db.Column(db.Integer)
 
 class ProductoTerminado(db.Model):
-    _tablename_ = 'productos_terminados'
+    __tablename__= 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
@@ -179,8 +198,7 @@ class ProductoTerminado(db.Model):
     stock_minimo = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
-
-    receta = db.relationship('Receta')
+    stock_comprometido = db.Column(db.Integer)
     presentacion = db.relationship('Presentacion')
 
 
@@ -243,6 +261,8 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
+    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True)
+
 
 class DetalleVenta(db.Model):
     __tablename__ = 'detalle_ventas'
@@ -250,6 +270,10 @@ class DetalleVenta(db.Model):
     producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'), primary_key=True)
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
+
+    producto_terminado = db.relationship('ProductoTerminado')
+
+    
 
 
 # ///////////////////////////////////////
@@ -282,16 +306,19 @@ class CorteCaja(db.Model):
 class Carrito(db.Model):
     __tablename__ = 'carrito'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=True)
+    session_id = db.Column(db.String(100), nullable=True)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+    items = db.relationship('CarritoItem', backref='carrito', lazy=True)
 
 
 class CarritoItem(db.Model):
     __tablename__ = 'carrito_items'
     id = db.Column(db.Integer, primary_key=True)
     carrito_id = db.Column(db.Integer, db.ForeignKey('carrito.id'))
-    producto_terminado_id = db.Column(db.Integer)
     cantidad = db.Column(db.Integer)
+    producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'))
+    producto_terminado = db.relationship('ProductoTerminado')
 
 
 # POS
