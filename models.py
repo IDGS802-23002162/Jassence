@@ -144,6 +144,10 @@ class Compra(db.Model):
 
     estado = db.Column(db.String(50), default="pendiente")  # pendiente, pedido, entregado, cancelado
 
+    notas = db.Column(db.Text) 
+    total = db.Column(db.Float, default=0.0)
+    detalles = db.relationship('DetalleCompra', backref='compra', lazy=True, cascade="all, delete-orphan")
+    usuario = db.relationship('Usuario', backref='compras_registradas', lazy=True)
 
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'

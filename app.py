@@ -17,7 +17,7 @@ from modulos_routes.formulas import formulas_bp
 from modulos_routes.auditoria.routes import auditorias_bp
 from modulos_routes.inv_productos import inventarioP_bp
 from modulos_routes.produccion import produccion_bp
-from modulos_routes.dashboard import dashboard_bp
+from modulos_routes.dashboard.routes import dashboard_bp
 from modulos_routes.pos.routes import pos_bp
 from modulos_routes.compras import compras_bp
 from modulos_routes.inv_materias import invMP_bp
