@@ -206,6 +206,7 @@ class Presentacion(db.Model):
 
 class ProductoTerminado(db.Model):
     __tablename__= 'productos_terminados'
+    __table_args__= (db.UniqueConstraint('receta_id', 'presentacion_id', name='unique_producto'),)
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
@@ -362,3 +363,8 @@ class ProduccionTemporal(db.Model):
     cantidad = db.Column(db.Integer)
     creado_por = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+
+    presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
+    estatus = db.Column(db.String(20), default='pendiente')
+
+
