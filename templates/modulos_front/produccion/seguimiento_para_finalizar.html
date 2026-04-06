@@ -4,51 +4,79 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
-    
+
     <div class="flex items-end mb-2 border-b border-gray-300 pb-4">
-        <a href="/produccion/solicitudes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
+        <a href="/produccion/solicitudes"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
-        <a href="/produccion/ordenes" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Órdenes</a>
+        <a href="/produccion/ordenes"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Órdenes</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <h1 class="font-elegant text-6xl text-black cursor-default">Seguimiento</h1>
     </div>
 
     <div class="flex items-end mb-10 pl-10">
-        <a href="/produccion/seguimiento/sin-iniciar" class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Sin Iniciar</a>
-        
+        <a href="/produccion/seguimiento/sin-iniciar"
+            class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Sin Iniciar</a>
+
         <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
-        
+
         <h2 class="font-elegant text-4xl text-black cursor-default">Para finalizar</h2>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white p-8 rounded-xl shadow-inner border border-gray-100 min-h-[500px]">
+    <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white p-8 rounded-xl shadow-inner border border-gray-100 min-h-[500px]">
+
         
-        {% for i in range(3) %}
-        <div class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl flex flex-col h-full text-gray-300 transform hover:-translate-y-1 transition-transform">
-            <h3 class="text-xl font-bold text-white text-center mb-6">Orden: --</h3>
-            
+        {% for o in ordenes %}
+        <div
+            class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl flex flex-col h-full text-gray-300 transform hover:-translate-y-1 transition-transform">
+            <h3 class="text-xl font-bold text-white text-center mb-6">Orden: {{ o.id }}</h3>
+
             <div class="space-y-4 text-sm flex-grow">
-                <p><span class="text-gray-400">Producto:</span> -- <br> <span class="text-gray-400">Cantidad:</span> --</p>
-                <p><span class="text-gray-400">Responsable:</span> <br> --</p>
-                <p><span class="text-gray-400">Estado:</span> <br> --</p>
-                <p><span class="text-gray-400">Fecha inicio</span> <br> -- / -- / ----</p>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Producto</span>
+                    <span class="text-sm font-bold white-gray-900">{{ o.receta_nombre }}</span>
+                </div>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Cantidad</span>
+                    <span class="px-3 py-1 bg-black text-white text-xs rounded-full font-bold">{{ o.cantidad_producir
+                        }}</span>
+                </div>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Responsable</span>
+                    <span class="text-sm text-white-700 italic">{{ o.responsable_nombre }}</span>
+                </div>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Estado</span>
+                    <span class="bg-yellow-500 text-yellow-50 text-xs font-medium px-2.5 py-0.5 rounded-full">{{
+                        o.estado }}</span>
+                </div>
+                <div class="py-3">
+                    <p class="text-[10px] text-white-400 uppercase font-bold tracking-tighter mb-1">Fecha de Inicio</p>
+                    <span class="text-sm text-white-700 italic">{{ o.fecha_inicio }}</span>
+                </div>
             </div>
 
             <div class="mt-6">
-                <p class="text-[11px] text-gray-400 mb-3 flex items-start">
+                <p class="text-[11px] text-white-400 mb-3 flex items-start">
                     <span class="mr-1">⚠️</span> Al iniciar producción se descontarán insumos del inventario
                 </p>
-                
-                <button type="button" onclick="prepararCambioEstado('{{ i }}', 'finalizar')" data-modal-target="modal-confirmar-estado" data-modal-toggle="modal-confirmar-estado" class="w-full bg-white text-black font-medium py-2.5 rounded-lg hover:bg-gray-200 transition-colors">
-                    Finalizar producción
-                </button>
+
+                    <button type="button"
+                        data-modal-target="modal-confirmar-estado"
+                        data-modal-toggle="modal-confirmar-estado"
+                        onclick="prepararCambioEstado({{ o.id }}, 'finalizar')"
+                        class="w-full bg-[#2A2A2A] text-white py-2.5 rounded-lg mt-6 hover:bg-black transition-colors">
+                        Finalizar producción
+                    </button>
             </div>
         </div>
         {% endfor %}
 
     </div>
-    
 
-</div> 
+
+</div>
 {% include 'modulos_front/produccion/modal_confirmacion.html' %}
 {% endblock %}

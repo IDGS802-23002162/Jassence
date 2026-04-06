@@ -202,7 +202,7 @@ def pagar():
                 venta_id=nueva_venta.id,
                 producto_terminado_id=prod.id,
                 cantidad_producir=item.cantidad,
-                estado = 'pendiente_mp' if not hay_materia else 'lista_para_producir'
+                estado = 'pendiente'
             )
             db.session.add(orden)
 

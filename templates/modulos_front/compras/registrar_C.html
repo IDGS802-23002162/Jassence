@@ -24,11 +24,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                 <div class="relative z-0 w-full group">
                     <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-100 top-3 -z-10 origin-[0]">Proveedor</label>
-<<<<<<< HEAD
                     <select name="proveedor_id" id="proveedor_id" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-=======
-                    <select name="proveedor_id" id="proveedor_id" class="..." required>
->>>>>>> finanzas
                         <option value="" disabled selected>Selecciona un proveedor...</option>
                         {% for proveedor in proveedores %}
                             <option value="{{ proveedor.id }}">{{ proveedor.nombre_empresa }}</option>
@@ -61,15 +57,9 @@
                         
                         <div class="relative z-0 w-full group">
                             <select name="materia_prima_id[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-<<<<<<< HEAD
                                 <option value="" disabled selected>Selecciona...</option>
                                 {% for mp in materias_primas %}
                                 <option value="{{ mp.id }}">{{ mp.nombre }} ({{ mp.unidad_medida }})</option>
-=======
-                                <option value="" disabled selected>Selecciona insumo...</option>
-                                {% for mp in materias_primas %}
-                                <option value="{{ mp.id }}">{{ mp.nombre }}</option>
->>>>>>> finanzas
                                 {% endfor %}
                             </select>
                             <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Materia Prima</label>
@@ -77,11 +67,7 @@
 
                         <div class="relative z-0 w-full group">
                             <input type="number" step="0.01" name="cantidad_comprada[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-<<<<<<< HEAD
                             <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Cantidad (Paquete)</label>
-=======
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Cantidad (Ej. 2)</label>
->>>>>>> finanzas
                         </div>
 
                         <div class="relative z-0 w-full group">
@@ -94,18 +80,11 @@
                             <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Unidad Compra</label>
                         </div>
 
-<<<<<<< HEAD
                         <!-- ¡EL REGRESO DEL CAMPO PERDIDO! -->
                         <div class="relative z-0 w-full group">
                             <input type="number" step="0.01" name="cantidad_convertida[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
                             <label class="peer-focus:font-medium absolute text-xs text-gray-600 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">
                                 Total real a inventario
-=======
-                        <div class="relative z-0 w-full group">
-                            <input type="number" step="0.01" name="cantidad_convertida[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-600 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">
-                                Total real a inventario (Ej. 100)
->>>>>>> finanzas
                             </label>
                         </div>
 

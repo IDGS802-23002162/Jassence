@@ -15,6 +15,7 @@
                 <p class="mb-6 text-sm text-gray-500" id="mensaje-modal-produccion">Estás a punto de avanzar la orden a la siguiente etapa.</p>
                 
                 <form id="form-estado-produccion" action="#" method="POST" class="flex justify-center gap-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button data-modal-hide="modal-confirmar-estado" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
                         Cancelar
                     </button>
@@ -28,15 +29,19 @@
 </div>
 
 <script>
-    function prepararCambioEstado(id, accion) {
-        if (accion === 'iniciar') {
-            document.getElementById('titulo-modal-produccion').textContent = '¿Iniciar Producción?';
-            document.getElementById('mensaje-modal-produccion').textContent = 'La orden pasará a estado de proceso en fábrica.';
-            document.getElementById('form-estado-produccion').action = '/produccion/iniciar/' + id;
-        } else if (accion === 'finalizar') {
-            document.getElementById('titulo-modal-produccion').textContent = '¿Finalizar Producción?';
-            document.getElementById('mensaje-modal-produccion').textContent = 'Se descontarán automáticamente los insumos del inventario. Esta acción no se puede deshacer.';
-            document.getElementById('form-estado-produccion').action = '/produccion/finalizar/' + id;
-        }
+function prepararCambioEstado(id, accion) {
+    const titulo = document.getElementById('titulo-modal-produccion');
+    const mensaje = document.getElementById('mensaje-modal-produccion');
+    const form = document.getElementById('form-estado-produccion');
+
+    if (accion === 'iniciar') {
+        titulo.textContent = '¿Iniciar Producción?';
+        mensaje.textContent = 'La orden pasará a estado de proceso en fábrica.';
+        form.action = '/produccion/ordenes/iniciar/' + id;
+    } else if (accion === 'finalizar') {
+        titulo.textContent = '¿Finalizar Producción?';
+        mensaje.textContent = 'Se descontarán automáticamente los insumos del inventario. Esta acción no se puede deshacer.';
+        form.action = '/produccion/ordenes/finalizar/' + id;
     }
+}
 </script>
