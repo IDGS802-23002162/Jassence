@@ -71,7 +71,7 @@ def registrar_solicitud():
 def index_ordenes():
     solicitudes = ProduccionTemporal.query.order_by(ProduccionTemporal.fecha.desc()).all()
     ordenes = OrdenProduccion.query.filter(OrdenProduccion.estado.in_(["pendiente", "en_proceso"])).all()
-    responsables = Usuario.query.filter_by(estado=True).all()
+    responsables = Usuario.query.filter_by(active=True).all()
     recetas_dict = {r.id: r.nombre_perfume for r in Receta.query.all()}
 
     for s in solicitudes:

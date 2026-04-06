@@ -1,28 +1,52 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin
 from datetime import datetime
 
 db = SQLAlchemy()
 
-# ///////////////////////////////////////
-# SEGURIDAD 
-# ///////////////////////////////////////
+# ==========================================
+# SEGURIDAD (Adaptado para Flask-Security-Too)
+# ==========================================
 
-class Rol(db.Model):
+# Tabla intermedia obligatoria para relacionar Usuarios y Roles
+roles_users = db.Table('roles_users',
+    db.Column('usuario_id', db.Integer(), db.ForeignKey('usuarios.id')),
+    db.Column('rol_id', db.Integer(), db.ForeignKey('roles.id'))
+)
+
+class Rol(db.Model, RoleMixin):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    name = db.Column(db.String(80), unique=True) # Flask-Security exige que se llame 'name'
+    description = db.Column(db.String(255))      # Flask-Security exige 'description'
 
-
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     __tablename__ = 'usuarios'
-    id = db.Column(db.Integer, primary_key=True)
-    rol_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    nombre = db.Column(db.String(150))
-    correo = db.Column(db.String(150), unique=True)
-    password_hash = db.Column(db.String(255))
-    estado = db.Column(db.Boolean, default=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    # --- CAMPOS OBLIGATORIOS FLASK-SECURITY ---
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
+    # -------------------------------------------
 
-    rol = db.relationship('Rol')
+    # --- NUEVO: CAMPOS OBLIGATORIOS PARA 2FA (Flask-Security) ---
+    tf_primary_method = db.Column(db.String(64), nullable=True)
+    tf_totp_secret = db.Column(db.String(255), nullable=True)
+    tf_phone_number = db.Column(db.String(128), nullable=True)
+
+    nombre = db.Column(db.String(150), nullable=True) 
+    apellidos = db.Column(db.String(150), nullable=True) 
+    telefono = db.Column(db.String(20), nullable=True)
+    roles = db.relationship('Rol', secondary=roles_users, backref=db.backref('usuarios', lazy='dynamic'))
+    cliente = db.relationship(
+        "Cliente",
+        back_populates="usuario",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
 
 class LogAuditoria(db.Model):
     __tablename__ = 'log_auditoria'
@@ -35,22 +59,22 @@ class LogAuditoria(db.Model):
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     detalle = db.Column(db.Text)
 
-
 # ///////////////////////////////////////
 # CLIENTES 
 # ///////////////////////////////////////
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100))
-    apellido = db.Column(db.String(100))
-    correo = db.Column(db.String(150), unique=True)
-    telefono = db.Column(db.String(20))
-    password_hash = db.Column(db.String(255))
+    id = db.Column(
+        db.Integer,
+        db.ForeignKey('usuarios.id'),
+        primary_key=True
+    )
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-    estado = db.Column(db.Boolean, default=True)
-
+    usuario = db.relationship(
+        "Usuario",
+        back_populates="cliente"
+    )
 
 class DireccionEntrega(db.Model):
     __tablename__ = 'direcciones_entrega'
@@ -71,13 +95,20 @@ class DireccionEntrega(db.Model):
 class MetodoPagoCliente(db.Model):
     __tablename__ = 'metodos_pago_cliente'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
-    tipo_pago = db.Column(db.String(50))
-    token_pasarela = db.Column(db.String(255))
-    ultimos_cuatro = db.Column(db.String(4))
-    marca_tarjeta = db.Column(db.String(50))
-    fecha_expiracion = db.Column(db.Date)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
+    
+    # Identificadores de Stripe (Seguros)
+    stripe_customer_id = db.Column(db.String(50), nullable=False)
+    stripe_payment_method_id = db.Column(db.String(50), nullable=False)
+    
+    # Datos para mostrar en la interfaz (Seguros)
+    tipo_tarjeta = db.Column(db.String(20)) # Ej: "Visa"
+    ultimos_4 = db.Column(db.String(4))    # Ej: "4242"
+    exp_mes = db.Column(db.Integer)
+    exp_anio = db.Column(db.Integer)
     estado = db.Column(db.Boolean, default=True)
+    es_principal = db.Column(db.Boolean, default=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 # ///////////////////////////////////////
@@ -89,7 +120,7 @@ class MateriaPrima(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
     cantidad_disponible = db.Column(db.Float)
-    unidad_medida = db.Column(db.String(50))
+    unidad_medida = db.Column(db.String(50))    
     stock_minimo = db.Column(db.Float)
     tipo = db.Column(db.String(50)) 
 
@@ -102,6 +133,9 @@ class Proveedor(db.Model):
     direccion = db.Column(db.Text)
     tipo_insumos = db.Column(db.String(100))
 
+    activo = db.Column(db.Boolean, default=True)
+    compras = db.relationship('Compra', backref='proveedor', lazy=True)
+
 
 class Compra(db.Model):
     __tablename__ = 'compras'
@@ -113,6 +147,10 @@ class Compra(db.Model):
 
     estado = db.Column(db.String(50), default="pendiente")  # pendiente, pedido, entregado, cancelado
 
+    notas = db.Column(db.Text) 
+    total = db.Column(db.Float, default=0.0)
+    detalles = db.relationship('DetalleCompra', backref='compra', lazy=True, cascade="all, delete-orphan")
+    usuario = db.relationship('Usuario', backref='compras_registradas', lazy=True)
 
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'
@@ -122,7 +160,9 @@ class DetalleCompra(db.Model):
     unidad_compra = db.Column(db.String(50))
     cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
-
+    
+    subtotal = db.Column(db.Float)
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
 
 # ///////////////////////////////////////
 # PRODUCCION 
@@ -138,6 +178,8 @@ class Receta(db.Model):
     genero = db.Column(db.String(50))
     ocasion = db.Column(db.String(50))
     familia_olfativa = db.Column(db.String(50))
+
+    productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
 
     detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
 
@@ -159,17 +201,21 @@ class Presentacion(db.Model):
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
 
+    productos_terminados = db.relationship('ProductoTerminado', back_populates='presentacion', lazy=True)
+
 
 class ProductoTerminado(db.Model):
-    __tablename__ = 'productos_terminados'
+    __tablename__= 'productos_terminados'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     stock_disponible_venta = db.Column(db.Integer)
-    stock_comprometido = db.Column(db.Integer)
     stock_minimo = db.Column(db.Integer)
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
+    stock_comprometido = db.Column(db.Integer)
+    
+    presentacion = db.relationship('Presentacion', back_populates='productos_terminados')
 
 
 class OrdenProduccion(db.Model):
@@ -221,6 +267,7 @@ class Venta(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
     direccion_envio_id = db.Column(db.Integer, db.ForeignKey('direcciones_entrega.id'))
+    pasarela_online = db.Column(db.String(30))
     metodo_pago_id = db.Column(db.Integer, db.ForeignKey('metodos_pago_cliente.id'))
 
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
@@ -229,6 +276,9 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
+    usuario = db.relationship('Usuario', backref='ventas_realizadas')
+    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")
+
 
 class DetalleVenta(db.Model):
     __tablename__ = 'detalle_ventas'
@@ -236,6 +286,8 @@ class DetalleVenta(db.Model):
     producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'), primary_key=True)
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
+
+    producto_terminado = db.relationship('ProductoTerminado', backref='detalles_venta', lazy=True)
 
 
 # ///////////////////////////////////////
@@ -268,16 +320,19 @@ class CorteCaja(db.Model):
 class Carrito(db.Model):
     __tablename__ = 'carrito'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=True)
+    session_id = db.Column(db.String(100), nullable=True)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+    items = db.relationship('CarritoItem', backref='carrito', lazy=True)
 
 
 class CarritoItem(db.Model):
     __tablename__ = 'carrito_items'
     id = db.Column(db.Integer, primary_key=True)
     carrito_id = db.Column(db.Integer, db.ForeignKey('carrito.id'))
-    producto_terminado_id = db.Column(db.Integer)
     cantidad = db.Column(db.Integer)
+    producto_terminado_id = db.Column(db.Integer, db.ForeignKey('productos_terminados.id'))
+    producto_terminado = db.relationship('ProductoTerminado')
 
 
 # POS
@@ -307,4 +362,3 @@ class ProduccionTemporal(db.Model):
     cantidad = db.Column(db.Integer)
     creado_por = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
-
