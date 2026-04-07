@@ -83,14 +83,14 @@
                     </div>
 
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                        <label class="text-[10px] text-gray-400 uppercase font-bold mb-2 block">Materia Etanol</label>
-                        <select name="etanol_nombre" class="w-full text-sm border-b border-gray-300 bg-transparent mb-4 outline-none focus:border-black">
-                            {% for mp in etanol_lista %}
-                                <option value="{{ mp.id }}" {{ 'selected' if mp.id == etanol_nombre }}>{{ mp.nombre }}</option>
+                        <label class="text-[10px] text-gray-400 uppercase font-bold mb-2 block">Materia alcohol</label>
+                        <select name="alcohol_nombre" class="w-full text-sm border-b border-gray-300 bg-transparent mb-4 outline-none focus:border-black">
+                            {% for mp in alcohol_lista %}
+                                <option value="{{ mp.id }}" {{ 'selected' if mp.id == alcohol_nombre }}>{{ mp.nombre }}</option>
                             {% endfor %}
                         </select>
                         <div class="relative z-0 w-full group">
-                            <input type="number" step="0.01" name="etanol" value="{{ etanol }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
+                            <input type="number" step="0.01" name="alcohol" value="{{ alcohol }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" required />
                             <label class="absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-black">Porcentaje %</label>
                         </div>
                     </div>
@@ -117,8 +117,6 @@
                 </div>
 
                 <div id="contenedor-esencias" class="space-y-3">
-                    {% set ids_base = [esencia_nombre, etanol_nombre, fijador_nombre] %}
-                    {# Aplicamos la lógica dinámica solicitada #}
                     {% for d in detalles_dinamicos %}
                     <div class="flex items-end gap-4 animate-fade-in group bg-gray-50 p-3 rounded-lg border border-gray-100">
                         <div class="flex-1">

@@ -60,17 +60,17 @@ def nueva_formula():
                 imagen_nombre = filename
 
             esencia_id = int(request.form.get('esencia_base_nombre', 0))
-            etanol_id = int(request.form.get('etanol_nombre', 0))
+            alcohol_id = int(request.form.get('alcohol_nombre', 0))
             fijador_id = int(request.form.get('fijador_nombre', 0))
 
             esencia_base = float(request.form.get('esencia_base') or 0)
-            etanol = float(request.form.get('etanol') or 0)
+            alcohol = float(request.form.get('alcohol') or 0)
             fijador = float(request.form.get('fijador') or 0)
 
             extras_ids = request.form.getlist('nombres_esencias[]')
             porcentajes_extras = request.form.getlist('porcentajes_esencias[]')
 
-            suma_total = esencia_base + etanol + fijador
+            suma_total = esencia_base + alcohol + fijador
             extras_lista = []
             for i in range(len(extras_ids)):
                 if extras_ids[i]:
@@ -97,7 +97,7 @@ def nueva_formula():
 
             for mp_id, valor, tipo in [
                 (esencia_id, esencia_base, 'esencia'),
-                (etanol_id, etanol, 'etanol'),
+                (alcohol_id, alcohol, 'alcohol'),
                 (fijador_id, fijador, 'fijador')
             ]:
                 if mp_id and valor > 0:
@@ -136,9 +136,10 @@ def nueva_formula():
     return render_template(
         'modulos_front/formulas/nueva_formula.html',
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
-        etanol_lista=MateriaPrima.query.filter_by(tipo='etanol').all(),
+        alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
         fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
     )
+
 # ==========================================
 # DETALLE
 # ==========================================
@@ -199,26 +200,28 @@ def modificar_formula(id):
                 os.makedirs(carpeta, exist_ok=True)
                 ruta = os.path.join(carpeta, filename)
 
-            try:
-                file.save(ruta)
-                receta.imagen_url = filename
-                print(f"[INFO] Imagen guardada correctamente en: {ruta}")
-            except Exception as e:
-                flash(f"Error al guardar imagen: {str(e)}", "error")
-                print(f"[ERROR] Falló guardado de imagen: {str(e)}")
+                try:
+                    file.save(ruta)
+                    receta.imagen_url = filename
+                    print(f"[INFO] Imagen guardada correctamente en: {ruta}")
+                except Exception as e:
+                    flash(f"Error al guardar imagen: {str(e)}", "error")
+                    print(f"[ERROR] Falló guardado de imagen: {str(e)}")
 
+            # Componentes principales
             esencia_id = int(request.form.get('esencia_base_nombre', 0))
-            etanol_id = int(request.form.get('etanol_nombre', 0))
+            alcohol_id = int(request.form.get('alcohol_nombre', 0))
             fijador_id = int(request.form.get('fijador_nombre', 0))
 
             esencia_base = float(request.form.get('esencia_base') or 0)
-            etanol = float(request.form.get('etanol') or 0)
+            alcohol = float(request.form.get('alcohol') or 0)
             fijador = float(request.form.get('fijador') or 0)
 
+            # Extras
             extras_ids = request.form.getlist('nombres_esencias[]')
             porcentajes_extras = request.form.getlist('porcentajes_esencias[]')
 
-            suma_total = esencia_base + etanol + fijador
+            suma_total = esencia_base + alcohol + fijador
             extras_lista = []
 
             for i in range(len(extras_ids)):
@@ -228,15 +231,18 @@ def modificar_formula(id):
                     suma_total += p
                     extras_lista.append({'id': mp_id, 'porcentaje': p})
 
+            # Validar suma 100%
             if abs(suma_total - 100) > 0.01:
                 flash(f"Error: La suma es {suma_total}%. Debe ser 100%.", "error")
                 return redirect(url_for('formulas.modificar_formula', id=id))
 
+            # Eliminar detalles existentes
             DetalleReceta.query.filter_by(receta_id=id).delete()
 
+            # Guardar componentes principales
             for mp_id, valor, tipo in [
                 (esencia_id, esencia_base, 'esencia'),
-                (etanol_id, etanol, 'etanol'),
+                (alcohol_id, alcohol, 'alcohol'),
                 (fijador_id, fijador, 'fijador')
             ]:
                 if mp_id and valor > 0:
@@ -247,6 +253,7 @@ def modificar_formula(id):
                         tipo_componente=tipo
                     ))
 
+            # Guardar extras
             for extra in extras_lista:
                 if extra['porcentaje'] > 0:
                     mp = MateriaPrima.query.get(extra['id'])
@@ -275,35 +282,40 @@ def modificar_formula(id):
     detalles_por_tipo = {d.tipo_componente: d for d in detalles}
 
     esencia_det = detalles_por_tipo.get('esencia', None)
-    etanol_det = detalles_por_tipo.get('etanol', None)
+    alcohol_det = detalles_por_tipo.get('alcohol', None)
     fijador_det = detalles_por_tipo.get('fijador', None)
 
-    ids_fijos = {
-        'esencia': esencia_det.materia_prima_id if esencia_det else None,
-        'etanol': etanol_det.materia_prima_id if etanol_det else None,
-        'fijador': fijador_det.materia_prima_id if fijador_det else None
-    }
+    # IDs de los componentes principales
+    ids_fijos = set()
+    for tipo in ['esencia', 'alcohol', 'fijador']:
+        # toma solo el primero de cada tipo como fijo
+        det = next((d for d in detalles if d.tipo_componente == tipo), None)
+        if det:
+            ids_fijos.add(det.id)
 
-    detalles_dinamicos = [
-        d for d in detalles
-        if not (d.tipo_componente in ids_fijos and d.materia_prima_id == ids_fijos[d.tipo_componente])
-    ]
+    # Detalles dinámicos: todo lo demás
+    detalles_dinamicos = [d for d in detalles if d.id not in ids_fijos]
+
+    # Asignar los fijos correctamente
+    esencia_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='esencia'), None)
+    alcohol_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='alcohol'), None)
+    fijador_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='fijador'), None)
 
     return render_template(
         'modulos_front/formulas/modificar.html',
         receta=receta,
         esencia=esencia_det.porcentaje if esencia_det else 0,
-        etanol=etanol_det.porcentaje if etanol_det else 0,
+        alcohol=alcohol_det.porcentaje if alcohol_det else 0,
         fijador=fijador_det.porcentaje if fijador_det else 0,
         esencia_nombre=esencia_det.materia_prima_id if esencia_det else None,
-        etanol_nombre=etanol_det.materia_prima_id if etanol_det else None,
+        alcohol_nombre=alcohol_det.materia_prima_id if alcohol_det else None,
         fijador_nombre=fijador_det.materia_prima_id if fijador_det else None,
         detalles_dinamicos=detalles_dinamicos,
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
-        etanol_lista=MateriaPrima.query.filter_by(tipo='etanol').all(),
+        alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
         fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
-    )
-                            
+    )       
+
 # ==========================================
 # ELIMINAR (SEGURO)
 # ==========================================
