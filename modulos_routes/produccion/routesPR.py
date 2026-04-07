@@ -1,3 +1,4 @@
+
 from flask import flash, render_template, request, redirect
 from models import (
     OrdenProduccion, Receta, db, ProduccionTemporal,
@@ -5,6 +6,8 @@ from models import (
 )
 from . import produccion_bp
 from datetime import datetime
+from sqlalchemy import text, desc, func
+
 from flask_security import current_user, roles_accepted
 
 # =========================================
@@ -33,57 +36,49 @@ def index_solicitudes():
 # REGISTRAR SOLICITUD ---------------------------------
 
 @produccion_bp.route('/produccion/solicitudes/crear', methods=['POST'])
-@roles_accepted('admin','produccion') 
 def registrar_solicitud():
-    producto_id = request.form.get('id_producto')
-    presentacion_id = request.form.get('id_presentacion')  # 👈 NUEVO
-    cantidad = request.form.get('cantidad')
-    fecha_solicitada = request.form.get('fecha')
-
-    if not (producto_id and cantidad and fecha_solicitada and presentacion_id):
-        flash("Todos los campos son obligatorios", "error")
-        return redirect('/produccion/solicitudes')
 
     try:
-        fecha = datetime.strptime(fecha_solicitada, "%Y-%m-%d")
-    except ValueError:
-        flash("Formato de fecha inválido", "error")
-        return redirect('/produccion/solicitudes')
+        fecha = datetime.strptime(request.form.get('fecha'), "%Y-%m-%d")
 
-    nueva = ProduccionTemporal(
-        receta_id=int(producto_id),
-        presentacion_id=int(presentacion_id),  # 👈 CLAVE
-        cantidad=int(cantidad),
-        creado_por=current_user.id,
-        fecha=fecha,
-        estatus="pendiente"
-    )
+        db.session.execute(
+            text("CALL sp_crear_solicitud(:receta, :presentacion, :cantidad, :user, :fecha)"),
+            {
+                "receta": int(request.form.get('id_producto')),
+                "presentacion": int(request.form.get('id_presentacion')),
+                "cantidad": int(request.form.get('cantidad')),
+                "user": current_user.id,
+                "fecha": fecha
+            }
+        )
 
-    try:
-        db.session.add(nueva)
         db.session.commit()
-        flash("Solicitud registrada correctamente", "success")
+        flash("Solicitud registrada", "success")
+
     except Exception as e:
         db.session.rollback()
-        print("❌ ERROR:", e)
-        flash("Error al registrar solicitud", "error")
+        print("ERROR REAL >>>", e)
+        flash("Error", "error")
 
     return redirect('/produccion/solicitudes')
 
 # CANCELAR SOLICITUD ---------------------------------
 
 @produccion_bp.route('/produccion/solicitudes/cancelar/<int:id>', methods=['POST'])
-@roles_accepted('admin','produccion') 
 def cancelar_solicitud(id):
-    solicitud = ProduccionTemporal.query.get_or_404(id)
 
     try:
-        db.session.delete(solicitud)
+        db.session.execute(
+            text("CALL sp_cancelar_solicitud(:id)"),
+            {"id": id}
+        )
         db.session.commit()
+
         flash("Solicitud cancelada correctamente", "success")
+
     except Exception as e:
         db.session.rollback()
-        print("❌ ERROR:", e)
+        print(e)
         flash("Error al cancelar la solicitud", "error")
 
     return redirect('/produccion/solicitudes')
@@ -116,58 +111,24 @@ def index_ordenes():
 # CREAR ORDEN ---------------------------------
 
 @produccion_bp.route('/produccion/ordenes/crear', methods=['POST'])
-@roles_accepted('admin','produccion') 
 def crear_orden():
-    solicitud_id = request.form.get('id_solicitud')
-
-    if not solicitud_id:
-        flash("Selecciona una solicitud", "error")
-        return redirect('/produccion/ordenes')
-
-    solicitud = ProduccionTemporal.query.get(int(solicitud_id))
-
-    if not solicitud:
-        flash("Solicitud no encontrada", "error")
-        return redirect('/produccion/ordenes')
-
-    producto = ProductoTerminado.query.filter_by(
-        receta_id=solicitud.receta_id,
-        presentacion_id=solicitud.presentacion_id
-    ).first()
-
-    if not producto:
-        producto = ProductoTerminado(
-            receta_id=solicitud.receta_id,
-            presentacion_id=solicitud.presentacion_id,
-            stock_disponible_venta=0,
-            stock_comprometido=0,
-            stock_minimo=0,
-            precio_venta=0,
-            estado="activo"
-        )
-        db.session.add(producto)
-        db.session.flush()
-
-    nueva = OrdenProduccion(
-        receta_id=solicitud.receta_id,
-        producto_terminado_id=producto.id,
-        cantidad_producir=solicitud.cantidad,
-        responsable_id=current_user.id,  
-        fecha_solicitud=datetime.now(),  
-        estado="pendiente"
-    )
 
     try:
-        db.session.add(nueva)
-        db.session.delete(solicitud)
+        db.session.execute(
+            text("CALL sp_crear_orden(:solicitud, :user)"),
+            {
+                "solicitud": int(request.form.get('id_solicitud')),
+                "user": current_user.id
+            }
+        )
         db.session.commit()
 
-        flash("Orden creada correctamente", "success")
+        flash("Orden creada", "success")
 
     except Exception as e:
         db.session.rollback()
-        print("❌ ERROR:", e)
-        flash("Error al crear orden", "error")
+        print(e)
+        flash("Error", "error")
 
     return redirect('/produccion/ordenes')
 
@@ -212,7 +173,8 @@ def seguimiento_sin_iniciar():
                 materia = MateriaPrima.query.get(detalle.materia_prima_id)
 
                 if materia:
-                    cantidad_usada = (detalle.porcentaje / 100) * o.cantidad_producir
+                    cantidad_producida = o.cantidad_producir or 0  # <--- evitar None
+                    cantidad_usada = (detalle.porcentaje / 100) * cantidad_producida
 
                     if materia.cantidad_disponible < cantidad_usada:
                         o.puede_iniciar = False
@@ -250,44 +212,15 @@ def cancelar_orden(id):
 
 
 @produccion_bp.route('/produccion/ordenes/iniciar/<int:id>', methods=['POST'])
-@roles_accepted('admin','produccion') 
-def iniciar_produccion(id):
-    orden = OrdenProduccion.query.get_or_404(id)
+def iniciar(id):
 
-    if orden.estado != "pendiente":
-        flash("La orden no se puede iniciar", "error")
-        return redirect('/produccion/seguimiento/sin-iniciar')
-
-    receta = Receta.query.get(orden.receta_id)
-
-    if not receta:
-        flash("Receta no encontrada", "error")
-        return redirect('/produccion/seguimiento/sin-iniciar')
-
-    # 🔥 VALIDAR MATERIA PRIMA
-    for detalle in receta.detalles:
-        materia = MateriaPrima.query.get(detalle.materia_prima_id)
-
-        if materia:
-            cantidad_usada = (detalle.porcentaje / 100) * orden.cantidad_producir
-
-            if materia.cantidad_disponible < cantidad_usada:
-                flash(f"No hay suficiente {materia.nombre}", "error")
-                return redirect('/produccion/seguimiento/sin-iniciar')
-
-    orden.estado = "en_proceso"
-    orden.fecha_inicio = datetime.now()
-
-    try:
-        db.session.commit()
-        flash("Producción iniciada", "success")
-    except Exception as e:
-        db.session.rollback()
-        print("❌ ERROR:", e)
-        flash("Error al iniciar producción", "error")
+    db.session.execute(
+        text("CALL sp_iniciar_produccion(:id)"),
+        {"id": id}
+    )
+    db.session.commit()
 
     return redirect('/produccion/seguimiento/sin-iniciar')
-
 
 # =========================================
 # ORDENES EN PROCESO 
@@ -320,58 +253,23 @@ def seguimiento_para_finalizar():
 # FINALIZAR PRODUCCIÓN ---------------------------------------
 
 @produccion_bp.route('/produccion/ordenes/finalizar/<int:id>', methods=['POST'])
-@roles_accepted('admin','produccion') 
-def finalizar_produccion(id):
-
-    orden = OrdenProduccion.query.get_or_404(id)
-
-    if orden.estado != "en_proceso":
-        flash("La orden no se puede finalizar", "error")
-        return redirect('/produccion/seguimiento/para-finalizar')
-
-    producto = ProductoTerminado.query.get(orden.producto_terminado_id)
-
-    if not producto:
-        flash("Producto no encontrado", "error")
-        return redirect('/produccion/seguimiento/para-finalizar')
-
-    receta = Receta.query.get(orden.receta_id)
-
-    if not receta:
-        flash("Receta no encontrada", "error")
-        return redirect('/produccion/seguimiento/para-finalizar')
-
-    for detalle in receta.detalles:
-        materia = MateriaPrima.query.get(detalle.materia_prima_id)
-
-        if materia:
-            cantidad_usada = (detalle.porcentaje / 100) * orden.cantidad_producir
-
-            if materia.cantidad_disponible < cantidad_usada:
-                flash(f"No hay suficiente {materia.nombre}", "error")
-                return redirect('/produccion/seguimiento/para-finalizar')
-
-            materia.cantidad_disponible -= cantidad_usada
-
-    if not producto.stock_disponible_venta:
-        producto.stock_disponible_venta = 0
-
-    producto.stock_disponible_venta += orden.cantidad_producir
-
-    orden.estado = "terminado"
-    orden.fecha_fin = datetime.now()  
+def finalizar(id):
 
     try:
+        db.session.execute(
+            text("CALL sp_finalizar_produccion(:id)"),
+            {"id": id}
+        )
         db.session.commit()
-        flash("Producción finalizada correctamente", "success")
+
+        flash("Producción finalizada", "success")
+
     except Exception as e:
         db.session.rollback()
-        print("❌ ERROR:", e)
-        flash("Error al finalizar producción", "error")
+        print(e)
+        flash("Error", "error")
 
     return redirect('/produccion/seguimiento/para-finalizar')
-
-
 # =========================================
 # ORDENES FINALIZADAS 
 # =========================================

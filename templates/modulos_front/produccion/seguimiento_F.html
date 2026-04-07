@@ -82,8 +82,8 @@
             <select id="selectVenta"
                 class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 h-[42px] focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
                 <option value="todos" selected>Todas las órdenes</option>
-                <option value="con_venta">Con Venta Online</option>
-                <option value="sin_venta">Sin Venta Online</option>
+                <option value="con_venta">Venta Online</option>
+                <option value="sin_venta">Venta Local</option>
             </select>
         </div>
         <div class="w-full md:w-auto">
@@ -101,7 +101,7 @@
 
         {% for o in ordenes %}
         <div class="card-orden bg-black border border-gray-800 rounded-xl p-6 shadow-xl flex flex-col h-full text-gray-300 transform hover:-translate-y-1 transition-transform"
-            data-venta-id="{{ o.venta_id if o.venta_id else '' }}" data-fecha="{{ o.fecha_inicio }}">
+            data-venta-id="{{ o.venta_id if o.venta_id else '' }}" data-fecha="{{ o.fecha_fin }}">
             <h3 class="text-xl font-bold text-white text-center mb-6">Orden: <span class="txt-orden-id">{{ o.id
                     }}</span></h3>
 
@@ -142,8 +142,8 @@
                 </div>
 
                 <div class="py-3">
-                    <p class="text-[10px] text-white-400 uppercase font-bold tracking-tighter mb-1">Fecha de Inicio</p>
-                    <span class="text-sm text-white-700 italic txt-fecha-inicio">{{ o.fecha_inicio or "N/A" }} </span>
+                    <p class="text-[10px] text-white-400 uppercase font-bold tracking-tighter mb-1">Fecha de fin</p>
+                    <span class="text-sm text-white-700 italic txt-fecha-inicio">{{ o.fecha_fin or "N/A" }} </span>
                 </div>
 
                 <div class="mt-6">
@@ -162,111 +162,95 @@
 </div>
 
 <script>
-    const buscador = document.getElementById('buscador');
-    const filtroSelect = document.getElementById('selectVenta'); 
-    const filtrarSelect = document.getElementById('select_TC'); 
-    const cards = document.querySelectorAll('.card-orden');
-    const iconoContainer = document.getElementById('icono-buscador');
-    const btnAbrir = document.getElementById('btnAbrirCalendario');
-    const dropdown = document.getElementById('dropdownCalendario');
-    const inputFecha = document.getElementById('filtroFecha');
-    const btnLimpiarTodo = document.getElementById('limpiarTodo');
-    const btnAplicar = document.getElementById('btnAplicarFecha');
-    const btnCancelar = document.getElementById('btnCancelarFecha');
+const buscador = document.getElementById('buscador');
+const filtroSelect = document.getElementById('selectVenta'); 
+const filtrarSelect = document.getElementById('select_TC'); 
+const contenedor = document.getElementById('contenedor-ordenes');
+const iconoContainer = document.getElementById('icono-buscador');
+const btnAbrir = document.getElementById('btnAbrirCalendario');
+const dropdown = document.getElementById('dropdownCalendario');
+const inputFecha = document.getElementById('filtroFecha');
+const btnLimpiarTodo = document.getElementById('limpiarTodo');
+const btnAplicar = document.getElementById('btnAplicarFecha');
+const btnCancelar = document.getElementById('btnCancelarFecha');
 
-    let fechaSeleccionada = "";
+let fechaSeleccionada = "";
 
-    const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
-    const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
+const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
+const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
 
-    function filtrar() {
-        const texto = buscador.value.toLowerCase().trim();
-        const tipoVenta = filtroSelect.value; 
-        const tipoTC = filtrarSelect.value; 
+// Función para parsear fecha o devolver null si es inválida
+function parseFecha(fechaStr) {
+    if (!fechaStr || fechaStr === "N/A") return null;
+    // Reemplazar espacio por T para compatibilidad ISO
+    return new Date(fechaStr.replace(" ", "T"));
+}
 
-        cards.forEach(card => {
-            const idOrden = card.querySelector('.txt-orden-id').textContent.toLowerCase();
-            const producto = card.querySelector('.txt-producto').textContent.toLowerCase();
-            const responsable = card.querySelector('.txt-responsable').textContent.toLowerCase();
-            const estadoElemento = card.querySelector('.txt-estado');
-            const estadoActual = estadoElemento ? estadoElemento.textContent.toLowerCase().trim() : "";
-            const ventaId = card.getAttribute('data-venta-id');
-            const fechaCard = card.getAttribute('data-fecha'); 
-            const coincideTexto = idOrden.includes(texto) || producto.includes(texto) || responsable.includes(texto);
+// Ordenar cards por fecha descendente
+function ordenarCards(cardsArray) {
+    cardsArray.sort((a, b) => {
+        const fechaA = parseFecha(a.getAttribute('data-fecha'));
+        const fechaB = parseFecha(b.getAttribute('data-fecha'));
+        if (!fechaA && !fechaB) return 0;
+        if (!fechaA) return 1; // N/A al final
+        if (!fechaB) return -1;
+        return fechaB - fechaA;
+    });
+    cardsArray.forEach(card => contenedor.appendChild(card));
+}
 
-            let coincideVenta = true;
-            if (tipoVenta === 'con_venta') {
-                coinceVenta = (ventaId !== "" && ventaId !== null);
-            } else if (tipoVenta === 'sin_venta') {
-                coincideVenta = (ventaId === "" || ventaId === null);
-            }
+// Filtrado
+function filtrar() {
+    const texto = buscador.value.toLowerCase().trim();
+    const tipoVenta = filtroSelect.value; 
+    const tipoTC = filtrarSelect.value; 
 
-            let coincideTC = true;
-            if (tipoTC !== 'todos') {
-                coincideTC = (estadoActual === tipoTC);
-            }
+    Array.from(contenedor.children).forEach(card => {
+        const idOrden = card.querySelector('.txt-orden-id').textContent.toLowerCase();
+        const producto = card.querySelector('.txt-producto').textContent.toLowerCase();
+        const responsable = card.querySelector('.txt-responsable').textContent.toLowerCase();
+        const estadoElemento = card.querySelector('.txt-estado');
+        const estadoActual = estadoElemento ? estadoElemento.textContent.toLowerCase().trim() : "";
+        const ventaId = card.getAttribute('data-venta-id');
+        const fechaCard = card.getAttribute('data-fecha'); 
 
-            let coincideFecha = true;
-            if (fechaSeleccionada) {
-                coincideFecha = fechaCard.includes(fechaSeleccionada);
-            }
+        const coincideTexto = idOrden.includes(texto) || producto.includes(texto) || responsable.includes(texto);
 
-            if (coincideTexto && coincideVenta && coincideTC && coincideFecha) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
+        let coincideVenta = true;
+        if (tipoVenta === 'con_venta') coincideVenta = (ventaId !== "" && ventaId !== null);
+        else if (tipoVenta === 'sin_venta') coincideVenta = (ventaId === "" || ventaId === null);
 
-        const filtrosActivos = buscador.value || filtroSelect.value !== 'todos' || filtrarSelect.value !== 'todos' || fechaSeleccionada;
-        btnLimpiarTodo.classList.toggle('hidden', !filtrosActivos);
-        iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
-    }
+        let coincideTC = true;
+        if (tipoTC !== 'todos') coincideTC = (estadoActual === tipoTC);
 
+        let coincideFecha = true;
+        if (fechaSeleccionada) coincideFecha = fechaCard.includes(fechaSeleccionada);
 
-    btnAbrir.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle('hidden');
+        card.style.display = (coincideTexto && coincideVenta && coincideTC && coincideFecha) ? 'flex' : 'none';
     });
 
-    btnAplicar.addEventListener('click', () => {
-        fechaSeleccionada = inputFecha.value;
-        filtrar();
-        dropdown.classList.add('hidden');
-    });
+    const visibleCards = Array.from(contenedor.children).filter(c => c.style.display !== 'none');
+    ordenarCards(visibleCards);
 
-    btnCancelar.addEventListener('click', () => {
-        inputFecha.value = fechaSeleccionada;
-        dropdown.classList.add('hidden');
-    });
+    const filtrosActivos = buscador.value || filtroSelect.value !== 'todos' || filtrarSelect.value !== 'todos' || fechaSeleccionada;
+    btnLimpiarTodo.classList.toggle('hidden', !filtrosActivos);
+    iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
+}
 
-    buscador.addEventListener('input', filtrar);
-    filtroSelect.addEventListener('change', filtrar);
-    filtrarSelect.addEventListener('change', filtrar); // Nuevo listener para Estatus
+// Eventos
+btnAbrir.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('hidden'); });
+btnAplicar.addEventListener('click', () => { fechaSeleccionada = inputFecha.value; filtrar(); dropdown.classList.add('hidden'); });
+btnCancelar.addEventListener('click', () => { inputFecha.value = fechaSeleccionada; dropdown.classList.add('hidden'); });
+buscador.addEventListener('input', filtrar);
+filtroSelect.addEventListener('change', filtrar);
+filtrarSelect.addEventListener('change', filtrar);
+iconoContainer.addEventListener('click', () => { if (buscador.value) { buscador.value=''; filtrar(); } });
+btnLimpiarTodo.addEventListener('click', () => { buscador.value=""; filtroSelect.value="todos"; filtrarSelect.value="todos"; inputFecha.value=""; fechaSeleccionada=""; filtrar(); });
+document.addEventListener('click', e => { if (!dropdown.contains(e.target) && !btnAbrir.contains(e.target)) dropdown.classList.add('hidden'); });
 
-    iconoContainer.addEventListener('click', () => {
-        if (buscador.value) {
-            buscador.value = '';
-            filtrar();
-        }
-    });
+iconoContainer.innerHTML = lupa;
 
-    btnLimpiarTodo.addEventListener('click', () => {
-        buscador.value = "";
-        filtroSelect.value = "todos";
-        filtrarSelect.value = "todos";
-        inputFecha.value = "";
-        fechaSeleccionada = "";
-        filtrar();
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target) && !btnAbrir.contains(e.target)) {
-            dropdown.classList.add('hidden');
-        }
-    });
-
-    // Inicialización
-    iconoContainer.innerHTML = lupa;
+// Orden inicial
+ordenarCards(Array.from(contenedor.children));
 </script>
 {% endblock %}
