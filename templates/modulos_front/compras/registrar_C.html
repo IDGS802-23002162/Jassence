@@ -52,14 +52,16 @@
                 </div>
                 
                 <div id="contenedor-insumos" class="space-y-4">
-                    <!-- Cambiamos a grid-cols-5 para que quepan los 5 campos perfectos -->
-                    <div class="fila-insumo grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200 relative group/fila">
+                    <!-- Cambiamos a grid-cols-4 para que los 4 campos ocupen el espacio perfecto -->
+                    <div class="fila-insumo grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200 relative group/fila">
                         
                         <div class="relative z-0 w-full group">
-                            <select name="materia_prima_id[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
+                            <!-- NUEVO: onchange="ajustarUnidades(this)" -->
+                            <select name="materia_prima_id[]" onchange="ajustarUnidades(this)" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
                                 <option value="" disabled selected>Selecciona...</option>
                                 {% for mp in materias_primas %}
-                                <option value="{{ mp.id }}">{{ mp.nombre }} ({{ mp.unidad_medida }})</option>
+                                    <!-- NUEVO: data-unidad="{{ mp.unidad_medida }}" -->
+                                    <option value="{{ mp.id }}" data-unidad="{{ mp.unidad_medida }}">{{ mp.nombre }} ({{ mp.unidad_medida }})</option>
                                 {% endfor %}
                             </select>
                             <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Materia Prima</label>
@@ -67,25 +69,15 @@
 
                         <div class="relative z-0 w-full group">
                             <input type="number" step="0.01" name="cantidad_comprada[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Cantidad (Paquete)</label>
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Cantidad</label>
                         </div>
 
                         <div class="relative z-0 w-full group">
-                            <select name="unidad_compra[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-                                <option value="Bultos">Bultos</option>
-                                <option value="Cajas">Cajas</option>
-                                <option value="Litros">Litros</option>
-                                <option value="Gramos">Gramos</option>
+                            <!-- NUEVO: Le puse la clase "select-unidad" para que JS lo encuentre rápido -->
+                            <select name="unidad_compra[]" class="select-unidad block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
+                                <option value="" disabled selected>Elige insumo primero...</option>
                             </select>
                             <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Unidad Compra</label>
-                        </div>
-
-                        <!-- ¡EL REGRESO DEL CAMPO PERDIDO! -->
-                        <div class="relative z-0 w-full group">
-                            <input type="number" step="0.01" name="cantidad_convertida[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-600 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">
-                                Total real a inventario
-                            </label>
                         </div>
 
                         <div class="relative z-0 w-full group">
@@ -201,6 +193,27 @@
 
         nuevaFila.appendChild(divEliminar);
         contenedor.appendChild(nuevaFila);
+    }
+
+    function ajustarUnidades(selectMateria) {
+        const fila = selectMateria.closest('.fila-insumo');
+        const selectUnidad = fila.querySelector('.select-unidad');
+        const opcionSeleccionada = selectMateria.options[selectMateria.selectedIndex];
+        const unidadBase = opcionSeleccionada.getAttribute('data-unidad').toLowerCase(); 
+        
+        selectUnidad.innerHTML = '';
+        
+        // Si el inventario base se mide en "ml" (o sea, es líquido), SOLO le dejamos Litros.
+        if (unidadBase.includes('ml') || unidadBase.includes('mililitros')) {
+            selectUnidad.innerHTML = '<option value="Litros">Litros</option>';
+        } 
+        // Si se mide en unidades, piezas o cajas (sólidos), NUNCA mostramos Litros.
+        else {
+            selectUnidad.innerHTML = `
+                <option value="Piezas">Piezas</option>
+                
+            `;
+        }
     }
 </script>
 {% endblock %}

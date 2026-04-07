@@ -111,7 +111,13 @@ def compras():
             for detalle in compra.detalles:
                 mp = MateriaPrima.query.get(detalle.materia_prima_id)
                 if mp:
-                    mp.cantidad_disponible += detalle.cantidad_convertida
+                    # --- NUEVA LÓGICA DE CONVERSIÓN ---
+                    if detalle.unidad_compra == 'Litros':
+                        cantidad_real = detalle.cantidad_comprada * 1000
+                    else:
+                        cantidad_real = detalle.cantidad_comprada
+                        
+                    mp.cantidad_disponible += cantidad_real
                     
             hubo_cambios = True
 
@@ -121,6 +127,8 @@ def compras():
 
     lista_compras = Compra.query.order_by(Compra.fecha.desc()).all()
     return render_template('modulos_front/compras/compras.html', compras=lista_compras)
+
+
 
 @compras_bp.route('/detalle_C/<int:id>')
 @roles_accepted('admin','inventario') 
@@ -140,15 +148,20 @@ def marcar_recibido(id):
         try:
             compra.estado = 'Recibido'
             
-            # ¡Hacemos la suma al inventario real en este momento!
+            # ¡Hacemos la suma al inventario real con la conversión!
             for detalle in compra.detalles:
                 mp = MateriaPrima.query.get(detalle.materia_prima_id)
                 if mp:
-                    mp.cantidad_disponible += detalle.cantidad_convertida
+                    # --- NUEVA LÓGICA DE CONVERSIÓN ---
+                    if detalle.unidad_compra == 'Litros':
+                        cantidad_real = detalle.cantidad_comprada * 1000
+                    else:
+                        cantidad_real = detalle.cantidad_comprada
+                        
+                    mp.cantidad_disponible += cantidad_real
                     
             db.session.commit()
-            
-            flash('¡Mercancía recibida físicamente! El stock ha sido sumado al inventario.', 'success')
+            flash('¡Mercancía recibida físicamente! El stock ha sido sumado al inventario en sus unidades correctas.', 'success')
             
         except Exception as e:
             db.session.rollback()
@@ -198,13 +211,10 @@ def registrar_C():
 
         total_compra = 0
 
-        cantidades_convertidas = request.form.getlist('cantidad_convertida[]')
-
         for i in range(len(materias_ids)):
             id_mp = materias_ids[i]
-            cant_comprada = float(cantidades[i]) # Ej: 2 (Cajas)
+            cant_comprada = float(cantidades[i]) 
             prec = float(precios[i])
-            cant_real_inventario = float(cantidades_convertidas[i]) # Ej: 100 (Botellas totales)
             
             sub = cant_comprada * prec 
             total_compra += sub
@@ -216,7 +226,6 @@ def registrar_C():
                 unidad_compra=unidades[i],
                 precio_unitario=prec,
                 subtotal=sub,
-                cantidad_convertida=cant_real_inventario # Guardamos la conversión para el historial
             )
             db.session.add(detalle)
 
@@ -255,10 +264,16 @@ def cancelar_C(id):
                 for detalle in compra.detalles:
                     mp = MateriaPrima.query.get(detalle.materia_prima_id)
                     if mp:
-                        mp.cantidad_disponible -= detalle.cantidad_convertida
+                        # --- NUEVA LÓGICA DE CONVERSIÓN (RESTA) ---
+                        if detalle.unidad_compra == 'Litros':
+                            cantidad_real = detalle.cantidad_comprada * 1000
+                        else:
+                            cantidad_real = detalle.cantidad_comprada
+                            
+                        mp.cantidad_disponible -= cantidad_real
                         
             db.session.commit()
-            flash('Compra anulada correctamente.', 'success')
+            flash('Compra anulada correctamente. Inventario ajustado.', 'success')
         except Exception as e:
             db.session.rollback()
             flash('Ocurrió un error al anular.', 'error')
@@ -334,7 +349,13 @@ def historial_PC():
             for detalle in compra.detalles:
                 mp = MateriaPrima.query.get(detalle.materia_prima_id)
                 if mp:
-                    mp.cantidad_disponible += detalle.cantidad_convertida
+                    # --- NUEVA LÓGICA DE CONVERSIÓN ---
+                    if detalle.unidad_compra == 'Litros':
+                        cantidad_real = detalle.cantidad_comprada * 1000
+                    else:
+                        cantidad_real = detalle.cantidad_comprada
+                        
+                    mp.cantidad_disponible += cantidad_real
             hubo_cambios = True
 
     if hubo_cambios:

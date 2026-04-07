@@ -158,7 +158,6 @@ class DetalleCompra(db.Model):
     materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), primary_key=True)
     cantidad_comprada = db.Column(db.Float)
     unidad_compra = db.Column(db.String(50))
-    cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
     
     subtotal = db.Column(db.Float)
