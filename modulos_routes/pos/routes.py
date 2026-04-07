@@ -1,20 +1,91 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import db, Receta, ProductoTerminado, MermaInventario, DetalleVenta, Venta
+from models import db, Receta, ProductoTerminado, MermaInventario, DetalleVenta, Venta, POSSesion, EgresoCaja
 import json
 from flask_security import current_user, roles_accepted
 
 pos_bp = Blueprint('pos', __name__)
 
+
+
+# ==========================================
+# 1. LA PANTALLA DEL POS (Con bloqueo de caja)
+# ==========================================
 @pos_bp.route('/pos', methods=['GET'])
 @roles_accepted('admin','ventas') 
 def pos():
-    recetas = Receta.query.filter(Receta.productos_terminados.any()).all()
-    return render_template('modulos_front/pos/pos.html', recetas=recetas, titulo="Venta Local")
+    # Buscamos si el usuario actual tiene una caja abierta
+    sesion_activa = POSSesion.query.filter_by(usuario_id=current_user.id, estado='abierta').first()
     
+    recetas = Receta.query.filter(Receta.productos_terminados.any()).all()
+    
+    # Mandamos una variable 'caja_abierta' al HTML para saber si bloqueamos la pantalla o no
+    return render_template('modulos_front/pos/pos.html', 
+                           recetas=recetas, 
+                           titulo="Venta Local",
+                           caja_abierta=(sesion_activa is not None),
+                           sesion_activa=sesion_activa)
 
+# ==========================================
+# 2. RUTA PARA ABRIR LA CAJA
+# ==========================================
+@pos_bp.route('/abrir_caja', methods=['POST'])
+@roles_accepted('admin','ventas')
+def abrir_caja():
+    monto_inicial = float(request.form.get('monto_apertura', 0.0))
+    
+    # Creamos la nueva sesión
+    nueva_sesion = POSSesion(
+        usuario_id=current_user.id,
+        monto_apertura=monto_inicial,
+        estado='abierta'
+    )
+    db.session.add(nueva_sesion)
+    db.session.commit()
+    
+    flash(f'¡Caja abierta exitosamente con ${monto_inicial}!', 'success')
+    return redirect(url_for('pos.pos'))
+
+# ==========================================
+# 3. RUTA PARA RETIRAR DINERO (EGRESOS)
+# ==========================================
+@pos_bp.route('/registrar_egreso', methods=['POST'])
+@roles_accepted('admin','ventas')
+def registrar_egreso():
+    sesion_activa = POSSesion.query.filter_by(usuario_id=current_user.id, estado='abierta').first()
+    
+    if not sesion_activa:
+        flash('No puedes registrar un retiro si la caja está cerrada.', 'error')
+        return redirect(url_for('pos.pos'))
+        
+    monto = float(request.form.get('monto', 0.0))
+    motivo = request.form.get('motivo', '')
+    
+    nuevo_egreso = EgresoCaja(
+        sesion_id=sesion_activa.id,
+        usuario_id=current_user.id,
+        monto=monto,
+        motivo=motivo
+    )
+    
+    db.session.add(nuevo_egreso)
+    db.session.commit()
+    
+    flash(f'Retiro de ${monto} registrado por: {motivo}', 'success')
+    return redirect(url_for('pos.pos'))
+
+# ==========================================
+# 4. ACTUALIZACIÓN DEL TICKET (Vinculado a la caja)
+# ==========================================
 @pos_bp.route('/ticket_pos', methods=['POST', 'GET'])
+@roles_accepted('admin','ventas')
 def ticket_pos():
     if request.method == 'POST':
+        # Validar si la caja sigue abierta por seguridad
+        sesion_activa = POSSesion.query.filter_by(usuario_id=current_user.id, estado='abierta').first()
+        if not sesion_activa:
+            flash('La caja está cerrada. Abre la caja para poder cobrar.', 'error')
+            return redirect(url_for('pos.pos'))
+
         datos_carrito_str = request.form.get('datos_carrito')
         metodo_pago = request.form.get('metodo_pago')
 
@@ -26,18 +97,19 @@ def ticket_pos():
             carrito = json.loads(datos_carrito_str)
             total_venta = sum(item['subtotal'] for item in carrito)
 
-            # 3. Creamos la cabecera de la Venta
+            # ¡AQUÍ ESTÁ LA MAGIA! Le agregamos el sesion_id
             nueva_venta = Venta(
-                usuario_id=current_user.id, # En el futuro aquí irá current_user.id
+                usuario_id=current_user.id, 
                 canal_venta='Mostrador',
-                estado_pedido='Entregado', # Como es venta física, se entrega al instante
+                estado_pedido='Entregado', 
                 total_venta=total_venta,
-                metodo_pago_fisico=metodo_pago
+                metodo_pago_fisico=metodo_pago,
+                sesion_id=sesion_activa.id # <---- VINCULAMOS LA VENTA AL TURNO
             )
             db.session.add(nueva_venta)
             db.session.flush() 
 
-            # 4. Procesamos cada perfume del carrito
+            # (El resto del código del carrito (for item in carrito...) se queda exactamente IGUAL que como lo tenías)
             for item in carrito:
                 producto_id = int(item['productoId'])
                 cantidad_vendida = int(item['cantidad'])
@@ -68,7 +140,6 @@ def ticket_pos():
             flash(f'Error al procesar la venta: {str(e)}', 'error')
             return redirect(url_for('pos.pos'))
             
-    # Si alguien intenta entrar a /ticket directo escribiendo la URL (GET)
     flash('Debes realizar una venta para ver un ticket.', 'error')
     return redirect(url_for('pos.pos'))
 
