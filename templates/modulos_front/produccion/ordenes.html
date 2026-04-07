@@ -35,18 +35,6 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800">Responsable de Producción</label>
-                    <select name="responsable_id"
-                        class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm"
-                        required>
-                        <option value="" disabled selected>Seleccionar Responsable</option>
-                        {% for r in responsables %}
-                        <option value="{{ r.id }}">{{ r.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
                 <div class="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Datos de Referencia (Solicitud)
                     </p>
@@ -68,6 +56,11 @@
                         <div>
                             <label class="block mb-1 text-xs text-gray-500">Fecha de la Solicitud</label>
                             <input type="date" name="fecha"
+                                class="w-full bg-gray-100 border-none rounded-lg p-2 text-sm font-medium" readonly>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-xs text-gray-500">Presentacion</label>
+                            <input type="text" name="presentacion"
                                 class="w-full bg-gray-100 border-none rounded-lg p-2 text-sm font-medium" readonly>
                         </div>
                     </div>
@@ -98,6 +91,7 @@
                             <tr>
                                 <th scope="col" class="px-6 py-4">Producto</th>
                                 <th scope="col" class="px-6 py-4 text-center">Cant.</th>
+                                <th scope="col" class="px-6 py-4 text-center">Presentación</th>
                                 <th scope="col" class="px-6 py-4">Fecha</th>
                                 <th scope="col" class="px-6 py-4">Estado</th>
                             </tr>
@@ -107,6 +101,7 @@
                             <tr class="hover:bg-[#4a4a4a] transition-colors h-12">
                                 <td class="px-6 py-4 font-medium text-white">{{ s.receta_nombre }}</td>
                                 <td class="px-6 py-4 text-center">{{ s.cantidad }}</td>
+                                <td class="px-6 py-4 text-center">{{ s.presentacion.mililitros }} ml.</td>
                                 <td class="px-6 py-4">{{ s.fecha.strftime('%Y-%m-%d') }}</td>
                                 <td class="px-6 py-4">
                                     {% if s.estado == 'pendiente' %}
@@ -136,12 +131,13 @@
     // Diccionario de datos desde Jinja
     const solicitudes = {
         {% for s in solicitudes %}
-    "{{ s.id }}": {
-        "nombre": "{{ s.receta_nombre }}",
-            "cantidad": "{{ s.cantidad }}",
-                "fecha": "{{ s.fecha.strftime('%Y-%m-%d') }}"
-    } {% if not loop.last %}, {% endif %}
-    {% endfor %}
+            "{{ s.id }}": {
+                "nombre": "{{ s.receta_nombre }}",
+                "cantidad": "{{ s.cantidad }}",
+                "fecha": "{{ s.fecha.strftime('%Y-%m-%d') }}",
+                "presentacion": "{{ s.presentacion_nombre }}"
+            } {% if not loop.last %}, {% endif %}
+        {% endfor %}
     };
 
     // Lógica para autocompletar campos
@@ -150,15 +146,18 @@
         const inputProducto = document.querySelector('input[name="producto"]');
         const inputCantidad = document.querySelector('input[name="cantidad_producir"]');
         const inputFecha = document.querySelector('input[name="fecha"]');
+        const inputPresentacion = document.querySelector('input[name="presentacion"]');
 
         if (solicitudes[id]) {
             inputProducto.value = solicitudes[id].nombre;
             inputCantidad.value = solicitudes[id].cantidad;
             inputFecha.value = solicitudes[id].fecha;
+            inputPresentacion.value = solicitudes[id].presentacion;
         } else {
             inputProducto.value = '';
             inputCantidad.value = '';
             inputFecha.value = '';
+            inputPresentacion.value = '';
         }
     });
 </script>

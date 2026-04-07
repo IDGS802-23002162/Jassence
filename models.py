@@ -233,7 +233,11 @@ class OrdenProduccion(db.Model):
     fecha_inicio = db.Column(db.DateTime)
     fecha_fin = db.Column(db.DateTime)
 
-    estado = db.Column(db.String(50))  # pendiente, en_proceso, terminado, cancelado
+    estado = db.Column(db.String(50))
+
+    receta = db.relationship('Receta')
+    producto_terminado = db.relationship('ProductoTerminado')
+    responsable = db.relationship('Usuario')
 
 
 # ///////////////////////////////////////
@@ -366,5 +370,6 @@ class ProduccionTemporal(db.Model):
 
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     estatus = db.Column(db.String(20), default='pendiente')
+    presentacion = db.relationship('Presentacion')
 
 

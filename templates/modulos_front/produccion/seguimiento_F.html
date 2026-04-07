@@ -1,0 +1,272 @@
+{% extends "layout_sistema.html" %}
+
+{% block title %}Seguimiento - Para Finalizar{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+
+    <div class="flex items-end mb-2 border-b border-gray-300 pb-4">
+        <a href="/produccion/solicitudes"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Solicitudes</a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <a href="/produccion/ordenes"
+            class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Órdenes</a>
+
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+
+        <h1 class="font-elegant text-6xl text-black cursor-default">Seguimiento</h1>
+
+    </div>
+
+    <div class="flex items-end mb-10 pl-10">
+
+        <a href="/produccion/seguimiento/sin-iniciar"
+            class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Ordenes
+            pendientes</a>
+
+        <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
+
+        <a href="/produccion/seguimiento/para-finalizar"
+            class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Ordenes en
+            producción</a>
+
+        <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
+
+        <h2 class="font-elegant text-4xl text-black cursor-default">Ordenes finalizadas</h2>
+
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-center">
+
+        <div class="relative flex-1 w-full text-black">
+            <input type="text" id="buscador"
+                class="block w-full p-2.5 pr-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-black focus:border-black shadow-sm outline-none transition-all"
+                placeholder="Buscar por producto, responsable o ID...">
+            <div id="icono-buscador" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
+            </div>
+        </div>
+
+        <div class="relative w-full md:w-auto">
+            <div class="flex items-center gap-2">
+                <button id="btnAbrirCalendario" type="button"
+                    class="flex items-center justify-center p-2 bg-white border border-gray-300 rounded-lg shadow-sm h-[42px] w-[42px] hover:bg-gray-50 transition-colors text-black">
+                    <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z" />
+                    </svg>
+                </button>
+                <button id="limpiarTodo"
+                    class="hidden px-4 py-2 h-[42px] text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border border-gray-300 transition-all whitespace-nowrap">
+                    Limpiar Filtros
+                </button>
+            </div>
+
+            <div id="dropdownCalendario"
+                class="hidden absolute top-12 left-0 z-50 w-64 p-4 bg-white border border-gray-300 rounded-xl shadow-xl animate-in fade-in zoom-in duration-200">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Seleccionar Fecha de Inicio</label>
+                <input type="date" id="filtroFecha"
+                    class="w-full mb-4 p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black outline-none text-sm text-black">
+                <div class="flex gap-2">
+                    <button id="btnAplicarFecha"
+                        class="flex-1 bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">Filtrar</button>
+                    <button id="btnCancelarFecha"
+                        class="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border border-gray-200">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto">
+            <select id="selectVenta"
+                class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 h-[42px] focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option value="todos" selected>Todas las órdenes</option>
+                <option value="con_venta">Con Venta Online</option>
+                <option value="sin_venta">Sin Venta Online</option>
+            </select>
+        </div>
+        <div class="w-full md:w-auto">
+            <select id="select_TC"
+                class="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 h-[42px] focus:ring-black focus:border-black outline-none shadow-sm cursor-pointer">
+                <option value="todos" selected>Todos los estados</option>
+                <option value="terminado">Terminados</option>
+                <option value="cancelado">Cancelados</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="contenedor-ordenes"
+        class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white p-8 rounded-xl shadow-inner border border-gray-100 min-h-[500px]">
+
+        {% for o in ordenes %}
+        <div class="card-orden bg-black border border-gray-800 rounded-xl p-6 shadow-xl flex flex-col h-full text-gray-300 transform hover:-translate-y-1 transition-transform"
+            data-venta-id="{{ o.venta_id if o.venta_id else '' }}" data-fecha="{{ o.fecha_inicio }}">
+            <h3 class="text-xl font-bold text-white text-center mb-6">Orden: <span class="txt-orden-id">{{ o.id
+                    }}</span></h3>
+
+            {% if o.venta_id %}
+            <div class="mb-2 flex justify-center">
+                <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    Prioridad (Venta online #{{ o.venta_id }})
+                </span>
+            </div>
+            {% endif %}
+
+            <div class="space-y-4 text-sm flex-grow">
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Producto</span>
+                    <span class="text-sm font-bold white-gray-900 txt-producto">{{ o.receta_nombre }}</span>
+                </div>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Cantidad</span>
+                    <span class="px-3 py-1 bg-black text-white text-xs rounded-full font-bold">{{ o.cantidad_producir
+                        }}</span>
+                </div>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Responsable</span>
+                    <span class="text-sm text-white-700 italic txt-responsable">{{ o.responsable_nombre }} {{
+                        o.responsable_apellidos }}</span>
+                </div>
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Estado</span>
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full txt-estado {{ o.estado_color }}">
+                        {{ o.estado|capitalize }}
+                    </span>
+                </div>
+
+                <div class="py-3 flex justify-between items-center">
+                    <span class="text-sm text-white-500 font-medium">Presentacion</span>
+                    <span class="text-sm text-white-700 italic">
+                        {{ o.presentacion_nombre }}, {{ o.presentacion_mililitros }} ml.</span>
+                </div>
+
+                <div class="py-3">
+                    <p class="text-[10px] text-white-400 uppercase font-bold tracking-tighter mb-1">Fecha de Inicio</p>
+                    <span class="text-sm text-white-700 italic txt-fecha-inicio">{{ o.fecha_inicio or "N/A" }} </span>
+                </div>
+
+                <div class="mt-6">
+                    {% if o.venta_id %}
+                    <button type="button"
+                        class="w-full bg-[#2A2A2A] text-white py-2.5 rounded-lg mt-6 hover:bg-black transition-colors">
+                        Segimiento
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<script>
+    const buscador = document.getElementById('buscador');
+    const filtroSelect = document.getElementById('selectVenta'); 
+    const filtrarSelect = document.getElementById('select_TC'); 
+    const cards = document.querySelectorAll('.card-orden');
+    const iconoContainer = document.getElementById('icono-buscador');
+    const btnAbrir = document.getElementById('btnAbrirCalendario');
+    const dropdown = document.getElementById('dropdownCalendario');
+    const inputFecha = document.getElementById('filtroFecha');
+    const btnLimpiarTodo = document.getElementById('limpiarTodo');
+    const btnAplicar = document.getElementById('btnAplicarFecha');
+    const btnCancelar = document.getElementById('btnCancelarFecha');
+
+    let fechaSeleccionada = "";
+
+    const lupa = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>`;
+    const cerrar = `<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
+
+    function filtrar() {
+        const texto = buscador.value.toLowerCase().trim();
+        const tipoVenta = filtroSelect.value; 
+        const tipoTC = filtrarSelect.value; 
+
+        cards.forEach(card => {
+            const idOrden = card.querySelector('.txt-orden-id').textContent.toLowerCase();
+            const producto = card.querySelector('.txt-producto').textContent.toLowerCase();
+            const responsable = card.querySelector('.txt-responsable').textContent.toLowerCase();
+            const estadoElemento = card.querySelector('.txt-estado');
+            const estadoActual = estadoElemento ? estadoElemento.textContent.toLowerCase().trim() : "";
+            const ventaId = card.getAttribute('data-venta-id');
+            const fechaCard = card.getAttribute('data-fecha'); 
+            const coincideTexto = idOrden.includes(texto) || producto.includes(texto) || responsable.includes(texto);
+
+            let coincideVenta = true;
+            if (tipoVenta === 'con_venta') {
+                coinceVenta = (ventaId !== "" && ventaId !== null);
+            } else if (tipoVenta === 'sin_venta') {
+                coincideVenta = (ventaId === "" || ventaId === null);
+            }
+
+            let coincideTC = true;
+            if (tipoTC !== 'todos') {
+                coincideTC = (estadoActual === tipoTC);
+            }
+
+            let coincideFecha = true;
+            if (fechaSeleccionada) {
+                coincideFecha = fechaCard.includes(fechaSeleccionada);
+            }
+
+            if (coincideTexto && coincideVenta && coincideTC && coincideFecha) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const filtrosActivos = buscador.value || filtroSelect.value !== 'todos' || filtrarSelect.value !== 'todos' || fechaSeleccionada;
+        btnLimpiarTodo.classList.toggle('hidden', !filtrosActivos);
+        iconoContainer.innerHTML = buscador.value ? cerrar : lupa;
+    }
+
+
+    btnAbrir.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+    });
+
+    btnAplicar.addEventListener('click', () => {
+        fechaSeleccionada = inputFecha.value;
+        filtrar();
+        dropdown.classList.add('hidden');
+    });
+
+    btnCancelar.addEventListener('click', () => {
+        inputFecha.value = fechaSeleccionada;
+        dropdown.classList.add('hidden');
+    });
+
+    buscador.addEventListener('input', filtrar);
+    filtroSelect.addEventListener('change', filtrar);
+    filtrarSelect.addEventListener('change', filtrar); // Nuevo listener para Estatus
+
+    iconoContainer.addEventListener('click', () => {
+        if (buscador.value) {
+            buscador.value = '';
+            filtrar();
+        }
+    });
+
+    btnLimpiarTodo.addEventListener('click', () => {
+        buscador.value = "";
+        filtroSelect.value = "todos";
+        filtrarSelect.value = "todos";
+        inputFecha.value = "";
+        fechaSeleccionada = "";
+        filtrar();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && !btnAbrir.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Inicialización
+    iconoContainer.innerHTML = lupa;
+</script>
+{% endblock %}
