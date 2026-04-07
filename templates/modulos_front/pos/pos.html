@@ -174,19 +174,53 @@
                 <form action="{{ url_for('pos.registrar_merma_pos') }}" method="POST" class="space-y-4">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     
-                    <div>
-                        <label class="block mb-1 text-xs font-bold text-gray-700 uppercase">Producto Afectado</label>
-                        <select name="producto_id" required class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black p-2.5">
-                            <option value="" disabled selected>Selecciona el perfume...</option>
-                            {% for receta in recetas %}
-                                {% for producto in receta.productos_terminados %}
-                                    {% if producto.stock_disponible_venta > 0 %}
-                                        <option value="{{ producto.id }}">{{ receta.nombre_perfume }} ({{ producto.presentacion.mililitros }}ml)</option>
+                    <!-- REEMPLAZA EL DIV DE "Producto Afectado" POR ESTE BLOQUE -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Columna 1: Selección del Perfume (Receta) -->
+                        <div>
+                            <label class="block mb-1 text-xs font-bold text-gray-700 uppercase">Perfume Afectado</label>
+                            <select id="select-receta" onchange="filtrarPresentaciones()" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black p-2.5" required>
+                                <option value="" disabled selected>Selecciona perfume...</option>
+                                {% for receta in recetas %}
+                                    <!-- Verificamos si la receta tiene al menos un producto con stock antes de mostrarla -->
+                                    {% set ns = namespace(tiene_stock=false) %}
+                                    {% for producto in receta.productos_terminados %}
+                                        {% if producto.stock_disponible_venta > 0 %}
+                                            {% set ns.tiene_stock = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if ns.tiene_stock %}
+                                        <option value="{{ receta.id }}">{{ receta.nombre_perfume }}</option>
                                     {% endif %}
                                 {% endfor %}
-                            {% endfor %}
-                        </select>
+                            </select>
+                        </div>
+
+                        <!-- Columna 2: Selección de la Presentación -->
+                        <div>
+                            <label class="block mb-1 text-xs font-bold text-gray-700 uppercase">Presentación</label>
+                            <!-- ¡OJO! Este select mantiene el name="producto_id" para que tu backend Python no se dé cuenta del cambio -->
+                            <select name="producto_id" id="select-presentacion" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black p-2.5" required>
+                                <option value="" disabled selected>Elige un perfume primero</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <!-- ========================================== -->
+                    <!-- DATOS OCULTOS (El cerebro para JavaScript) -->
+                    <!-- ========================================== -->
+                    <select id="hidden-productos" class="hidden">
+                        {% for receta in recetas %}
+                            {% for producto in receta.productos_terminados %}
+                                {% if producto.stock_disponible_venta > 0 %}
+                                    <option value="{{ producto.id }}" data-receta="{{ receta.id }}">
+                                        {{ producto.presentacion.mililitros }}ml (Disp: {{ producto.stock_disponible_venta }})
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -348,5 +382,25 @@
             });
         }
     });
+
+    function filtrarPresentaciones() {
+        // 1. Obtenemos qué perfume seleccionó el usuario
+        const recetaSeleccionada = document.getElementById('select-receta').value;
+        const selectPresentacion = document.getElementById('select-presentacion');
+        const productosOcultos = document.getElementById('hidden-productos').options;
+
+        // 2. Limpiamos la segunda columna
+        selectPresentacion.innerHTML = '<option value="" disabled selected>Selecciona el tamaño...</option>';
+
+        // 3. Llenamos la segunda columna solo con los tamaños que coinciden con el perfume
+        for (let i = 0; i < productosOcultos.length; i++) {
+            if (productosOcultos[i].getAttribute('data-receta') === recetaSeleccionada) {
+                const nuevaOpcion = document.createElement('option');
+                nuevaOpcion.value = productosOcultos[i].value;
+                nuevaOpcion.text = productosOcultos[i].text;
+                selectPresentacion.add(nuevaOpcion);
+            }
+        }
+    }
 </script>
 {% endblock %}
