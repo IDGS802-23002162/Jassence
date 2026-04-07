@@ -17,11 +17,16 @@
 
     <div class="flex items-end mb-10 pl-10">
         <a href="/produccion/seguimiento/sin-iniciar"
-            class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Sin Iniciar</a>
+            class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Ordenes pendientes</a>
 
         <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
 
-        <h2 class="font-elegant text-4xl text-black cursor-default">Para finalizar</h2>
+        <h2 class="font-elegant text-4xl text-black cursor-default">Ordenes en producción</h2>
+
+        <div class="w-px h-6 bg-gray-400 mx-12 mb-2"></div>
+
+        <a href="{{ url_for('produccion.seguimiento_F') }}"
+            class="font-elegant text-2xl text-gray-400 hover:text-gray-600 transition-colors mb-1">Ordenes finalizadas</a>
     </div>
 
     <div
@@ -32,6 +37,13 @@
         <div
             class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl flex flex-col h-full text-gray-300 transform hover:-translate-y-1 transition-transform">
             <h3 class="text-xl font-bold text-white text-center mb-6">Orden: {{ o.id }}</h3>
+            {% if o.venta_id %}
+        <div class="mb-2 flex justify-center">
+            <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                 Prioridad (Venta online #{{ o.venta_id }})
+            </span>
+        </div>
+        {% endif %}
 
             <div class="space-y-4 text-sm flex-grow">
                 <div class="py-3 flex justify-between items-center">
@@ -45,13 +57,19 @@
                 </div>
                 <div class="py-3 flex justify-between items-center">
                     <span class="text-sm text-white-500 font-medium">Responsable</span>
-                    <span class="text-sm text-white-700 italic">{{ o.responsable_nombre }}</span>
+                    <span class="text-sm text-white-700 italic">{{ o.responsable_nombre }} {{ o.responsable_apellidos }}</span>
                 </div>
                 <div class="py-3 flex justify-between items-center">
                     <span class="text-sm text-white-500 font-medium">Estado</span>
                     <span class="bg-yellow-500 text-yellow-50 text-xs font-medium px-2.5 py-0.5 rounded-full">{{
                         o.estado }}</span>
                 </div>
+
+                <div class="py-3 flex justify-between items-center">
+                    <span cclass="text-sm text-white-500 font-medium">Presentacion</span>
+                    <span class="text-sm text-white-700 italic">{{ o.presentacion_nombre }}, {{ o.presentacion_mililitros }} ml.</span>
+                </div> 
+                
                 <div class="py-3">
                     <p class="text-[10px] text-white-400 uppercase font-bold tracking-tighter mb-1">Fecha de Inicio</p>
                     <span class="text-sm text-white-700 italic">{{ o.fecha_inicio }}</span>

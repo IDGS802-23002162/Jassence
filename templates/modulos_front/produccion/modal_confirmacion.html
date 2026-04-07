@@ -38,10 +38,21 @@ function prepararCambioEstado(id, accion) {
         titulo.textContent = '¿Iniciar Producción?';
         mensaje.textContent = 'La orden pasará a estado de proceso en fábrica.';
         form.action = '/produccion/ordenes/iniciar/' + id;
+
     } else if (accion === 'finalizar') {
         titulo.textContent = '¿Finalizar Producción?';
-        mensaje.textContent = 'Se descontarán automáticamente los insumos del inventario. Esta acción no se puede deshacer.';
+        mensaje.textContent = 'Se descontarán automáticamente los insumos del inventario.';
         form.action = '/produccion/ordenes/finalizar/' + id;
+
+    } else if (accion === 'cancelar') {
+        titulo.textContent = '¿Cancelar Orden?';
+        mensaje.textContent = 'Esta acción cancelará la orden de producción.';
+        form.action = '/produccion/ordenes/cancelar/' + id;
+
+    } else if (accion === 'cancelar_solicitud') {
+        titulo.textContent = '¿Cancelar Solicitud?';
+        mensaje.textContent = 'Esta acción eliminará la solicitud de producción.';
+        form.action = '/produccion/solicitudes/cancelar/' + id;
     }
 }
 </script>
