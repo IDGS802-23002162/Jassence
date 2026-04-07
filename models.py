@@ -158,7 +158,6 @@ class DetalleCompra(db.Model):
     materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), primary_key=True)
     cantidad_comprada = db.Column(db.Float)
     unidad_compra = db.Column(db.String(50))
-    cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
     
     subtotal = db.Column(db.Float)
@@ -277,6 +276,8 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
+
     usuario = db.relationship('Usuario', backref='ventas_realizadas')
     detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")
 
@@ -311,6 +312,19 @@ class CorteCaja(db.Model):
     efectivo_real = db.Column(db.Float)
     diferencia = db.Column(db.Float)
 
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
+
+
+class EgresoCaja(db.Model):
+    __tablename__ = 'egresos_caja'
+    id = db.Column(db.Integer, primary_key=True)
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    
+    monto = db.Column(db.Float, nullable=False)
+    motivo = db.Column(db.String(200), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 # ///////////////////////////////////////
 # TABLAS TEMPORALES 
@@ -344,6 +358,13 @@ class POSSesion(db.Model):
     usuario_id = db.Column(db.Integer)
     abierta_en = db.Column(db.DateTime, default=datetime.utcnow)
     estado = db.Column(db.String(50))  # abierta, cerrada
+
+    monto_apertura = db.Column(db.Float, default=0.0)
+    cerrada_en = db.Column(db.DateTime, nullable=True)
+
+    ventas = db.relationship('Venta', backref='sesion_caja', lazy=True)
+    egresos = db.relationship('EgresoCaja', backref='sesion_caja', lazy=True)
+    cortes = db.relationship('CorteCaja', backref='sesion_caja', lazy=True)
 
 
 class POSItem(db.Model):
