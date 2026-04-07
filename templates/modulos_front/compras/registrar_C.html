@@ -1,4 +1,3 @@
-<!-- registrar_C.html -->
 {% extends "layout_sistema.html" %}
 
 {% block title %}Registrar Compra - EcoDev{% endblock %}
@@ -40,7 +39,6 @@
 
             <div class="mt-8 pt-6 border-t border-gray-100">
                 
-                <!-- TÍTULO Y BOTÓN DE NUEVA MATERIA PRIMA JUNTOS -->
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-elegant text-2xl text-black flex items-center gap-2">
                         Detalle de Insumos
@@ -52,15 +50,12 @@
                 </div>
                 
                 <div id="contenedor-insumos" class="space-y-4">
-                    <!-- Cambiamos a grid-cols-4 para que los 4 campos ocupen el espacio perfecto -->
-                    <div class="fila-insumo grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200 relative group/fila">
+                    <div class="fila-insumo grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200 relative group/fila">
                         
                         <div class="relative z-0 w-full group">
-                            <!-- NUEVO: onchange="ajustarUnidades(this)" -->
                             <select name="materia_prima_id[]" onchange="ajustarUnidades(this)" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
                                 <option value="" disabled selected>Selecciona...</option>
                                 {% for mp in materias_primas %}
-                                    <!-- NUEVO: data-unidad="{{ mp.unidad_medida }}" -->
                                     <option value="{{ mp.id }}" data-unidad="{{ mp.unidad_medida }}">{{ mp.nombre }} ({{ mp.unidad_medida }})</option>
                                 {% endfor %}
                             </select>
@@ -73,16 +68,20 @@
                         </div>
 
                         <div class="relative z-0 w-full group">
-                            <!-- NUEVO: Le puse la clase "select-unidad" para que JS lo encuentre rápido -->
                             <select name="unidad_compra[]" class="select-unidad block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-                                <option value="" disabled selected>Elige insumo primero...</option>
+                                <option value="" disabled selected>Elige insumo...</option>
                             </select>
                             <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Unidad Compra</label>
                         </div>
 
                         <div class="relative z-0 w-full group">
+                            <input type="number" step="0.01" name="multiplicador[]" value="1" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Uds. por Caja/Lote</label>
+                        </div>
+
+                        <div class="relative z-0 w-full group">
                             <input type="number" step="0.01" name="precio_unitario[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Precio Unitario ($)</label>
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Precio Unit. ($)</label>
                         </div>
                     </div>
                 </div>
@@ -111,7 +110,6 @@
     </div>
 </div>
 
-<!-- MODAL PARA NUEVA MATERIA PRIMA (Inyectado) -->
 <div id="modal-materia" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 transition-opacity">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all">
         <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
@@ -121,7 +119,7 @@
             </button>
         </div>
         
-        <form action="{{ url_for('compras.agregar_materia_rapida') }}" method="POST" class="space-y-5">
+        <form id="form-nueva-materia" action="{{ url_for('compras.agregar_materia_rapida') }}" method="POST" class="space-y-5">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <div>
@@ -132,22 +130,20 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Tipo</label>
-                    <select name="tipo" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
+                    <select name="tipo" id="tipo_materia" onchange="ajustarUnidadMateria()" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
                         <option value="" disabled selected>Seleccione...</option>
                         <option value="esencia">Esencia</option>
-                        <option value="alcohol">Alcohol</option>
+                        <option value="etanol">Etanol</option>
                         <option value="fijador">Fijador</option>
                         <option value="contenedor">Contenedor</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Unidad M.</label>
-                    <select name="unidad_medida" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
-                        <option value="Gramos">Gramos (g)</option>
-                        <option value="Mililitros">Mililitros (ml)</option>
-                        <option value="Piezas">Piezas (pz)</option>
+                    <select name="unidad_medida" id="unidad_medida_materia" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
+                        <option value="" disabled selected>Elige tipo...</option>
                     </select>
-                </div>
+                </div>  
             </div>
             
             <div>
@@ -173,15 +169,18 @@
         const primeraFila = contenedor.querySelector('.fila-insumo');
         const nuevaFila = primeraFila.cloneNode(true);
 
-        // Limpiamos los inputs de la fila clonada para que aparezcan vacíos
         const inputs = nuevaFila.querySelectorAll('input');
-        inputs.forEach(input => input.value = '');
+        inputs.forEach(input => {
+            if (input.name === "multiplicador[]") {
+                input.value = '1';
+            } else {
+                input.value = '';
+            }
+        });
 
-        // Reseteamos los selectores al primer valor
         const selects = nuevaFila.querySelectorAll('select');
         selects.forEach(select => select.selectedIndex = 0);
 
-        // Creamos un botón de "Eliminar" para las filas nuevas
         const divEliminar = document.createElement('div');
         divEliminar.className = "md:col-span-5 flex justify-end mt-2";
         divEliminar.innerHTML = `
@@ -198,22 +197,113 @@
     function ajustarUnidades(selectMateria) {
         const fila = selectMateria.closest('.fila-insumo');
         const selectUnidad = fila.querySelector('.select-unidad');
+        // Buscamos el contenedor del multiplicador
+        const inputMultiplicador = fila.querySelector('input[name="multiplicador[]"]');
+        const contenedorMultiplicador = inputMultiplicador.closest('.group');
+        
         const opcionSeleccionada = selectMateria.options[selectMateria.selectedIndex];
         const unidadBase = opcionSeleccionada.getAttribute('data-unidad').toLowerCase(); 
         
         selectUnidad.innerHTML = '';
         
-        // Si el inventario base se mide en "ml" (o sea, es líquido), SOLO le dejamos Litros.
-        if (unidadBase.includes('ml') || unidadBase.includes('mililitros')) {
-            selectUnidad.innerHTML = '<option value="Litros">Litros</option>';
+        // --- ACTUALIZADO PARA LIQUIDOS Y GALONES ---
+        if (unidadBase.includes('ml') || unidadBase.includes('mililitros') || unidadBase.includes('litros')) {
+            selectUnidad.innerHTML = `
+                <option value="Litros">Litros</option>
+                <option value="Galon Americano">Galón (Americano)</option>
+                <option value="Galon Imperial">Galón (Imperial)</option>
+            `;
+            // Ocultamos el campo multiplicador y forzamos su valor a 1
+            contenedorMultiplicador.style.display = 'none';
+            inputMultiplicador.value = '1';
         } 
-        // Si se mide en unidades, piezas o cajas (sólidos), NUNCA mostramos Litros.
+        // SÓLIDOS (Frascos, Cajas)
         else {
             selectUnidad.innerHTML = `
-                <option value="Piezas">Piezas</option>
-                
+                <option value="Piezas">Piezas sueltas</option>
+                <option value="Cajas">Cajas</option>
+                <option value="Lotes">Lotes</option>
             `;
+            // Mostramos el campo multiplicador
+            contenedorMultiplicador.style.display = 'block';
         }
     }
+
+    function ajustarUnidadMateria() {
+        const tipoSelect = document.getElementById('tipo_materia');
+        const unidadSelect = document.getElementById('unidad_medida_materia');
+        const tipo = tipoSelect.value;
+
+        // Limpiamos las opciones actuales
+        unidadSelect.innerHTML = ''; 
+
+        if (tipo === 'esencia' || tipo === 'etanol') {
+            // Forzamos Mililitros y bloqueamos visualmente el select
+            unidadSelect.innerHTML = '<option value="Mililitros" selected>Mililitros (ml)</option>';
+            unidadSelect.classList.add('bg-gray-200', 'pointer-events-none', 'text-gray-500');
+            
+        } else if (tipo === 'contenedor') {
+            // Forzamos Piezas y bloqueamos visualmente el select
+            unidadSelect.innerHTML = '<option value="Piezas" selected>Piezas (pz)</option>';
+            unidadSelect.classList.add('bg-gray-200', 'pointer-events-none', 'text-gray-500');
+            
+        } else if (tipo === 'fijador') {
+            // --- CORREGIDO PARA MOSTRAR GRAMOS Y MILILITROS ---
+            unidadSelect.innerHTML = '<option value="Mililitros" selected>Mililitros (ml)</option>';
+            unidadSelect.classList.add('bg-gray-200', 'pointer-events-none', 'text-gray-500');
+           
+        }
+    }
+
+    // Atrapamos el formulario del modal
+    document.getElementById('form-nueva-materia').addEventListener('submit', function(e) {
+        e.preventDefault(); // Detiene la recarga de la página
+
+        const form = this;
+        const formData = new FormData(form);
+
+        // Enviamos los datos por detrás de escena
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                // 1. Ocultar el modal
+                document.getElementById('modal-materia').classList.add('hidden');
+
+                // 2. Limpiar el formulario del modal para la próxima vez
+                form.reset();
+                
+                // Limpiar también los selects bloqueados del modal
+                document.getElementById('unidad_medida_materia').innerHTML = '<option value="" disabled selected>Elige tipo...</option>';
+
+                // 3. Buscar TODOS los selects de materia prima en la página
+                const selectsMaterias = document.querySelectorAll('select[name="materia_prima_id[]"]');
+                
+                // 4. Inyectar la nueva opción en cada uno de ellos
+                selectsMaterias.forEach(select => {
+                    const option = document.createElement('option');
+                    option.value = data.id;
+                    option.setAttribute('data-unidad', data.unidad_medida);
+                    option.text = `${data.nombre} (${data.unidad_medida})`;
+                    
+                    select.appendChild(option);
+                });
+
+                // Opcional: Seleccionar automáticamente el nuevo insumo en la primera fila
+                if (selectsMaterias.length > 0) {
+                    selectsMaterias[selectsMaterias.length - 1].value = data.id;
+                    // Disparamos tu función para que se ajusten las unidades correctamente
+                    ajustarUnidades(selectsMaterias[selectsMaterias.length - 1]);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Hubo un error al guardar la materia prima.");
+        });
+    });
 </script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from . import compras_bp
 import os
 from werkzeug.utils import secure_filename
-from flask import render_template, request, redirect, url_for, flash, current_app
+from flask import render_template, request, redirect, url_for, flash, current_app, jsonify
 from models import db, Proveedor, Compra, DetalleCompra, MateriaPrima
 from datetime import datetime, timedelta
 from flask_security import current_user, roles_accepted
@@ -16,13 +16,11 @@ def proveedores():
 @roles_accepted('admin','inventario') 
 def registrar_P():
     if request.method == 'POST':
-        # 1. Atrapamos los datos que vienen de los 'name' del HTML
         nombre_empresa = request.form.get('nombre_empresa')
         telefono = request.form.get('telefono')
         direccion = request.form.get('direccion')
         tipo_insumos = request.form.get('tipo_insumos')
 
-        # 2. Construimos el nuevo objeto Proveedor
         nuevo_proveedor = Proveedor(
             nombre_empresa=nombre_empresa,
             telefono=telefono,
@@ -43,14 +41,11 @@ def registrar_P():
     return render_template('modulos_front/compras/registrar_P.html')
 
 
-
 @compras_bp.route('/detalle_proveedor/<int:id>') 
 @roles_accepted('admin','inventario') 
 def detalle_P(id):
-
     proveedor = Proveedor.query.get_or_404(id)
     return render_template('modulos_front/compras/detalle_P.html', proveedor=proveedor)
-
 
 
 @compras_bp.route('/editar_proveedor/<int:id>', methods=['GET', 'POST'])
@@ -59,7 +54,6 @@ def editar_P(id):
     proveedor = Proveedor.query.get_or_404(id)
     
     if request.method == 'POST':
-        # Sobreescribimos los datos actuales con los nuevos del formulario
         proveedor.nombre_empresa = request.form.get('nombre_empresa')
         proveedor.telefono = request.form.get('telefono')
         proveedor.direccion = request.form.get('direccion')
@@ -76,13 +70,12 @@ def editar_P(id):
     return render_template('modulos_front/compras/editar_P.html', proveedor=proveedor)
 
 
-
 @compras_bp.route('/eliminar_proveedor/<int:id>', methods=['POST'])
 @roles_accepted('admin','inventario') 
 def baja_P(id):
     proveedor = Proveedor.query.get_or_404(id)
     try:
-        proveedor.activo = False  # Apagamos al proveedor sin borrar su historial
+        proveedor.activo = False  
         db.session.commit()
         flash('Proveedor dado de baja exitosamente.', 'success')
     except Exception as e:
@@ -92,15 +85,12 @@ def baja_P(id):
     return redirect(url_for('compras.proveedores'))
 
 # //////////////////////////////////////////////////////////////
+
 @compras_bp.route('/compras')
 @roles_accepted('admin','inventario') 
 def compras():
     compras_pendientes = Compra.query.filter_by(estado='Pendiente').all()
     ahora = datetime.utcnow()
-
-    # ========================================================
-    # ⏱️ CONFIGURACIÓN DEL TIEMPO
-    # ========================================================
     tiempo_espera = timedelta(hours=1) 
     hubo_cambios = False
 
@@ -111,9 +101,15 @@ def compras():
             for detalle in compra.detalles:
                 mp = MateriaPrima.query.get(detalle.materia_prima_id)
                 if mp:
-                    # --- NUEVA LÓGICA DE CONVERSIÓN ---
+                    # --- ACTUALIZADO CON GALONES ---
                     if detalle.unidad_compra == 'Litros':
                         cantidad_real = detalle.cantidad_comprada * 1000
+                    elif detalle.unidad_compra == 'Galon Americano':
+                        cantidad_real = detalle.cantidad_comprada * 3785.41
+                    elif detalle.unidad_compra == 'Galon Imperial':
+                        cantidad_real = detalle.cantidad_comprada * 4546.09
+                    elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
+                        cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
                     else:
                         cantidad_real = detalle.cantidad_comprada
                         
@@ -123,11 +119,9 @@ def compras():
 
     if hubo_cambios:
         db.session.commit()
-    # --- FIN DE LA MÁQUINA DEL TIEMPO ---
 
     lista_compras = Compra.query.order_by(Compra.fecha.desc()).all()
     return render_template('modulos_front/compras/compras.html', compras=lista_compras)
-
 
 
 @compras_bp.route('/detalle_C/<int:id>')
@@ -137,24 +131,27 @@ def detalle_C(id):
     return render_template('modulos_front/compras/detalle_C.html', compra=compra) 
 
 
-
 @compras_bp.route('/marcar_recibido/<int:id>', methods=['POST'])
 @roles_accepted('admin','inventario') 
 def marcar_recibido(id):
     compra = Compra.query.get_or_404(id)
     
-    # Candado de seguridad: Solo procesamos si sigue pendiente
     if compra.estado == 'Pendiente':
         try:
             compra.estado = 'Recibido'
             
-            # ¡Hacemos la suma al inventario real con la conversión!
             for detalle in compra.detalles:
                 mp = MateriaPrima.query.get(detalle.materia_prima_id)
                 if mp:
-                    # --- NUEVA LÓGICA DE CONVERSIÓN ---
+                    # --- ACTUALIZADO CON GALONES ---
                     if detalle.unidad_compra == 'Litros':
                         cantidad_real = detalle.cantidad_comprada * 1000
+                    elif detalle.unidad_compra == 'Galon Americano':
+                        cantidad_real = detalle.cantidad_comprada * 3785.41
+                    elif detalle.unidad_compra == 'Galon Imperial':
+                        cantidad_real = detalle.cantidad_comprada * 4546.09
+                    elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
+                        cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
                     else:
                         cantidad_real = detalle.cantidad_comprada
                         
@@ -172,8 +169,6 @@ def marcar_recibido(id):
     return redirect(url_for('compras.compras'))
 
 
-
-
 @compras_bp.route('/registrar_C', methods=['GET', 'POST'])
 @roles_accepted('admin','inventario') 
 def registrar_C():
@@ -186,18 +181,15 @@ def registrar_C():
         cantidades = request.form.getlist('cantidad_comprada[]')
         unidades = request.form.getlist('unidad_compra[]')
         precios = request.form.getlist('precio_unitario[]')
+        multiplicadores = request.form.getlist('multiplicador[]')
 
-        # 2. Manejo del Archivo PDF
         nombre_archivo = None
         if archivo and archivo.filename != '':
             nombre_archivo = secure_filename(archivo.filename)
             ruta_carpeta = os.path.join('static', 'uploads', 'facturas')
-            # Creamos la carpeta si no existe
             os.makedirs(ruta_carpeta, exist_ok=True)
             archivo.save(os.path.join(ruta_carpeta, nombre_archivo))
 
-        # 3. Creamos la cabecera de la Compra
-        # Nota: Aquí usamos el ID 1 de usuario como prueba, luego usarás el de la sesión
         nueva_compra = Compra(
             proveedor_id=proveedor_id,
             usuario_id=current_user.id, 
@@ -216,6 +208,10 @@ def registrar_C():
             cant_comprada = float(cantidades[i]) 
             prec = float(precios[i])
             
+            mult = 1.0
+            if multiplicadores and i < len(multiplicadores) and multiplicadores[i].strip():
+                mult = float(multiplicadores[i])
+            
             sub = cant_comprada * prec 
             total_compra += sub
 
@@ -226,10 +222,9 @@ def registrar_C():
                 unidad_compra=unidades[i],
                 precio_unitario=prec,
                 subtotal=sub,
+                multiplicador=mult
             )
             db.session.add(detalle)
-
-            # 5. ACTUALIZACIÓN DE STOCK (ELIMINADA DE AQUÍ)
 
         nueva_compra.total = total_compra
         
@@ -248,7 +243,6 @@ def registrar_C():
                            materias_primas=materias)
 
 
-
 @compras_bp.route('/cancelar_compra/<int:id>', methods=['POST'])
 @roles_accepted('admin','inventario') 
 def cancelar_C(id):
@@ -256,17 +250,22 @@ def cancelar_C(id):
     
     if compra.estado != 'cancelado':
         try:
-            estado_anterior = compra.estado # Guardamos si era Pendiente o Recibido
+            estado_anterior = compra.estado 
             compra.estado = 'cancelado'
             
-            # SOLO le restamos al inventario si la mercancía ya había sido "Recibida"
             if estado_anterior == 'Recibido':
                 for detalle in compra.detalles:
                     mp = MateriaPrima.query.get(detalle.materia_prima_id)
                     if mp:
-                        # --- NUEVA LÓGICA DE CONVERSIÓN (RESTA) ---
+                        # --- ACTUALIZADO CON GALONES ---
                         if detalle.unidad_compra == 'Litros':
                             cantidad_real = detalle.cantidad_comprada * 1000
+                        elif detalle.unidad_compra == 'Galon Americano':
+                            cantidad_real = detalle.cantidad_comprada * 3785.41
+                        elif detalle.unidad_compra == 'Galon Imperial':
+                            cantidad_real = detalle.cantidad_comprada * 4546.09
+                        elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
+                            cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
                         else:
                             cantidad_real = detalle.cantidad_comprada
                             
@@ -289,7 +288,6 @@ def agregar_materia_rapida():
     unidad_medida = request.form.get('unidad_medida')
     stock_minimo = float(request.form.get('stock_minimo', 0))
     
-    # Inicia con 0 porque apenas la van a surtir en esta compra
     nueva_materia = MateriaPrima(
         nombre=nombre,
         tipo=tipo,
@@ -300,19 +298,18 @@ def agregar_materia_rapida():
     db.session.add(nueva_materia)
     db.session.commit()
     
-    # Te regresa a la misma página de compras
-    return redirect(request.referrer)
-
-
-
-
+    return jsonify({
+        'success': True,
+        'id': nueva_materia.id,
+        'nombre': nueva_materia.nombre,
+        'unidad_medida': nueva_materia.unidad_medida
+    })
 
 @compras_bp.route('/actualizar_notas/<int:id>', methods=['POST'])
 @roles_accepted('admin','inventario') 
 def actualizar_notas(id):
     compra = Compra.query.get_or_404(id)
     
-    # Bloqueo de seguridad: No editar si está cancelada
     if compra.estado == 'cancelado':
         flash('No se pueden modificar las notas de una compra anulada.', 'error')
         return redirect(url_for('compras.detalle_C', id=compra.id))
@@ -329,17 +326,14 @@ def actualizar_notas(id):
         
     return redirect(url_for('compras.detalle_C', id=compra.id))
 
-
 # ///////////////////////////////////////////////////////////////////
 
 @compras_bp.route('/historial_PC')
 @roles_accepted('admin','inventario') 
 def historial_PC():
-    # --- MÁQUINA DEL TIEMPO (Lazy Update) ---
     ahora = datetime.utcnow()
     tiempo_espera = timedelta(hours=1) 
     
-    # Buscamos solo las que siguen esperando el camión
     pendientes = Compra.query.filter_by(estado='Pendiente').all()
     hubo_cambios = False
 
@@ -349,9 +343,15 @@ def historial_PC():
             for detalle in compra.detalles:
                 mp = MateriaPrima.query.get(detalle.materia_prima_id)
                 if mp:
-                    # --- NUEVA LÓGICA DE CONVERSIÓN ---
+                    # --- ACTUALIZADO CON GALONES ---
                     if detalle.unidad_compra == 'Litros':
                         cantidad_real = detalle.cantidad_comprada * 1000
+                    elif detalle.unidad_compra == 'Galon Americano':
+                        cantidad_real = detalle.cantidad_comprada * 3785.41
+                    elif detalle.unidad_compra == 'Galon Imperial':
+                        cantidad_real = detalle.cantidad_comprada * 4546.09
+                    elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
+                        cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
                     else:
                         cantidad_real = detalle.cantidad_comprada
                         
@@ -361,7 +361,6 @@ def historial_PC():
     if hubo_cambios:
         db.session.commit()
 
-    # --- CARGA NORMAL DE LA PÁGINA ---
     logs = Compra.query.order_by(Compra.fecha.desc()).all()
     proveedores = Proveedor.query.filter_by(activo=True).all()
     
@@ -373,6 +372,5 @@ def historial_PC():
 @compras_bp.route('/detalle_H/<int:id>')
 @roles_accepted('admin','inventario') 
 def detalle_H(id):
-    # Buscamos el log específico
     log = Compra.query.get_or_404(id)
     return render_template('modulos_front/compras/detalle_H.html', log=log)

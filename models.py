@@ -159,7 +159,7 @@ class DetalleCompra(db.Model):
     cantidad_comprada = db.Column(db.Float)
     unidad_compra = db.Column(db.String(50))
     precio_unitario = db.Column(db.Float)
-    
+    multiplicador = db.Column(db.Float, default=1.0)
     subtotal = db.Column(db.Float)
     materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
 

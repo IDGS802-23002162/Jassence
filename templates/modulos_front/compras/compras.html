@@ -85,7 +85,6 @@
                     <td class="px-6 py-4 text-center border-l border-table-dark">
                         <div class="flex items-center justify-center gap-3">
                             
-                            <!-- Botón Recibir (Icono de Check) -->
                             {% if compra.estado|lower == 'pendiente' %}
                             <form action="{{ url_for('compras.marcar_recibido', id=compra.id) }}" method="POST" class="m-0" onsubmit="return confirm('¿Confirmas que ya recibiste esta mercancía en físico? El stock se sumará inmediatamente a tu inventario.');">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -97,17 +96,18 @@
                             </form>
                             {% endif %}
 
-                            <!-- Botón Cancelar (Icono de X) -->
-                            {% if compra.estado|lower != 'cancelado' %}
+                            {% if compra.estado|lower == 'pendiente' %}
                             <button onclick="abrirModalEliminarC('{{ compra.id }}', '{{ compra.fecha.strftime('%Y-%m-%d') if compra.fecha else '' }}', '{{ compra.proveedor.nombre_empresa }}')" class="text-red-500 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 p-2 rounded-md transition-colors border border-red-500/20" title="Cancelar Compra">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
-                            {% else %}
+                            
+                            {% elif compra.estado|lower == 'cancelado' %}
                             <span class="text-red-500/50 font-bold text-[10px] uppercase tracking-widest cursor-not-allowed" title="Esta compra fue anulada">
                                 <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                             </span>
+                            
                             {% endif %}
                             
                         </div>
