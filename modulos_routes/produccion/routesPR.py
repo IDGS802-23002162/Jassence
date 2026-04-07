@@ -37,16 +37,21 @@ def index_solicitudes():
 
 @produccion_bp.route('/produccion/solicitudes/crear', methods=['POST'])
 def registrar_solicitud():
-
     try:
         fecha = datetime.strptime(request.form.get('fecha'), "%Y-%m-%d")
+        cantidad = int(request.form.get('cantidad', 0))
+
+        # Validación: cantidad mínima 1
+        if cantidad < 1:
+            flash("La cantidad debe ser mayor a 0", "error")
+            return redirect('/produccion/solicitudes')
 
         db.session.execute(
             text("CALL sp_crear_solicitud(:receta, :presentacion, :cantidad, :user, :fecha)"),
             {
                 "receta": int(request.form.get('id_producto')),
                 "presentacion": int(request.form.get('id_presentacion')),
-                "cantidad": int(request.form.get('cantidad')),
+                "cantidad": cantidad,
                 "user": current_user.id,
                 "fecha": fecha
             }
@@ -186,6 +191,8 @@ def seguimiento_sin_iniciar():
         ordenes=ordenes
     )
 
+# CANCELAR ORDEN ---------------------------------
+
 @produccion_bp.route('/produccion/ordenes/cancelar/<int:id>', methods=['POST'])
 @roles_accepted('admin','produccion') 
 def cancelar_orden(id):
@@ -197,9 +204,10 @@ def cancelar_orden(id):
 
     try:
         orden.estado = "cancelado"
+        orden.fecha_fin = datetime.now()
 
         db.session.commit()
-        flash("Orden cancelada correctamente", "success")
+        flash(f"Orden cancelada correctamente. Cantidad planeada: {orden.cantidad_producir}", "success")
 
     except Exception as e:
         db.session.rollback()
