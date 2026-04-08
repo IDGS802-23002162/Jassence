@@ -108,10 +108,11 @@
             {% if o.venta_id %}
             <div class="mb-2 flex justify-center">
                 <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    Prioridad (Venta online #{{ o.venta_id }})
+                    Venta online #{{ o.venta_id }}
                 </span>
             </div>
             {% endif %}
+
 
             <div class="space-y-4 text-sm flex-grow">
                 <div class="py-3 flex justify-between items-center">
@@ -146,12 +147,15 @@
                     <span class="text-sm text-white-700 italic txt-fecha-inicio">{{ o.fecha_fin or "N/A" }} </span>
                 </div>
 
+                
                 <div class="mt-6">
                     {% if o.venta_id %}
-                    <button type="button"
-                        class="w-full bg-[#2A2A2A] text-white py-2.5 rounded-lg mt-6 hover:bg-black transition-colors">
-                        Segimiento
-                    </button>
+                    <a href="/produccion/orden/{{ o.id }}/guia" target="_blank"
+                        class="w-full bg-[#2A2A2A] text-white py-2.5 p-2 rounded-lg mt-6 hover:bg-black transition-colors"
+                        >
+                        Imprimir Guía de Envío
+                    </a>
+                    <!-- Aqui el logo de palomita si ya se le dio una vez a imprimir guia  -->
                     {% endif %}
                 </div>
             </div>

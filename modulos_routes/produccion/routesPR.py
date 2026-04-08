@@ -1,8 +1,8 @@
 
-from flask import flash, render_template, request, redirect
+from flask import flash, render_template, request, redirect, abort
 from models import (
     OrdenProduccion, Receta, db, ProduccionTemporal,
-    Usuario, ProductoTerminado, DetalleReceta, MateriaPrima, Presentacion
+    Usuario, ProductoTerminado, DetalleReceta, MateriaPrima, Presentacion, Venta, DireccionEntrega
 )
 from . import produccion_bp
 from datetime import datetime
@@ -312,3 +312,15 @@ def seguimiento_F():
         'modulos_front/produccion/seguimiento_F.html',
         ordenes=ordenes
     )
+
+@produccion_bp.route('/produccion/orden/<int:orden_id>/guia')
+@roles_accepted('admin','produccion') 
+def imprimir_guia(orden_id):
+    orden = OrdenProduccion.query.get_or_404(orden_id)
+    if not orden.venta_id:
+        abort(400, description="Esta orden no está asociada a una venta online.")
+        
+    venta = Venta.query.get(orden.venta_id)
+    direccion = DireccionEntrega.query.get(venta.direccion_envio_id)
+    
+    return render_template('modulos_front/produccion/guia_envio.html', orden=orden, venta=venta, direccion=direccion)

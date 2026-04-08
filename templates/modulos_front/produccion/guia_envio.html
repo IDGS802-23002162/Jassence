@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Envío - Orden #{{ orden.id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+        }
+        
+        @media print {
+            body { margin: 0; padding: 0; background-color: white; }
+            .no-print { display: none !important; }
+            .print-border { border: 4px solid black; }
+            /* Fuerza a la impresora a imprimir los fondos negros/grises */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+        
+        /* Tamaño estricto 4x6 pulgadas */
+        .etiqueta-container {
+            width: 100mm;
+            height: 150mm;
+            margin: auto;
+            background: white;
+            color: black;
+            box-sizing: border-box;
+        }
+        
+        .barcode-font { 
+            font-family: monospace; 
+        }
+    </style>
+</head>
+<body class="bg-gray-200 py-10" onload="window.print()">
+
+    <div class="max-w-[100mm] mx-auto mb-4 no-print flex justify-between items-center">
+        <button onclick="window.close()" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded transition-colors shadow-sm text-sm">Cerrar</button>
+        <button onclick="window.print()" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded transition-colors shadow-sm text-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Imprimir
+        </button>
+    </div>
+
+    <div class="etiqueta-container print-border border-4 border-black flex flex-col bg-white">
+        
+        <div class="flex border-b-4 border-black h-24 shrink-0">
+            <div class="w-1/3 border-r-4 border-black flex items-center justify-center bg-black text-white p-2">
+                <h1 class="text-3xl font-black italic tracking-tighter" style="color: #D40511;">EXPRESS</h1>
+            </div>
+            <div class="w-2/3 flex flex-col">
+                <div class="h-1/2 border-b-2 border-black flex items-center justify-center bg-gray-100">
+                    <span class="font-black text-lg uppercase tracking-widest">Standard Overnight</span>
+                </div>
+                <div class="h-1/2 flex items-center justify-between px-4">
+                    <span class="text-4xl font-black tracking-tighter">LEO</span> <span class="text-3xl font-black">{{ direccion.codigo_postal }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-b-4 border-black p-3 text-[10px] leading-snug shrink-0">
+            <div class="flex justify-between">
+                <div class="w-2/3">
+                    <p class="font-black text-xs uppercase mb-1">DE: JASSENCE S.A. DE C.V.</p>
+                    <p>Blvd. Universidad Tecnológica 225</p>
+                    <p>San Carlos La Roncha</p>
+                    <p>León, Gto. CP 37670</p>
+                </div>
+                <div class="w-1/3 text-right">
+                    <p class="font-bold">Tel: (477) 555-0000</p>
+                    <p class="mt-1 font-black bg-black text-white inline-block px-1">Peso: 1.0 KG</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-b-4 border-black p-4 flex-grow relative overflow-hidden">
+            <p class="text-xs font-black mb-2 inline-block border-b-2 border-black">ENVIAR A:</p>
+            
+            <h2 class="text-2xl font-black uppercase leading-none mb-2 truncate">{{ direccion.nombre_receptor }}</h2>
+            
+            <p class="text-base font-bold uppercase leading-snug">
+                {{ direccion.calle_numero }}<br>
+                {% if direccion.colonia %}COL. {{ direccion.colonia }}<br>{% endif %}
+                <span class="text-xl font-black block mt-1">{{ direccion.ciudad }}, {{ direccion.estado_provincia }}</span>
+                <span class="text-lg">C.P. {{ direccion.codigo_postal }}</span>
+            </p>
+            
+            <div class="mt-3 text-xs">
+                <p class="font-bold">TEL: {{ direccion.telefono_contacto }}</p>
+                {% if direccion.referencias %}
+                    <div class="mt-2 p-2 bg-gray-100 border-2 border-dashed border-gray-400">
+                        <p class="font-bold uppercase text-[10px]">Referencias de entrega:</p>
+                        <p class="italic">{{ direccion.referencias }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex border-b-4 border-black h-16 shrink-0">
+             <div class="w-3/4 border-r-4 border-black p-2 flex flex-col justify-center">
+                 <p class="text-xs uppercase font-bold truncate">Tel: {{ direccion.telefono_contacto }}</p>
+             </div>
+             <div class="w-1/4 flex items-center justify-center bg-black text-white">
+                 <span class="text-5xl font-black">E</span> 
+             </div>
+        </div>
+
+        <div class="h-28 shrink-0 flex flex-col items-center justify-center p-2 bg-white">
+            <img src="https://barcode.tec-it.com/barcode.ashx?data=JAS-{{ venta.id }}-{{ orden.id }}&code=Code128&dpi=96&fontfamily=Arial" alt="Barcode" class="h-16 w-[90%] object-contain">
+            <p class="text-xs font-bold tracking-[0.4em] mt-1 barcode-font">JAS-{{ venta.id }}-{{ orden.id }}</p>
+        </div>
+
+    </div>
+
+</body>
+</html>[]
