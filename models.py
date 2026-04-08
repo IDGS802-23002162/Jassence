@@ -316,14 +316,19 @@ class CorteCaja(db.Model):
     diferencia = db.Column(db.Float)
     sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
 
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
+
+
 class EgresoCaja(db.Model):
-    _tablename_ = 'egresos_caja'
+    __tablename__ = 'egresos_caja'
     id = db.Column(db.Integer, primary_key=True)
     sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    
     monto = db.Column(db.Float, nullable=False)
     motivo = db.Column(db.String(200), nullable=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 # ///////////////////////////////////////
 # TABLAS TEMPORALES 
@@ -363,6 +368,13 @@ class POSSesion(db.Model):
     ventas = db.relationship('Venta', backref='sesion_caja', lazy=True)
     egresos = db.relationship('EgresoCaja', backref='sesion_caja', lazy=True)
     cortes = db.relationship('CorteCaja', backref='sesion_caja', lazy=True)  # abierta, cerrada
+
+    monto_apertura = db.Column(db.Float, default=0.0)
+    cerrada_en = db.Column(db.DateTime, nullable=True)
+
+    ventas = db.relationship('Venta', backref='sesion_caja', lazy=True)
+    egresos = db.relationship('EgresoCaja', backref='sesion_caja', lazy=True)
+    cortes = db.relationship('CorteCaja', backref='sesion_caja', lazy=True)
 
 
 class POSItem(db.Model):

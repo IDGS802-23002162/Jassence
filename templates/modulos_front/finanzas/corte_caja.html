@@ -104,9 +104,15 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-200 mt-8">
             <div class="md:col-start-2">
-                <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
-                    Cerrar Caja
-                </button>
+                {% if sin_caja %}
+                    <button type="button" disabled class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg shadow-md cursor-not-allowed">
+                        No hay caja abierta
+                    </button>
+                {% else %}
+                    <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
+                        Cerrar Caja
+                    </button>
+                {% endif %}
             </div>
         </div>
 
