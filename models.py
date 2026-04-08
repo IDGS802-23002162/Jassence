@@ -199,7 +199,7 @@ class Presentacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
-
+    stock_botes = db.Column(db.Integer, default=0)
     productos_terminados = db.relationship('ProductoTerminado', back_populates='presentacion', lazy=True)
 
 

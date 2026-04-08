@@ -133,7 +133,7 @@
                     <select name="tipo" id="tipo_materia" onchange="ajustarUnidadMateria()" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
                         <option value="" disabled selected>Seleccione...</option>
                         <option value="esencia">Esencia</option>
-                        <option value="etanol">Etanol</option>
+                        <option value="alcohol">Alcohol</option>
                         <option value="fijador">Fijador</option>
                         <option value="contenedor">Contenedor</option>
                     </select>
@@ -237,7 +237,7 @@
         // Limpiamos las opciones actuales
         unidadSelect.innerHTML = ''; 
 
-        if (tipo === 'esencia' || tipo === 'etanol') {
+        if (tipo === 'esencia' || tipo === 'alcohol') {
             // Forzamos Mililitros y bloqueamos visualmente el select
             unidadSelect.innerHTML = '<option value="Mililitros" selected>Mililitros (ml)</option>';
             unidadSelect.classList.add('bg-gray-200', 'pointer-events-none', 'text-gray-500');

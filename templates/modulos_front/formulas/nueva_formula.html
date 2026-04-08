@@ -5,6 +5,31 @@
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in">
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mb-6 space-y-2 animate-fade-in">
+      {% for category, message in messages %}
+        {% if category == 'error' %}
+          <div class="p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2" role="alert">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="font-medium">Error:</span> {{ message }}
+          </div>
+        {% elif category == 'success' %}
+          <div class="p-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2" role="alert">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="font-medium">¡Éxito!</span> {{ message }}
+          </div>
+        {% else %}
+          <div class="p-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2" role="alert">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ message }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
     <div class="flex items-center justify-between mb-8 border-b border-gray-300 pb-4">
         <div>
             <h1 class="font-elegant text-5xl text-black">Registrar Fórmula</h1>
@@ -106,6 +131,27 @@
                 </div>
             </div>
 
+            <div class="pt-4 mt-8 border-t border-gray-100">
+                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 pt-6">Fijación de Precios por Presentación</h2>
+                <p class="text-xs text-gray-500 mb-4">Ingresa el precio de venta para generar el producto final. Si dejas una presentación en blanco, no se generará el producto para ese tamaño.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {% for pres in presentaciones %}
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col justify-between transition-all hover:border-black group">
+                        <label class="text-[11px] text-gray-600 uppercase font-bold mb-3 block">
+                            {{ pres.nombre }} <span class="text-gray-400 font-normal">({{ pres.mililitros }} ml)</span>
+                        </label>
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" step="0.01" name="precio_presentacion_{{ pres.id }}" class="block w-full pl-7 py-2 text-sm text-gray-900 border-0 border-b-2 border-gray-300 bg-transparent focus:ring-0 focus:border-black transition-colors" placeholder="0.00" />
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">
                 <a href="{{ url_for('formulas.index_formulas') }}" class="py-3 px-8 text-sm font-medium text-gray-500 hover:text-black">Cancelar</a>
                 <button type="submit" id="btn-guardar" class="text-white bg-black hover:bg-gray-800 font-bold rounded-xl text-sm px-10 py-3 shadow-2xl transition-all transform hover:-translate-y-1">
@@ -125,7 +171,15 @@ function calcularTotal() {
     const barraEstado = document.getElementById('barra-estado-total');
     const mensaje = document.getElementById('mensaje-validacion');
     let total = 0;
-    document.querySelectorAll('input[type=number]').forEach(i => total += parseFloat(i.value) || 0);
+    
+    // Iteramos sobre los inputs numéricos, pero filtramos los de precios
+    document.querySelectorAll('input[type=number]').forEach(i => {
+        // Solo sumamos si el atributo 'name' NO contiene la palabra 'precio'
+        if (!i.name.includes('precio')) {
+            total += parseFloat(i.value) || 0;
+        }
+    });
+    
     displaySuma.innerText = total.toFixed(2);
 
     if (Math.abs(total - 100) < 0.01) {

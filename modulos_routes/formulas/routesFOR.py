@@ -1,4 +1,4 @@
-from models import DetalleReceta, LogAuditoria, db, Receta, MateriaPrima
+from models import DetalleReceta, LogAuditoria, db, Receta, MateriaPrima, Presentacion, ProductoTerminado
 from . import formulas_bp
 from flask import render_template, request, redirect, url_for, flash
 from flask_security import roles_accepted
@@ -118,6 +118,27 @@ def nueva_formula():
                         tipo_componente=mp.tipo
                     ))
 
+            # ==========================================
+            # NUEVO: CREACIÓN DE PRODUCTOS TERMINADOS
+            # ==========================================
+            presentaciones = Presentacion.query.all()
+            for pres in presentaciones:
+                # Buscamos el input dinámico generado en el HTML
+                precio_input = request.form.get(f'precio_presentacion_{pres.id}')
+                
+                # Si el usuario le puso precio, creamos el producto terminado
+                if precio_input and float(precio_input) > 0:
+                    nuevo_producto = ProductoTerminado(
+                        receta_id=nueva.id,
+                        presentacion_id=pres.id,
+                        stock_disponible_venta=0,  # Empieza en 0 porque apenas es la receta
+                        stock_minimo=5,            # Puedes ajustar tu stock mínimo por defecto
+                        precio_venta=float(precio_input),
+                        estado='activo',
+                        stock_comprometido=0
+                    )
+                    db.session.add(nuevo_producto)
+
             crear_log(
                 accion="CREATE",
                 tabla="Recetas",
@@ -137,7 +158,8 @@ def nueva_formula():
         'modulos_front/formulas/nueva_formula.html',
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
         alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
-        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
+        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all(),
+        presentaciones=Presentacion.query.all()
     )
 
 # ==========================================
