@@ -3,6 +3,7 @@
 from . import invMP_bp
 from flask import render_template, request, redirect, url_for, flash
 from models import LogAuditoria, db, MermaInventario, MateriaPrima
+from flask_security import roles_accepted, current_user
 
 # ==========================================
 # GENERADO DE LOGS DE AUDITORÍA
@@ -10,7 +11,7 @@ from models import LogAuditoria, db, MermaInventario, MateriaPrima
 
 def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
     log = LogAuditoria(
-        usuario_id=usuario_id,
+        usuario_id=current_user.id,
         accion=accion,
         tabla_afectada=tabla,
         registro_id=registro_id,
@@ -23,6 +24,7 @@ def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
 # ==========================================
 
 @invMP_bp.route('/materias-primas/inventario')
+@roles_accepted('admin','inventario','produccion')
 def inventario():
     # Ahora trae todas las materias primas sin distinguir contenedores
     materias = MateriaPrima.query.all()
@@ -33,6 +35,7 @@ def inventario():
 
 
 @invMP_bp.route('/materias-primas/inventario/detalle/<int:id>')
+@roles_accepted('admin','inventario','produccion')
 def detalle_MP(id):
     materia = MateriaPrima.query.get_or_404(id)
     return render_template(
@@ -42,6 +45,7 @@ def detalle_MP(id):
 
 
 @invMP_bp.route('/materias-primas/inventario/mermar/<int:id>', methods=['POST'])
+@roles_accepted('admin','inventario','produccion')
 def mermar_MP(id):
     materia = MateriaPrima.query.get_or_404(id)
     
@@ -86,6 +90,7 @@ def mermar_MP(id):
 
 
 @invMP_bp.route('/materias-primas/Inventario/delete/<int:id>', methods=['POST'])
+@roles_accepted('admin','inventario','produccion')
 def eliminar_MP(id):
     materia = MateriaPrima.query.get_or_404(id)
     nombre = materia.nombre 
@@ -110,6 +115,7 @@ def eliminar_MP(id):
 # ==========================================
 
 @invMP_bp.route('/materias-primas/mermas')
+@roles_accepted('admin','inventario','produccion')
 def mermas():
     mermas = MermaInventario.query.order_by(MermaInventario.fecha.desc()).all()
     return render_template(
@@ -119,6 +125,7 @@ def mermas():
 
 
 @invMP_bp.route('/materias-primas/mermas/registrar', methods=['GET', 'POST'])
+@roles_accepted('admin','inventario','produccion')
 def registrar_merma_mp():
     if request.method == 'POST':
         item_id = request.form.get('item_id')
@@ -171,6 +178,7 @@ def registrar_merma_mp():
     )
 
 @invMP_bp.route('/materias-primas/mermas/detalle/<int:id>')
+@roles_accepted('admin','inventario','produccion')
 def detalle_merma(id):
     merma = MermaInventario.query.get_or_404(id)
     return render_template(
@@ -184,6 +192,7 @@ def detalle_merma(id):
 # ==========================================
 
 @invMP_bp.route('/materias-primas/historial')
+@roles_accepted('admin','inventario','produccion')
 def historial():
     # Filtramos logs específicos de este módulo
     historial = LogAuditoria.query\
@@ -197,6 +206,7 @@ def historial():
     )
 
 @invMP_bp.route('/materias-primas/historial/detalle/<int:id>')
+@roles_accepted('admin','inventario','produccion')
 def detalle_historial(id):
     historial = LogAuditoria.query.get_or_404(id)
     return render_template(

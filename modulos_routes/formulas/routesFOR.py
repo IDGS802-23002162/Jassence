@@ -22,7 +22,7 @@ def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
 # LISTA DE FÓRMULAS
 # ==========================================
 @formulas_bp.route('/explosion-materiales')
-@roles_accepted('admin')
+@roles_accepted('admin' , 'produccion')
 def index_formulas():
     recetas = Receta.query.all()
 
@@ -36,7 +36,7 @@ def index_formulas():
 # ==========================================
 
 @formulas_bp.route('/formulas/nueva', methods=['GET', 'POST'])
-@roles_accepted('admin')
+@roles_accepted('admin', 'produccion')
 def nueva_formula():
     if request.method == 'POST':
         nombre = request.form.get('nombre_perfume')
@@ -166,7 +166,7 @@ def nueva_formula():
 # DETALLE
 # ==========================================
 @formulas_bp.route('/formulas/detalles/<int:id>')
-@roles_accepted('admin')
+@roles_accepted('admin', 'produccion')
 def detalle_formula(id):
     receta = Receta.query.get_or_404(id)
     detalles = DetalleReceta.query.filter_by(receta_id=id).all()
@@ -197,7 +197,7 @@ def detalle_formula(id):
 # MODIFICAR FÓRMULA
 # ==========================================
 @formulas_bp.route('/formulas/modificar/<int:id>', methods=['GET', 'POST'])
-@roles_accepted('admin')
+@roles_accepted('admin', 'produccion')
 def modificar_formula(id):
     receta = Receta.query.get_or_404(id)
     detalles = DetalleReceta.query.filter_by(receta_id=id).all()
@@ -342,7 +342,7 @@ def modificar_formula(id):
 # ELIMINAR (SEGURO)
 # ==========================================
 @formulas_bp.route('/formulas/eliminar/<int:id>', methods=['POST'])
-@roles_accepted('admin')
+@roles_accepted('admin', 'produccion')
 def eliminar_formula(id):
     receta = Receta.query.get_or_404(id)
     nombre_borrado = receta.nombre_perfume

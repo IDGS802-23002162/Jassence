@@ -4,12 +4,6 @@ from flask import render_template, request, redirect, url_for
 from flask_security import roles_accepted, current_user
 from modulos_routes.auditoria.utils import registrar_log
 
-class Usuario:
-    def __init__(self, nombre, rol):
-        self.nombre = nombre
-        self.rol = rol
-
-
 # ==========================================
 # INVENTARIO PRODUCTOS TERMINADOS
 # ==========================================

@@ -10,7 +10,7 @@
         <h1 class="font-elegant text-6xl text-black cursor-default">
             Solicitudes
         </h1>
-
+        {% if current_user.has_role('admin') or current_user.has_role('produccion') %}
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
 
         <a href="/produccion/ordenes"
@@ -24,6 +24,7 @@
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">
             Seguimiento
         </a>
+        {% endif  %}
 
     </div>
 

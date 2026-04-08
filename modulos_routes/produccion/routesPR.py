@@ -115,6 +115,7 @@ def index_ordenes():
 
 # CREAR ORDEN ---------------------------------
 @produccion_bp.route('/produccion/ordenes/crear', methods=['POST'])
+@roles_accepted('admin','produccion') 
 def crear_orden():
     try:
         # 1. ¡Aquí está la corrección! Agregamos @mensaje al final del CALL
