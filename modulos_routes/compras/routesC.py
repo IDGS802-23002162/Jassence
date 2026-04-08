@@ -173,68 +173,79 @@ def marcar_recibido(id):
 @roles_accepted('admin','inventario') 
 def registrar_C():
     if request.method == 'POST':
-        proveedor_id = request.form.get('proveedor_id')
-        notas = request.form.get('notas', '')
-        archivo = request.files.get('archivo_factura')
-        
-        materias_ids = request.form.getlist('materia_prima_id[]')
-        cantidades = request.form.getlist('cantidad_comprada[]')
-        unidades = request.form.getlist('unidad_compra[]')
-        precios = request.form.getlist('precio_unitario[]')
-        multiplicadores = request.form.getlist('multiplicador[]')
-
-        nombre_archivo = None
-        if archivo and archivo.filename != '':
-            nombre_archivo = secure_filename(archivo.filename)
-            ruta_carpeta = os.path.join('static', 'uploads', 'facturas')
-            os.makedirs(ruta_carpeta, exist_ok=True)
-            archivo.save(os.path.join(ruta_carpeta, nombre_archivo))
-
-        nueva_compra = Compra(
-            proveedor_id=proveedor_id,
-            usuario_id=current_user.id, 
-            archivo_factura=nombre_archivo,
-            notas=notas,
-            estado='Pendiente'
-        )
-        
-        db.session.add(nueva_compra)
-        db.session.flush() 
-
-        total_compra = 0
-
-        for i in range(len(materias_ids)):
-            id_mp = materias_ids[i]
-            cant_comprada = float(cantidades[i]) 
-            prec = float(precios[i])
-            
-            mult = 1.0
-            if multiplicadores and i < len(multiplicadores) and multiplicadores[i].strip():
-                mult = float(multiplicadores[i])
-            
-            sub = cant_comprada * prec 
-            total_compra += sub
-
-            detalle = DetalleCompra(
-                compra_id=nueva_compra.id,
-                materia_prima_id=id_mp,
-                cantidad_comprada=cant_comprada,
-                unidad_compra=unidades[i],
-                precio_unitario=prec,
-                subtotal=sub,
-                multiplicador=mult
-            )
-            db.session.add(detalle)
-
-        nueva_compra.total = total_compra
-        
+        # 1. El TRY debe encapsular TODO el proceso desde la recolección de datos
         try:
+            proveedor_id = request.form.get('proveedor_id')
+            notas = request.form.get('notas', '')
+            archivo = request.files.get('archivo_factura')
+            
+            materias_ids = request.form.getlist('materia_prima_id[]')
+            cantidades = request.form.getlist('cantidad_comprada[]')
+            unidades = request.form.getlist('unidad_compra[]')
+            precios = request.form.getlist('precio_unitario[]')
+            multiplicadores = request.form.getlist('multiplicador[]')
+
+            nombre_archivo = None
+            if archivo and archivo.filename != '':
+                nombre_archivo = secure_filename(archivo.filename)
+                ruta_carpeta = os.path.join('static', 'uploads', 'facturas')
+                os.makedirs(ruta_carpeta, exist_ok=True)
+                archivo.save(os.path.join(ruta_carpeta, nombre_archivo))
+
+            nueva_compra = Compra(
+                proveedor_id=proveedor_id,
+                usuario_id=current_user.id, 
+                archivo_factura=nombre_archivo,
+                notas=notas,
+                estado='Pendiente'
+            )
+            
+            db.session.add(nueva_compra)
+            db.session.flush() # Ahora este paso está protegido por el try
+
+            total_compra = 0
+            
+            # 2. Diccionario para prevenir el error de Llave Primaria Duplicada
+            insumos_procesados = {}
+
+            for i in range(len(materias_ids)):
+                id_mp = materias_ids[i]
+                cant_comprada = float(cantidades[i]) 
+                prec = float(precios[i])
+                
+                mult = 1.0
+                if multiplicadores and i < len(multiplicadores) and multiplicadores[i].strip():
+                    mult = float(multiplicadores[i])
+                
+                sub = cant_comprada * prec 
+                total_compra += sub
+
+                # Si el insumo ya está en la lista de esta compra, sumamos las cantidades
+                if id_mp in insumos_procesados:
+                    insumos_procesados[id_mp].cantidad_comprada += cant_comprada
+                    insumos_procesados[id_mp].subtotal += sub
+                else:
+                    detalle = DetalleCompra(
+                        compra_id=nueva_compra.id,
+                        materia_prima_id=id_mp,
+                        cantidad_comprada=cant_comprada,
+                        unidad_compra=unidades[i],
+                        precio_unitario=prec,
+                        subtotal=sub,
+                        multiplicador=mult
+                    )
+                    insumos_procesados[id_mp] = detalle
+                    db.session.add(detalle)
+
+            nueva_compra.total = total_compra
+            
             db.session.commit()
             flash('¡Compra registrada como PENDIENTE! El stock entrará cuando llegue el camión. UwU', 'success')
             return redirect(url_for('compras.compras'))
+            
         except Exception as e:
             db.session.rollback()
-            flash(f'Error al procesar la compra: {str(e)}', 'error')
+            flash(f'Error al procesar la compra: Revisa que todos los campos estén llenos correctamente. Detalle técnico: {str(e)}', 'error')
 
     proveedores = Proveedor.query.filter_by(activo=True).all()
     materias = MateriaPrima.query.all()

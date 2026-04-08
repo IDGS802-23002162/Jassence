@@ -55,7 +55,7 @@
                             {% if receta.productos_terminados and receta.productos_terminados[0].tipo_envio %}
                                     {% set envio = receta.productos_terminados[0].tipo_envio %}
                                     <div id="badge-envio-nuevas-{{ receta.id }}" 
-                                        class="text-xs text-gray-400 italic {% if 'rapido' in envio.lower() or 'rápido' in envio.lower() %}text-emerald-600{% else %}text-gray-400{% endif %}">
+                                        class="text-xs text-gray-400 italic {% if  'Envío rápido' in envio.lower() %}text-emerald-600{% else %}text-gray-400{% endif %}">
                                         {{ envio }}
                                     </div>
                             {% endif %}

@@ -329,7 +329,6 @@ class EgresoCaja(db.Model):
     motivo = db.Column(db.String(200), nullable=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
 
-
 # ///////////////////////////////////////
 # TABLAS TEMPORALES 
 # ///////////////////////////////////////
@@ -371,10 +370,6 @@ class POSSesion(db.Model):
 
     monto_apertura = db.Column(db.Float, default=0.0)
     cerrada_en = db.Column(db.DateTime, nullable=True)
-
-    ventas = db.relationship('Venta', backref='sesion_caja', lazy=True)
-    egresos = db.relationship('EgresoCaja', backref='sesion_caja', lazy=True)
-    cortes = db.relationship('CorteCaja', backref='sesion_caja', lazy=True)
 
 
 class POSItem(db.Model):
