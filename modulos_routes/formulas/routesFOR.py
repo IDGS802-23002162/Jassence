@@ -361,3 +361,5 @@ def eliminar_formula(id):
 
     flash("Fórmula eliminada", "success")
     return redirect(url_for('formulas.index_formulas'))
+
+    

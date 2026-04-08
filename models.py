@@ -154,15 +154,30 @@ class Compra(db.Model):
 
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'
-    compra_id = db.Column(db.Integer, db.ForeignKey('compras.id'), primary_key=True)
-    materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), primary_key=True)
+    
+    # 1. Agregamos un ID propio como Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    compra_id = db.Column(db.Integer, db.ForeignKey('compras.id'))
+    
+    # 2. Hacemos que la materia prima sea opcional (nullable=True)
+    materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), nullable=True)
+    
+    # 3. Agregamos la relación con la Presentación (nullable=True)
+    presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'), nullable=True)
+    
+    # 4. Campo de control para saber si es líquido o envase
+    tipo_item = db.Column(db.String(20), default='materia') # 'materia' o 'presentacion'
+
+    # Los demás campos quedan igual
     cantidad_comprada = db.Column(db.Float)
     unidad_compra = db.Column(db.String(50))
     precio_unitario = db.Column(db.Float)
     multiplicador = db.Column(db.Float, default=1.0)
     subtotal = db.Column(db.Float)
+    
     materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
-
+    presentacion = db.relationship('Presentacion', backref='detalles_compra', lazy=True)
+    
 # ///////////////////////////////////////
 # PRODUCCION 
 # ///////////////////////////////////////

@@ -114,26 +114,36 @@ def index_ordenes():
     )
 
 # CREAR ORDEN ---------------------------------
-
 @produccion_bp.route('/produccion/ordenes/crear', methods=['POST'])
 def crear_orden():
-
     try:
+        # 1. ¡Aquí está la corrección! Agregamos @mensaje al final del CALL
         db.session.execute(
-            text("CALL sp_crear_orden(:solicitud, :user)"),
+            text("CALL sp_crear_orden(:solicitud, :user, @mensaje)"),
             {
                 "solicitud": int(request.form.get('id_solicitud')),
                 "user": current_user.id
             }
         )
-        db.session.commit()
-
-        flash("Orden creada", "success")
+        
+        # 2. Rescatamos el valor que nos escupió MySQL en la variable @mensaje
+        resultado = db.session.execute(text("SELECT @mensaje")).scalar()
+        
+        # 3. Evaluamos la respuesta para hacer el commit o el rollback manual en Flask
+        if resultado == 'EXITO':
+            # Solo hacemos commit si MySQL nos dijo que todo salió bien
+            db.session.commit()
+            flash("¡Orden de producción generada correctamente!", "produccion_success")
+        else:
+            # Si MySQL nos devolvió un texto de error (los faltantes), hacemos rollback por precaución
+            db.session.rollback()
+            # Mostramos el mensaje exacto que vino desde la Base de Datos
+            flash(f"{resultado}", "produccion_error")
 
     except Exception as e:
         db.session.rollback()
-        print(e)
-        flash("Error", "error")
+        print(f"Error técnico al crear orden: {str(e)}")
+        flash("Ocurrió un error inesperado al procesar la solicitud.", "produccion_error")
 
     return redirect('/produccion/ordenes')
 

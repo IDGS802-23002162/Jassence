@@ -73,13 +73,13 @@
             </div>
 
             <div class="mt-4">
-                <h3 class="font-elegant text-2xl text-black mb-6">Desglose de Materia Prima</h3>
+                <h3 class="font-elegant text-2xl text-black mb-6">Desglose de Artículos</h3>
                 <div class="relative overflow-x-auto rounded-xl border border-gray-200">
                     <table class="w-full text-sm text-left">
                         <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
                             <tr>
-                                <th scope="col" class="px-6 py-4">Insumo</th>
-                                <th scope="col" class="px-6 py-4">Cant. Recibida</th>
+                                <th scope="col" class="px-6 py-4">Artículo</th>
+                                <th scope="col" class="px-6 py-4">Cant. Comprada</th>
                                 <th scope="col" class="px-6 py-4 bg-[#1a1a1a] border-l border-gray-600 text-blue-300">Stock Agregado</th>
                                 <th scope="col" class="px-6 py-4 text-right">P. Unitario</th>
                                 <th scope="col" class="px-6 py-4 text-right border-l border-gray-100">Subtotal</th>
@@ -89,12 +89,46 @@
                             {% for item in compra.detalles %}
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 font-bold text-gray-900">
-                                    {{ item.materia_prima.nombre if item.materia_prima else 'Insumo Eliminado' }}
+                                    {% if item.tipo_item == 'materia' and item.materia_prima %}
+                                        <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full mr-2">Líquido</span>
+                                        {{ item.materia_prima.nombre }}
+                                    {% elif item.tipo_item == 'presentacion' and item.presentacion %}
+                                        <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full mr-2">Envase</span>
+                                        Frasco {{ item.presentacion.nombre }} ({{ item.presentacion.mililitros }} ml)
+                                    {% else %}
+                                        <span class="text-red-500 italic">Artículo Eliminado</span>
+                                    {% endif %}
                                 </td>
-                                <td class="px-6 py-4 text-gray-600">{{ item.cantidad_comprada }} <span class="text-[10px] font-bold uppercase">{{ item.unidad_compra }}</span></td>
+                                
+                                <td class="px-6 py-4 text-gray-600">
+                                    {{ item.cantidad_comprada }} <span class="text-[10px] font-bold uppercase">{{ item.unidad_compra }}</span>
+                                </td>
+                                
                                 <td class="px-6 py-4 bg-blue-50 text-blue-700 font-bold border-l border-gray-200 italic">
-                                    {{ item.cantidad_convertida }} {{ item.materia_prima.unidad_medida if item.materia_prima else '' }}
+                                    {% if item.tipo_item == 'materia' and item.materia_prima %}
+                                        {% if item.unidad_compra == 'Litros' %}
+                                            {{ (item.cantidad_comprada * 1000)|round(2) }} {{ item.materia_prima.unidad_medida }}
+                                        {% elif item.unidad_compra == 'Galon Americano' %}
+                                            {{ (item.cantidad_comprada * 3785.41)|round(2) }} {{ item.materia_prima.unidad_medida }}
+                                        {% elif item.unidad_compra == 'Galon Imperial' %}
+                                            {{ (item.cantidad_comprada * 4546.09)|round(2) }} {{ item.materia_prima.unidad_medida }}
+                                        {% elif item.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote'] %}
+                                            {{ (item.cantidad_comprada * item.multiplicador)|round(2) }} {{ item.materia_prima.unidad_medida }}
+                                        {% else %}
+                                            {{ item.cantidad_comprada|round(2) }} {{ item.materia_prima.unidad_medida }}
+                                        {% endif %}
+                                        
+                                    {% elif item.tipo_item == 'presentacion' and item.presentacion %}
+                                        {% if item.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote'] %}
+                                            {{ (item.cantidad_comprada * item.multiplicador)|int }} Unidades
+                                        {% else %}
+                                            {{ item.cantidad_comprada|int }} Unidades
+                                        {% endif %}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
                                 </td>
+                                
                                 <td class="px-6 py-4 text-right text-gray-500 font-mono">$ {{ "%.2f"|format(item.precio_unitario) }}</td>
                                 <td class="px-6 py-4 text-right font-bold text-black border-l border-gray-100 font-mono">$ {{ "%.2f"|format(item.subtotal) }}</td>
                             </tr>
@@ -108,7 +142,6 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN DE NOTAS EDITABLE -->
             <form action="{{ url_for('compras.actualizar_notas', id=compra.id) }}" method="POST" class="bg-gray-50 rounded-lg p-6 border border-gray-100 shadow-inner">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 

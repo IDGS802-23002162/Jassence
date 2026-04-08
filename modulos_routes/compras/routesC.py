@@ -2,10 +2,50 @@ from . import compras_bp
 import os
 from werkzeug.utils import secure_filename
 from flask import render_template, request, redirect, url_for, flash, current_app, jsonify
-from models import db, Proveedor, Compra, DetalleCompra, MateriaPrima
+from models import db, Proveedor, Compra, DetalleCompra, MateriaPrima, Presentacion
 from datetime import datetime, timedelta
 from flask_security import current_user, roles_accepted
 
+# ==========================================
+# FUNCIÓN AUXILIAR: GESTIÓN DE STOCK
+# ==========================================
+def actualizar_stock_detalle(detalle, operacion='sumar'):
+    if detalle.tipo_item == 'materia':
+        mp = MateriaPrima.query.get(detalle.materia_prima_id)
+        if mp:
+            if detalle.unidad_compra == 'Litros':
+                cantidad_real = detalle.cantidad_comprada * 1000
+            elif detalle.unidad_compra == 'Galon Americano':
+                cantidad_real = detalle.cantidad_comprada * 3785.41
+            elif detalle.unidad_compra == 'Galon Imperial':
+                cantidad_real = detalle.cantidad_comprada * 4546.09
+            elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
+                cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
+            else:
+                cantidad_real = detalle.cantidad_comprada
+                
+            if operacion == 'sumar':
+                mp.cantidad_disponible += cantidad_real
+            elif operacion == 'restar':
+                mp.cantidad_disponible -= cantidad_real
+
+    elif detalle.tipo_item == 'presentacion':
+        pres = Presentacion.query.get(detalle.presentacion_id)
+        if pres:
+            if detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
+                cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
+            else:
+                cantidad_real = detalle.cantidad_comprada
+                
+            if operacion == 'sumar':
+                pres.stock_botes += int(cantidad_real)
+            elif operacion == 'restar':
+                pres.stock_botes -= int(cantidad_real)
+
+
+# ==========================================
+# GESTIÓN DE PROVEEDORES
+# ==========================================
 @compras_bp.route('/proveedores')
 @roles_accepted('admin','inventario') 
 def proveedores():
@@ -84,8 +124,10 @@ def baja_P(id):
         
     return redirect(url_for('compras.proveedores'))
 
-# //////////////////////////////////////////////////////////////
 
+# ==========================================
+# GESTIÓN DE COMPRAS E INVENTARIO
+# ==========================================
 @compras_bp.route('/compras')
 @roles_accepted('admin','inventario') 
 def compras():
@@ -97,24 +139,8 @@ def compras():
     for compra in compras_pendientes:
         if compra.fecha and ahora >= (compra.fecha + tiempo_espera):
             compra.estado = 'Recibido'
-            
             for detalle in compra.detalles:
-                mp = MateriaPrima.query.get(detalle.materia_prima_id)
-                if mp:
-                    # --- ACTUALIZADO CON GALONES ---
-                    if detalle.unidad_compra == 'Litros':
-                        cantidad_real = detalle.cantidad_comprada * 1000
-                    elif detalle.unidad_compra == 'Galon Americano':
-                        cantidad_real = detalle.cantidad_comprada * 3785.41
-                    elif detalle.unidad_compra == 'Galon Imperial':
-                        cantidad_real = detalle.cantidad_comprada * 4546.09
-                    elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
-                        cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
-                    else:
-                        cantidad_real = detalle.cantidad_comprada
-                        
-                    mp.cantidad_disponible += cantidad_real
-                    
+                actualizar_stock_detalle(detalle, operacion='sumar')
             hubo_cambios = True
 
     if hubo_cambios:
@@ -131,55 +157,17 @@ def detalle_C(id):
     return render_template('modulos_front/compras/detalle_C.html', compra=compra) 
 
 
-@compras_bp.route('/marcar_recibido/<int:id>', methods=['POST'])
-@roles_accepted('admin','inventario') 
-def marcar_recibido(id):
-    compra = Compra.query.get_or_404(id)
-    
-    if compra.estado == 'Pendiente':
-        try:
-            compra.estado = 'Recibido'
-            
-            for detalle in compra.detalles:
-                mp = MateriaPrima.query.get(detalle.materia_prima_id)
-                if mp:
-                    # --- ACTUALIZADO CON GALONES ---
-                    if detalle.unidad_compra == 'Litros':
-                        cantidad_real = detalle.cantidad_comprada * 1000
-                    elif detalle.unidad_compra == 'Galon Americano':
-                        cantidad_real = detalle.cantidad_comprada * 3785.41
-                    elif detalle.unidad_compra == 'Galon Imperial':
-                        cantidad_real = detalle.cantidad_comprada * 4546.09
-                    elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
-                        cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
-                    else:
-                        cantidad_real = detalle.cantidad_comprada
-                        
-                    mp.cantidad_disponible += cantidad_real
-                    
-            db.session.commit()
-            flash('¡Mercancía recibida físicamente! El stock ha sido sumado al inventario en sus unidades correctas.', 'success')
-            
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Ocurrió un error al procesar la entrada: {str(e)}', 'error')
-    else:
-        flash('Esta compra ya fue procesada anteriormente o está cancelada.', 'warning')
-        
-    return redirect(url_for('compras.compras'))
-
-
 @compras_bp.route('/registrar_C', methods=['GET', 'POST'])
 @roles_accepted('admin','inventario') 
 def registrar_C():
     if request.method == 'POST':
-        # 1. El TRY debe encapsular TODO el proceso desde la recolección de datos
         try:
             proveedor_id = request.form.get('proveedor_id')
             notas = request.form.get('notas', '')
             archivo = request.files.get('archivo_factura')
             
-            materias_ids = request.form.getlist('materia_prima_id[]')
+            # Recibimos items mixtos: MP_1 o PRES_2
+            items_ids = request.form.getlist('item_comprado[]') 
             cantidades = request.form.getlist('cantidad_comprada[]')
             unidades = request.form.getlist('unidad_compra[]')
             precios = request.form.getlist('precio_unitario[]')
@@ -201,15 +189,16 @@ def registrar_C():
             )
             
             db.session.add(nueva_compra)
-            db.session.flush() # Ahora este paso está protegido por el try
+            db.session.flush() 
 
             total_compra = 0
-            
-            # 2. Diccionario para prevenir el error de Llave Primaria Duplicada
             insumos_procesados = {}
 
-            for i in range(len(materias_ids)):
-                id_mp = materias_ids[i]
+            for i in range(len(items_ids)):
+                item_raw = items_ids[i] 
+                prefix, obj_id_str = item_raw.split('_')
+                obj_id = int(obj_id_str)
+
                 cant_comprada = float(cantidades[i]) 
                 prec = float(precios[i])
                 
@@ -220,27 +209,32 @@ def registrar_C():
                 sub = cant_comprada * prec 
                 total_compra += sub
 
-                # Si el insumo ya está en la lista de esta compra, sumamos las cantidades
-                if id_mp in insumos_procesados:
-                    insumos_procesados[id_mp].cantidad_comprada += cant_comprada
-                    insumos_procesados[id_mp].subtotal += sub
+                if item_raw in insumos_procesados:
+                    insumos_procesados[item_raw].cantidad_comprada += cant_comprada
+                    insumos_procesados[item_raw].subtotal += sub
                 else:
                     detalle = DetalleCompra(
                         compra_id=nueva_compra.id,
-                        materia_prima_id=id_mp,
                         cantidad_comprada=cant_comprada,
                         unidad_compra=unidades[i],
                         precio_unitario=prec,
                         subtotal=sub,
                         multiplicador=mult
                     )
-                    insumos_procesados[id_mp] = detalle
+                    
+                    if prefix == 'MP':
+                        detalle.materia_prima_id = obj_id
+                        detalle.tipo_item = 'materia'
+                    elif prefix == 'PRES':
+                        detalle.presentacion_id = obj_id
+                        detalle.tipo_item = 'presentacion'
+
+                    insumos_procesados[item_raw] = detalle
                     db.session.add(detalle)
 
             nueva_compra.total = total_compra
-            
             db.session.commit()
-            flash('¡Compra registrada como PENDIENTE! El stock entrará cuando llegue el camión. UwU', 'success')
+            flash('¡Compra registrada como PENDIENTE! El stock entrará cuando llegue el camión.', 'success')
             return redirect(url_for('compras.compras'))
             
         except Exception as e:
@@ -249,9 +243,34 @@ def registrar_C():
 
     proveedores = Proveedor.query.filter_by(activo=True).all()
     materias = MateriaPrima.query.all()
+    presentaciones = Presentacion.query.all()
+    
     return render_template('modulos_front/compras/registrar_C.html', 
                            proveedores=proveedores, 
-                           materias_primas=materias)
+                           materias_primas=materias,
+                           presentaciones=presentaciones)
+
+
+@compras_bp.route('/marcar_recibido/<int:id>', methods=['POST'])
+@roles_accepted('admin','inventario') 
+def marcar_recibido(id):
+    compra = Compra.query.get_or_404(id)
+    
+    if compra.estado == 'Pendiente':
+        try:
+            compra.estado = 'Recibido'
+            for detalle in compra.detalles:
+                actualizar_stock_detalle(detalle, operacion='sumar')
+                
+            db.session.commit()
+            flash('¡Mercancía recibida físicamente! El stock ha sido sumado a sus respectivos inventarios.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ocurrió un error al procesar la entrada: {str(e)}', 'error')
+    else:
+        flash('Esta compra ya fue procesada anteriormente o está cancelada.', 'warning')
+        
+    return redirect(url_for('compras.compras'))
 
 
 @compras_bp.route('/cancelar_compra/<int:id>', methods=['POST'])
@@ -266,21 +285,7 @@ def cancelar_C(id):
             
             if estado_anterior == 'Recibido':
                 for detalle in compra.detalles:
-                    mp = MateriaPrima.query.get(detalle.materia_prima_id)
-                    if mp:
-                        # --- ACTUALIZADO CON GALONES ---
-                        if detalle.unidad_compra == 'Litros':
-                            cantidad_real = detalle.cantidad_comprada * 1000
-                        elif detalle.unidad_compra == 'Galon Americano':
-                            cantidad_real = detalle.cantidad_comprada * 3785.41
-                        elif detalle.unidad_compra == 'Galon Imperial':
-                            cantidad_real = detalle.cantidad_comprada * 4546.09
-                        elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
-                            cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
-                        else:
-                            cantidad_real = detalle.cantidad_comprada
-                            
-                        mp.cantidad_disponible -= cantidad_real
+                    actualizar_stock_detalle(detalle, operacion='restar')
                         
             db.session.commit()
             flash('Compra anulada correctamente. Inventario ajustado.', 'success')
@@ -316,6 +321,7 @@ def agregar_materia_rapida():
         'unidad_medida': nueva_materia.unidad_medida
     })
 
+
 @compras_bp.route('/actualizar_notas/<int:id>', methods=['POST'])
 @roles_accepted('admin','inventario') 
 def actualizar_notas(id):
@@ -337,14 +343,12 @@ def actualizar_notas(id):
         
     return redirect(url_for('compras.detalle_C', id=compra.id))
 
-# ///////////////////////////////////////////////////////////////////
 
 @compras_bp.route('/historial_PC')
 @roles_accepted('admin','inventario') 
 def historial_PC():
     ahora = datetime.utcnow()
     tiempo_espera = timedelta(hours=1) 
-    
     pendientes = Compra.query.filter_by(estado='Pendiente').all()
     hubo_cambios = False
 
@@ -352,21 +356,7 @@ def historial_PC():
         if compra.fecha and ahora >= (compra.fecha + tiempo_espera):
             compra.estado = 'Recibido'
             for detalle in compra.detalles:
-                mp = MateriaPrima.query.get(detalle.materia_prima_id)
-                if mp:
-                    # --- ACTUALIZADO CON GALONES ---
-                    if detalle.unidad_compra == 'Litros':
-                        cantidad_real = detalle.cantidad_comprada * 1000
-                    elif detalle.unidad_compra == 'Galon Americano':
-                        cantidad_real = detalle.cantidad_comprada * 3785.41
-                    elif detalle.unidad_compra == 'Galon Imperial':
-                        cantidad_real = detalle.cantidad_comprada * 4546.09
-                    elif detalle.unidad_compra in ['Cajas', 'Caja', 'Lotes', 'Lote']:
-                        cantidad_real = detalle.cantidad_comprada * detalle.multiplicador
-                    else:
-                        cantidad_real = detalle.cantidad_comprada
-                        
-                    mp.cantidad_disponible += cantidad_real
+                actualizar_stock_detalle(detalle, operacion='sumar')
             hubo_cambios = True
 
     if hubo_cambios:
