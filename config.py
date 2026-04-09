@@ -69,6 +69,15 @@ class Config(object):
     SECURITY_FORGOT_PASSWORD_TEMPLATE = 'modulos_front/seguridad/olvidar_password.html'
     SECURITY_RESET_PASSWORD_TEMPLATE = 'modulos_front/seguridad/resetear_password.html'
 
+    
+    # ==========================================
+    # CONFIGURACIÓN DE TIMEOUT - APP.PY
+    # ==========================================
+    PERMANENT_SESSION_LIFETIME = 31536000 
+    SESSION_REFRESH_EACH_REQUEST = True
+    SECURITY_RECOV_REMEMBER_ME = True 
+    SECURITY_REMEMBER_SALT = '8f92b7c4e1a0d3f2b6e5d9c8a7b1f0e492d3c5b7a1f8e9d2c6b4a0f1e2d3c4b5' 
+
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://jassence_app:jassence_password_$@127.0.0.1/jassencebd'

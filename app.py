@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, session
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from flask_security import Security, SQLAlchemyUserDatastore
@@ -7,6 +7,7 @@ from flask_mailman import Mail
 from flask_security import auth_required, current_user, roles_required, roles_accepted
 from initRoles import inicializar_roles
 from flask import g
+from datetime import timedelta
 
 from models import db, Usuario, Rol
 
@@ -59,6 +60,29 @@ def index():
 @app.errorhandler(404)
 def page_not_found(e): 
     return render_template("404.html"), 404
+
+@app.errorhandler(403)
+def page_not_authorized(e):
+    if current_user.is_authenticated:
+        if current_user.has_role('empleado'):
+            flash("No tienes permisos para esta sección.", "error")
+            return redirect('/inicio')
+
+        elif current_user.has_role('cliente'):
+            flash("Acceso restringido.", "error")
+            return redirect('/')
+
+    return redirect('/')
+
+
+@app.before_request
+def handle_user_timeout():
+    if current_user.is_authenticated:
+        session.permanent = True 
+        if current_user.has_role('empleado'):
+            app.permanent_session_lifetime = timedelta(hours=2)
+        else:
+            app.permanent_session_lifetime = timedelta(days=365)
 
 if __name__ == '__main__':
     app.run()
