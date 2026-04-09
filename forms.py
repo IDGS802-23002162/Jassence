@@ -13,12 +13,6 @@ class CustomRegisterForm(RegisterForm):
         self.email.label.text = "Correo electrónico para Jassence"
         self.password.label.text = "Crea tu contraseña"
         self.password_confirm.label.text = "Confirma tu contraseña"
-        self.password.validators.append(
-            Regexp(
-                r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\.\-_])[A-Za-z\d@$!%*?&\.\-_]{8,}$',
-                message="Tu contraseña debe incluir al menos una mayúscula, una minúscula, un número y un carácter especial (@, $, !, %, *, ?, &, ., -, _)."
-            )
-        )
         # Personalizamos los mensajes de error o placeholders si quieres
         self.email.render_kw = {"placeholder": "ejemplo@correo.com"}
 
