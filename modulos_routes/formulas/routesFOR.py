@@ -2,6 +2,7 @@ from models import DetalleReceta, LogAuditoria, db, Receta, MateriaPrima, Presen
 from . import formulas_bp
 from flask import render_template, request, redirect, url_for, flash
 from flask_security import roles_accepted
+from sqlalchemy.exc import IntegrityError 
 
 
 # ==========================================
@@ -24,7 +25,7 @@ def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
 @formulas_bp.route('/explosion-materiales')
 @roles_accepted('admin' , 'produccion')
 def index_formulas():
-    recetas = Receta.query.all()
+    recetas = Receta.query.filter_by(activo=True).all()
 
     return render_template('modulos_front/formulas/formulas.html',
         titulo="Gestión de Fórmulas",
@@ -286,6 +287,46 @@ def modificar_formula(id):
                         tipo_componente=mp.tipo 
                     ))
 
+            # =======================================================
+            # 🔥 NUEVO: ACTUALIZACIÓN DE PRECIOS Y PRESENTACIONES 🔥
+            # =======================================================
+            todas_presentaciones = Presentacion.query.all()
+            for pres in todas_presentaciones:
+                precio_input = request.form.get(f'precio_presentacion_{pres.id}')
+                
+                # Buscamos si ya existía este producto terminado
+                producto_existente = ProductoTerminado.query.filter_by(receta_id=id, presentacion_id=pres.id).first()
+
+                if precio_input and precio_input.strip() != "":
+                    nuevo_precio = float(precio_input)
+                    if producto_existente:
+                        # Si ya existe, solo le actualizamos el precio
+                        producto_existente.precio_venta = nuevo_precio
+                        producto_existente.estado = 'Activo'
+                    else:
+                        # Si no existe, lo creamos
+                        nuevo_producto = ProductoTerminado(
+                            receta_id=id,
+                            presentacion_id=pres.id,
+                            precio_venta=nuevo_precio,
+                            stock_disponible_venta=0,
+                            stock_minimo=5,
+                            estado='Activo',
+                            stock_comprometido=0
+                        )
+                        db.session.add(nuevo_producto)
+                else:
+                    # Si dejaron el precio en blanco...
+                    if producto_existente:
+                        # Si no hay stock, podemos borrarlo limpiamente
+                        if producto_existente.stock_disponible_venta == 0 and producto_existente.stock_comprometido == 0:
+                            db.session.delete(producto_existente)
+                        else:
+                            # Si ya tienen inventario físico, no lo borramos (explotaría la BD),
+                            # mejor lo marcamos como inactivo para que ya no se venda.
+                            producto_existente.estado = 'Inactivo'
+            # =======================================================
+
             crear_log(
                 accion="UPDATE",
                 tabla="Recetas",
@@ -293,7 +334,7 @@ def modificar_formula(id):
                 detalle=f"Fórmula actualizada: {receta.nombre_perfume}"
             )
             db.session.commit()
-            flash("Fórmula actualizada correctamente", "success")
+            flash("Fórmula y precios actualizados correctamente", "success")
             return redirect(url_for('formulas.index_formulas'))
 
         except Exception as e:
@@ -335,31 +376,39 @@ def modificar_formula(id):
         detalles_dinamicos=detalles_dinamicos,
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
         alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
-        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
-    )       
+        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all(),
+        # 🔥 AQUÍ ESTÁ LA MAGIA QUE FALTABA PARA EL HTML 🔥
+        presentaciones=Presentacion.query.all()
+    )     
 
-# ==========================================
-# ELIMINAR (SEGURO)
-# ==========================================
+
 @formulas_bp.route('/formulas/eliminar/<int:id>', methods=['POST'])
 @roles_accepted('admin', 'produccion')
 def eliminar_formula(id):
     receta = Receta.query.get_or_404(id)
     nombre_borrado = receta.nombre_perfume
 
-    DetalleReceta.query.filter_by(receta_id=id).delete()
-    db.session.delete(receta)
+    try:
+        # ¡Magia! Solo la apagamos
+        receta.activo = False
+        
+        for producto in receta.productos_terminados:
+            producto.estado = 'Inactivo'
 
-    crear_log(
-        accion="DELETE",
-        tabla="Recetas",
-        registro_id=id,
-        detalle=f"Receta eliminada: {nombre_borrado} (ID: {id})"
-    )
+        # Guardamos el log para la auditoría
+        crear_log(
+            accion="DELETE_LOGICO",
+            tabla="Recetas",
+            registro_id=id,
+            detalle=f"Fórmula inhabilitada (Baja Lógica): {nombre_borrado} (ID: {id})"
+        )
 
-    db.session.commit()
+        db.session.commit()
+        flash("Fórmula eliminada correctamente del catálogo.", "success")
 
-    flash("Fórmula eliminada", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Ocurrió un error inesperado al intentar eliminar: {str(e)}", "error")
+
     return redirect(url_for('formulas.index_formulas'))
-
     
