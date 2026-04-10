@@ -115,7 +115,7 @@
                         <select id="select-perfume-{{ receta.id }}" class="flex-1 bg-gray-50 border-gray-200 text-gray-900 text-xs rounded-md focus:ring-black focus:border-black block p-2">
                             {% for producto in receta.productos_terminados %}
                                 {% if producto.stock_disponible_venta > 0 %}
-                                    <option value="{{ producto.id }}" data-nombre="{{ receta.nombre_perfume }} {{ producto.presentacion.mililitros }}ml" data-precio="{{ producto.precio_venta }}">
+                                    <option value="{{ producto.id }}" data-nombre="{{ receta.nombre_perfume }} {{ producto.presentacion.mililitros }}ml" data-precio="{{ producto.precio_venta }}" data-stock="{{ producto.stock_disponible_venta }}">
                                         {{ producto.presentacion.mililitros }} ml - $ {{ "%.2f"|format(producto.precio_venta) }}
                                     </option>
                                 {% endif %}
@@ -349,33 +349,40 @@
     let carrito = [];
 
     function agregarAlCarrito(recetaId) {
-        const select = document.getElementById(`select-perfume-${recetaId}`);
-        
-        if (!select || select.options.length === 0) return;
+    const select = document.getElementById(`select-perfume-${recetaId}`);
+    
+    if (!select || select.options.length === 0) return;
 
-        const opcion = select.options[select.selectedIndex];
-        const productoTerminadoId = opcion.value;
-        const nombre = opcion.getAttribute('data-nombre');
-        const precio = parseFloat(opcion.getAttribute('data-precio'));
+    const opcion = select.options[select.selectedIndex];
+    const productoTerminadoId = opcion.value;
+    const nombre = opcion.getAttribute('data-nombre');
+    const precio = parseFloat(opcion.getAttribute('data-precio'));
+    const stockMaximo = parseInt(opcion.getAttribute('data-stock')); // Obtenemos el stock
 
-        const itemExistente = carrito.find(item => item.productoId === productoTerminadoId);
+    const itemExistente = carrito.find(item => item.productoId === productoTerminadoId);
 
-        if (itemExistente) {
+    if (itemExistente) {
+        // VALIDACIÓN: No permitir más del stock disponible al intentar agregar de nuevo
+        if (itemExistente.cantidad < stockMaximo) {
             itemExistente.cantidad += 1;
             itemExistente.subtotal = itemExistente.cantidad * itemExistente.precio;
         } else {
-            carrito.push({
-                productoId: productoTerminadoId,
-                nombre: nombre,
-                precio: precio,
-                cantidad: 1,
-                subtotal: precio
-            });
+            alert(`No hay más stock disponible para ${nombre}. Máximo: ${stockMaximo}`);
+            return;
         }
-
-        // Refrescamos la vista
-        actualizarCarritoUI();
+    } else {
+        carrito.push({
+            productoId: productoTerminadoId,
+            nombre: nombre,
+            precio: precio,
+            cantidad: 1,
+            subtotal: precio,
+            stockMaximo: stockMaximo // Guardamos el stock en el objeto del carrito
+        });
     }
+
+    actualizarCarritoUI();
+}
 
     function actualizarCarritoUI() {
         const tbody = document.getElementById('carrito-body');
@@ -426,15 +433,25 @@
     }
 
     // Funciones auxiliares para los botones de + / - / Eliminar
-    function cambiarCantidad(index, cantidadASumar) {
-        carrito[index].cantidad += cantidadASumar;
-        if (carrito[index].cantidad <= 0) {
-            eliminarDelCarrito(index);
-        } else {
-            carrito[index].subtotal = carrito[index].cantidad * carrito[index].precio;
-            actualizarCarritoUI();
-        }
+   function cambiarCantidad(index, cantidadASumar) {
+    const item = carrito[index];
+    const nuevaCantidad = item.cantidad + cantidadASumar;
+
+    // VALIDACIÓN: Límite superior (Stock)
+    if (cantidadASumar > 0 && nuevaCantidad > item.stockMaximo) {
+        notificar(`Límite alcanzado: Solo hay ${item.stockMaximo} en stock`, 'error');
+        return;
     }
+
+    // Límite inferior (Eliminar si es 0)
+    if (nuevaCantidad <= 0) {
+        eliminarDelCarrito(index);
+    } else {
+        item.cantidad = nuevaCantidad;
+        item.subtotal = item.cantidad * item.precio;
+        actualizarCarritoUI();
+    }
+}
 
     function eliminarDelCarrito(index) {
         carrito.splice(index, 1);
