@@ -25,7 +25,7 @@ def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
 @formulas_bp.route('/explosion-materiales')
 @roles_accepted('admin' , 'produccion')
 def index_formulas():
-    recetas = Receta.query.filter_by(activo=True).all()
+    recetas = Receta.query.all()
 
     return render_template('modulos_front/formulas/formulas.html',
         titulo="Gestión de Fórmulas",
@@ -363,6 +363,7 @@ def modificar_formula(id):
     esencia_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='esencia'), None)
     alcohol_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='alcohol'), None)
     fijador_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='fijador'), None)
+    precios_actuales = {prod.presentacion_id: prod.precio_venta for prod in receta.productos_terminados}
 
     return render_template(
         'modulos_front/formulas/modificar.html',
@@ -377,38 +378,54 @@ def modificar_formula(id):
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
         alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
         fijadores=MateriaPrima.query.filter_by(tipo='fijador').all(),
-        # 🔥 AQUÍ ESTÁ LA MAGIA QUE FALTABA PARA EL HTML 🔥
-        presentaciones=Presentacion.query.all()
+        presentaciones=Presentacion.query.all(),
+        precios_actuales=precios_actuales
     )     
 
 
-@formulas_bp.route('/formulas/eliminar/<int:id>', methods=['POST'])
+# ==========================================
+# ACTIVAR / DESACTIVAR FÓRMULA (BAJA LÓGICA)
+# ==========================================
+@formulas_bp.route('/formulas/toggle_estado/<int:id>', methods=['POST'])
 @roles_accepted('admin', 'produccion')
-def eliminar_formula(id):
+def toggle_estado_formula(id):
     receta = Receta.query.get_or_404(id)
-    nombre_borrado = receta.nombre_perfume
+    nombre_perfume = receta.nombre_perfume
 
     try:
-        # ¡Magia! Solo la apagamos
-        receta.activo = False
-        
-        for producto in receta.productos_terminados:
-            producto.estado = 'Inactivo'
+        if receta.activo:
+            # Si está activa -> LA DESACTIVAMOS
+            receta.activo = False
+            for producto in receta.productos_terminados:
+                producto.estado = 'Inactivo'
+                
+            accion_log = "DESACTIVAR"
+            detalle_log = f"Fórmula inhabilitada (Baja Lógica): {nombre_perfume} (ID: {id})"
+            mensaje_flash = "Fórmula desactivada correctamente."
+        else:
+            # Si está inactiva -> LA REACTIVAMOS
+            receta.activo = True
+            for producto in receta.productos_terminados:
+                producto.estado = 'Activo'
+                
+            accion_log = "REACTIVAR"
+            detalle_log = f"Fórmula reactivada: {nombre_perfume} (ID: {id})"
+            mensaje_flash = "Fórmula reactivada y lista para usarse."
 
         # Guardamos el log para la auditoría
         crear_log(
-            accion="DELETE_LOGICO",
+            accion=accion_log,
             tabla="Recetas",
             registro_id=id,
-            detalle=f"Fórmula inhabilitada (Baja Lógica): {nombre_borrado} (ID: {id})"
+            detalle=detalle_log
         )
 
         db.session.commit()
-        flash("Fórmula eliminada correctamente del catálogo.", "success")
+        flash(mensaje_flash, "success")
 
     except Exception as e:
         db.session.rollback()
-        flash(f"Ocurrió un error inesperado al intentar eliminar: {str(e)}", "error")
+        flash(f"Ocurrió un error inesperado al cambiar el estado: {str(e)}", "error")
 
     return redirect(url_for('formulas.index_formulas'))
     

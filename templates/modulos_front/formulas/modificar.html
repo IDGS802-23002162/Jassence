@@ -153,19 +153,11 @@
             <!-- ========================================== -->
             <!-- SECCIÓN DE PRECIOS -->
             <!-- ========================================== -->
-            <div class="pt-4 mt-8 border-t border-gray-100">
-                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 pt-6">Fijación de Precios por Presentación</h2>
-                <p class="text-xs text-gray-500 mb-4">Modifica el precio de venta. Si borras el precio de una presentación, el producto se inhabilitará para ese tamaño.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {% for pres in presentaciones %}
                     
-                    {% set precio_actual = '' %}
-                    {% for prod in receta.productos_terminados %}
-                        {% if prod.presentacion_id == pres.id %}
-                            {% set precio_actual = prod.precio_venta %}
-                        {% endif %}
-                    {% endfor %}
+                    <!-- Magia: Buscamos el precio en el diccionario, si no existe ponemos vacío '' -->
+                    {% set precio_actual = precios_actuales.get(pres.id, '') %}
 
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col justify-between transition-all hover:border-black group">
                         <label class="text-[11px] text-gray-600 uppercase font-bold mb-3 block">
@@ -180,7 +172,6 @@
                     </div>
                     {% endfor %}
                 </div>
-            </div>
             <!-- ========================================== -->
 
             <div class="flex justify-end gap-4 pt-6 mt-8 border-t border-gray-100">

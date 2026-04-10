@@ -3,55 +3,61 @@
 {% block title %}Corte de Caja{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fade-in flex flex-col h-[calc(100vh-5rem)]">
     
-    <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-8 border-b border-gray-300 pb-4 gap-6">
-        <h1 class="font-elegant text-6xl text-black cursor-default">Corte de Caja</h1>
+    <div class="flex items-center justify-between mb-6 border-b border-gray-300 pb-3">
+        <h1 class="font-elegant text-4xl text-black cursor-default">Corte de Caja</h1>
     </div>
 
-    <form action="{{ url_for('finanzas.corte_caja') }}" method="POST">
+    <!-- El form ahora se expande para llenar el alto disponible -->
+    <form action="{{ url_for('finanzas.corte_caja') }}" method="POST" class="flex flex-col flex-grow min-h-0">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <label class="block mb-3 text-sm font-medium text-gray-800">Apertura</label>
-                <input type="number" name="apertura" value="{{ apertura }}" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm" required>
+        
+        <!-- SECCIÓN 1: RESUMEN GENERAL (Con más respiración) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-2 text-xs font-bold text-gray-800 uppercase tracking-wider">Apertura</label>
+                <!-- 🔥 AQUÍ ESTÁ EL CAMBIO: Bloqueado (readonly) y con fondo gris -->
+                <input type="number" name="apertura" value="{{ apertura }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-2 text-sm text-gray-600 focus:ring-0 cursor-not-allowed" readonly>
             </div>
             
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <label class="block mb-3 text-sm font-medium text-gray-800">Ventas Totales</label>
-                <input type="number" name="ventas_totales" value="{{ ventas_totales }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly disabled>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-2 text-xs font-bold text-gray-800 uppercase tracking-wider">Ventas Totales</label>
+                <input type="number" name="ventas_totales" value="{{ ventas_totales }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-2 text-sm text-gray-600 cursor-not-allowed" readonly disabled>
             </div>
             
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <label class="block mb-3 text-sm font-medium text-gray-800">Egresos/Gastos</label>
-                <input type="number" name="egresos" value="{{ egresos_gastos }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-2 text-xs font-bold text-gray-800 uppercase tracking-wider">Egresos/Gastos</label>
+                <input type="number" name="egresos" value="{{ egresos_gastos }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-2 text-sm text-gray-600 cursor-not-allowed" readonly>
             </div>
             
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <label class="block mb-3 text-sm font-medium text-gray-800">Utilidad Neta Diaria</label>
-                <input type="number" name="utilidad" value="{{ utilidad_neta }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="block mb-2 text-xs font-bold text-gray-800 uppercase tracking-wider">Utilidad Neta</label>
+                <input type="number" name="utilidad" value="{{ utilidad_neta }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-2 text-sm text-gray-600 font-bold cursor-not-allowed" readonly>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 items-stretch">
+        <!-- SECCIÓN 2: TABLAS (Más espacio entre ellas) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 flex-1 min-h-0">
             
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
-                <h3 class="text-xl font-medium text-gray-800 mb-6">Ingresos</h3>
-                <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark flex-grow">
-                    <table class="w-full text-sm text-left text-gray-300">
-                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+            <!-- Tabla Ingresos -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                <h3 class="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">Desglose de Ingresos</h3>
+                <div class="relative overflow-y-auto shadow-sm rounded-lg border border-table-dark flex-grow">
+                    <table class="w-full text-xs text-left text-gray-300">
+                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A] sticky top-0">
                             <tr>
-                                <th scope="col" class="px-6 py-4">Metodo de Pago</th>
-                                <th scope="col" class="px-6 py-4 text-center">Transacciones</th>
-                                <th scope="col" class="px-6 py-4 text-center">Total</th>
+                                <th scope="col" class="px-4 py-3">Método</th>
+                                <th scope="col" class="px-4 py-3 text-center">Trans.</th>
+                                <th scope="col" class="px-4 py-3 text-right">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for metodo, info in ingresos.items() %}
                             <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">{{ metodo }}</td>
-                                <td class="px-6 py-4 text-center">{{ info.transacciones }}</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ {{ "{:,.2f}".format(info.total) }}</td>
+                                <td class="px-4 py-2.5">{{ metodo }}</td>
+                                <td class="px-4 py-2.5 text-center">{{ info.transacciones }}</td>
+                                <td class="px-4 py-2.5 text-right text-white font-bold">$ {{ "{:,.2f}".format(info.total) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -59,23 +65,24 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
-                <h3 class="text-xl font-medium text-gray-800 mb-6">Egresos</h3>
-                <div class="relative overflow-x-auto shadow-xl rounded-lg border border-table-dark flex-grow">
-                    <table class="w-full text-sm text-left text-gray-300">
-                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+            <!-- Tabla Egresos -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                <h3 class="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">Desglose de Egresos</h3>
+                <div class="relative overflow-y-auto shadow-sm rounded-lg border border-table-dark flex-grow">
+                    <table class="w-full text-xs text-left text-gray-300">
+                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A] sticky top-0">
                             <tr>
-                                <th scope="col" class="px-6 py-4">Categoria</th>
-                                <th scope="col" class="px-6 py-4 text-center">Cantidad</th>
-                                <th scope="col" class="px-6 py-4 text-center">Total</th>
+                                <th scope="col" class="px-4 py-3">Categoría</th>
+                                <th scope="col" class="px-4 py-3 text-center">Cant.</th>
+                                <th scope="col" class="px-4 py-3 text-right">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for e in egresos %}
                             <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                                <td class="px-6 py-4">{{ e.categoria }}</td>
-                                <td class="px-6 py-4 text-center">{{ e.cantidad }}</td>
-                                <td class="px-6 py-4 text-center text-white font-bold">$ {{ "{:,.2f}".format(e.total) }}</td>
+                                <td class="px-4 py-2.5">{{ e.categoria }}</td>
+                                <td class="px-4 py-2.5 text-center">{{ e.cantidad }}</td>
+                                <td class="px-4 py-2.5 text-right text-white font-bold">$ {{ "{:,.2f}".format(e.total) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -85,34 +92,38 @@
 
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <label class="block mb-3 text-sm font-medium text-gray-800">Efectivo Esperado</label>
-                <input type="number" id="efectivo_esperado" name="efectivo_esperado" value="{{ efectivo_esperado }}" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-md border-2 border-black"> 
-                <label class="block mb-3 text-sm font-bold text-black">Efectivo Real</label>
-                <input type="number" step="0.01" id="efectivo_real" name="efectivo_real" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm font-bold" required oninput="calcularDiferencia()">
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <label class="block mb-3 text-sm font-medium text-gray-800">Diferencia</label>
-                <input type="number" id="diferencia" name="diferencia" value="0" class="w-full bg-[#F9F9F9] border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm text-gray-600" readonly>
-            </div>
-        </div>
+        <!-- SECCIÓN 3: CONTROL DE EFECTIVO Y CIERRE -->
+        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 mt-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                
+                <div>
+                    <label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Efectivo Esperado</label>
+                    <input type="number" id="efectivo_esperado" name="efectivo_esperado" value="{{ efectivo_esperado }}" class="w-full bg-[#E5E7EB] border border-gray-300 rounded-lg p-2.5 text-sm text-gray-600 font-mono cursor-not-allowed" readonly>
+                </div>
+                
+                <div>
+                    <label class="block mb-2 text-xs font-bold text-black uppercase">Efectivo Real (Caja)</label>
+                    <input type="number" step="0.01" id="efectivo_real" name="efectivo_real" class="w-full bg-white border-2 border-black rounded-lg p-2.5 text-sm font-bold font-mono focus:ring-0 shadow-sm" required oninput="calcularDiferencia()">
+                </div>
+                
+                <div>
+                    <label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Diferencia</label>
+                    <input type="number" id="diferencia" name="diferencia" value="0" class="w-full bg-[#E5E7EB] border border-gray-300 rounded-lg p-2.5 text-sm text-gray-600 font-mono cursor-not-allowed" readonly>
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-200 mt-8">
-            <div class="md:col-start-2">
-                {% if sin_caja %}
-                    <button type="button" disabled class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg shadow-md cursor-not-allowed">
-                        No hay caja abierta
-                    </button>
-                {% else %}
-                    <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md">
-                        Cerrar Caja
-                    </button>
-                {% endif %}
+                <!-- Botón alineado a la derecha -->
+                <div>
+                    {% if sin_caja %}
+                        <button type="button" disabled class="w-full bg-gray-300 text-gray-500 py-3 rounded-lg text-sm font-bold cursor-not-allowed uppercase tracking-wider">
+                            Caja Cerrada
+                        </button>
+                    {% else %}
+                        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors shadow-md text-sm font-bold uppercase tracking-wider">
+                            Cerrar Caja
+                        </button>
+                    {% endif %}
+                </div>
+
             </div>
         </div>
 
@@ -120,12 +131,25 @@
 </div>
 
 <script>
-// Pequeño script para que la diferencia se vea en tiempo real sin perder tus estilos
 function calcularDiferencia() {
     const esperado = parseFloat(document.getElementById('efectivo_esperado').value) || 0;
     const real = parseFloat(document.getElementById('efectivo_real').value) || 0;
     const diferencia = real - esperado;
-    document.getElementById('diferencia').value = diferencia.toFixed(2);
+    
+    const inputDiferencia = document.getElementById('diferencia');
+    inputDiferencia.value = diferencia.toFixed(2);
+    
+    // Poner rojo si falta dinero, verde si sobra
+    if(diferencia < 0) {
+        inputDiferencia.classList.remove('text-gray-600', 'text-green-600');
+        inputDiferencia.classList.add('text-red-600', 'font-bold');
+    } else if (diferencia > 0) {
+        inputDiferencia.classList.remove('text-gray-600', 'text-red-600');
+        inputDiferencia.classList.add('text-green-600', 'font-bold');
+    } else {
+        inputDiferencia.classList.remove('text-red-600', 'text-green-600', 'font-bold');
+        inputDiferencia.classList.add('text-gray-600');
+    }
 }
 </script>
 {% endblock %}
