@@ -46,6 +46,7 @@ def merma_Pmodel(id):
 
 
     cantidad = int(request.form['cantidad_perdida'])
+    motivo = request.form['motivo']
 
     if cantidad > producto.stock_disponible_venta:
         cantidad = producto.stock_disponible_venta
@@ -58,18 +59,22 @@ def merma_Pmodel(id):
         etapa=request.form['etapa'],
         cantidad_perdida=cantidad,
         unidad_medida="unidad",  # Ajusta si manejas otra lógica
-        motivo=request.form['motivo'],
+        motivo=motivo,
         descripcion=request.form['descripcion'],
         orden_produccion_id=request.form.get('orden_produccion_id')
     )
 
     db.session.add(nueva_merma)
+    db.session.flush()
+
+    nombre_perfume = producto.receta.nombre_perfume if producto.receta else "Producto Desconocido"
+    presentacion = f"{producto.presentacion.nombre} {producto.presentacion.mililitros}ml" if producto.presentacion else ""
 
     registrar_log(
-        accion="UPDATE",
-        tabla="MermaInventario",
-        registro_id=id,
-        detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
+        accion="MERMA",
+        tabla="merma_inventario(PRODUCTO)", 
+        registro_id=nueva_merma.id,
+        detalle=f"Merma en Almacén: -{cantidad} {nombre_perfume} {presentacion}. Razón: {motivo}"
     )
 
     db.session.commit()
@@ -140,6 +145,7 @@ def registrar_PM():
 
         producto = ProductoTerminado.query.get_or_404(item_id)
         cantidad = int(request.form.get('cantidad_perdida'))
+        motivo = request.form.get('motivo')
 
         if producto.stock_disponible_venta < cantidad:
             return "Cantidad de merma excede el stock disponible", 400
@@ -152,19 +158,23 @@ def registrar_PM():
             etapa=request.form.get('etapa'),
             cantidad_perdida=cantidad,
             unidad_medida="unidad",
-            motivo=request.form.get('motivo'),
+            motivo=motivo,
             descripcion=request.form.get('descripcion'),
             orden_produccion_id=request.form.get('orden_produccion_id')
         )
 
-        registrar_log(
-        accion="CREATE",
-        tabla="MermaInventario",
-        registro_id=id,
-        detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
-        )
-
         db.session.add(nueva_merma)
+        db.session.flush()
+
+        nombre_perfume = producto.receta.nombre_perfume if producto.receta else "Producto Desconocido"
+        presentacion = f"{producto.presentacion.nombre} {producto.presentacion.mililitros}ml" if producto.presentacion else ""
+
+        registrar_log(
+            accion="MERMA",
+            tabla="merma_inventario(PRODUCTO)",
+            registro_id=nueva_merma.id, # <--- Corregido: antes tenías 'id' que no existía aquí
+            detalle=f"Merma en Almacén: -{cantidad} {nombre_perfume} {presentacion}. Razón: {motivo}"
+        )
         db.session.commit()
 
         return redirect(url_for('inventarioP.inventario_PM'))

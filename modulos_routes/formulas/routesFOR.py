@@ -2,20 +2,8 @@ from models import DetalleReceta, LogAuditoria, db, Receta, MateriaPrima, Presen
 from . import formulas_bp
 from flask import render_template, request, redirect, url_for, flash
 from flask_security import roles_accepted
+from modulos_routes.auditoria.utils import registrar_log, generar_detalle_cambios_formula
 
-
-# ==========================================
-# LOG DE AUDITORÍA
-# ==========================================
-def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
-    log = LogAuditoria(
-        usuario_id=usuario_id,
-        accion=accion,
-        tabla_afectada=tabla,
-        registro_id=registro_id,
-        detalle=detalle
-    )
-    db.session.add(log)
 
 
 # ==========================================
@@ -139,7 +127,7 @@ def nueva_formula():
                     )
                     db.session.add(nuevo_producto)
 
-            crear_log(
+            registrar_log(
                 accion="CREATE",
                 tabla="Recetas",
                 registro_id=nueva.id,
@@ -286,7 +274,7 @@ def modificar_formula(id):
                         tipo_componente=mp.tipo 
                     ))
 
-            crear_log(
+            registrar_log(
                 accion="UPDATE",
                 tabla="Recetas",
                 registro_id=id,
@@ -350,7 +338,7 @@ def eliminar_formula(id):
     DetalleReceta.query.filter_by(receta_id=id).delete()
     db.session.delete(receta)
 
-    crear_log(
+    registrar_log(
         accion="DELETE",
         tabla="Recetas",
         registro_id=id,

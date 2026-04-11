@@ -7,7 +7,7 @@ from models import (
 from . import produccion_bp
 from datetime import datetime
 from sqlalchemy import text, desc, func
-
+from modulos_routes.auditoria.utils import registrar_log, generar_resumen_consumo_produccion, generar_detalle_entrada_producto
 from flask_security import current_user, roles_accepted
 
 # =========================================
@@ -273,12 +273,36 @@ def seguimiento_para_finalizar():
 
 @produccion_bp.route('/produccion/ordenes/finalizar/<int:id>', methods=['POST'])
 def finalizar(id):
+    orden = OrdenProduccion.query.get_or_404(id)
 
     try:
+        resumen_mp = generar_resumen_consumo_produccion(orden)
+        nombre_receta = orden.receta.nombre_perfume if orden.receta else "Desconocido"
+        cantidad_producida = orden.cantidad_producir or 0
+
         db.session.execute(
             text("CALL sp_finalizar_produccion(:id)"),
             {"id": id}
         )
+
+        # LOG 1: SALIDA de Materia Prima (Se hace siempre)
+        registrar_log(
+            accion="SALIDA",
+            tabla="materias_primas",
+            registro_id=id, 
+            detalle=f"Consumo por Orden #{id} ({cantidad_producida}x {nombre_receta}): [ {resumen_mp} ]"
+        )
+
+        # LOG 2: ENTRADA de Producto Terminado (EXCEPTO si tiene venta_id)
+        if not orden.venta_id:
+            detalle_entrada = generar_detalle_entrada_producto(orden)
+            
+            registrar_log(
+                accion="ENTRADA",
+                tabla="productos_terminados",
+                registro_id=orden.producto_terminado_id if orden.producto_terminado else id,
+                detalle=detalle_entrada
+            )
         db.session.commit()
 
         flash("Producción finalizada", "success")

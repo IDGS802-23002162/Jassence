@@ -5,6 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, current_ap
 from models import db, Proveedor, Compra, DetalleCompra, MateriaPrima, Presentacion
 from datetime import datetime, timedelta
 from flask_security import current_user, roles_accepted
+from modulos_routes.auditoria.utils import registrar_log
 
 # ==========================================
 # FUNCIÓN AUXILIAR: GESTIÓN DE STOCK
@@ -259,8 +260,22 @@ def marcar_recibido(id):
     if compra.estado == 'Pendiente':
         try:
             compra.estado = 'Recibido'
+            items_recibidos = []
+            
             for detalle in compra.detalles:
                 actualizar_stock_detalle(detalle, operacion='sumar')
+                nombre_mp = detalle.materia_prima.nombre if detalle.materia_prima else "Producto Desconocido"
+                cantidad = detalle.cantidad_comprada
+                items_recibidos.append(f"{cantidad} de {nombre_mp}")
+
+            resumen_entrada = ", ".join(items_recibidos)
+
+            registrar_log(
+                accion="ENTRADA",
+                tabla="materias_primas",  # Usa el nombre que elegiste en tu HTML para el filtro
+                registro_id=compra.id,
+                detalle=f"Entrada por compra #{compra.id}: [ {resumen_entrada} ]"
+            )
                 
             db.session.commit()
             flash('¡Mercancía recibida físicamente! El stock ha sido sumado a sus respectivos inventarios.', 'success')

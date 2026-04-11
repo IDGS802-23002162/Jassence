@@ -4,20 +4,7 @@ from . import invMP_bp
 from flask import render_template, request, redirect, url_for, flash
 from models import LogAuditoria, db, MermaInventario, MateriaPrima
 from flask_security import roles_accepted, current_user
-
-# ==========================================
-# GENERADO DE LOGS DE AUDITORÍA
-# ==========================================
-
-def crear_log(accion, tabla, registro_id, detalle, usuario_id=None):
-    log = LogAuditoria(
-        usuario_id=current_user.id,
-        accion=accion,
-        tabla_afectada=tabla,
-        registro_id=registro_id,
-        detalle=detalle
-    )
-    db.session.add(log)
+from modulos_routes.auditoria.utils import registrar_log
 
 # ==========================================
 # MÓDULO: INVENTARIO DE MATERIAS PRIMAS
@@ -73,11 +60,11 @@ def mermar_MP(id):
 
         db.session.add(nueva_merma)
 
-        crear_log(
-            "UPDATE",
-            "materias_primas",
-            id,
-            f"Merma registrada: {cantidad} {materia.unidad_medida} de {materia.nombre}"
+        registrar_log(
+            accion="MERMA",
+            tabla="merma_inventario(MP)",
+            registro_id=id,
+            detalle=f"Merma registrada: {cantidad} {materia.unidad_medida} de {materia.nombre}"
         )
 
         db.session.commit()
@@ -96,11 +83,11 @@ def eliminar_MP(id):
     nombre = materia.nombre 
 
     # IMPORTANTE: Antes de borrar, registramos el log
-    crear_log(
-        "DELETE",
-        "materias_primas",
-        id,
-        f"Se eliminó la materia prima: {nombre}"
+    registrar_log(
+        accion="DELETE",
+        tabla="materias_primas",
+        registro_id=id,
+        detalle=f"Se eliminó la materia prima: {nombre}"
     )
 
     db.session.delete(materia)
@@ -157,11 +144,11 @@ def registrar_merma_mp():
 
             db.session.add(nueva_merma)
 
-            crear_log(
-                "UPDATE",
-                "materias_primas",
-                materia.id,
-                f"Merma de {cantidad} {materia.unidad_medida} a {materia.nombre}"
+            registrar_log(
+                accion="MERMA",
+                tabla="merma_inventario(MP)",
+                registro_id=materia.id,
+                detalle=f"Merma de {cantidad} {materia.unidad_medida} a {materia.nombre}"
             )
 
             db.session.commit()

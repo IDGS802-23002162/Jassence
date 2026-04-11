@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from models import db, Receta, ProductoTerminado, MermaInventario, DetalleVenta, Venta, POSSesion, EgresoCaja
 import json
 from flask_security import current_user, roles_accepted
-
+from modulos_routes.auditoria.utils import registrar_log
 pos_bp = Blueprint('pos', __name__)
 
 
@@ -109,6 +109,7 @@ def ticket_pos():
             db.session.add(nueva_venta)
             db.session.flush() 
 
+            resumen_venta = []
             # (El resto del código del carrito (for item in carrito...) se queda exactamente IGUAL que como lo tenías)
             for item in carrito:
                 producto_id = int(item['productoId'])
@@ -127,10 +128,22 @@ def ticket_pos():
                         precio_unitario=precio_unitario
                     )
                     db.session.add(detalle)
+
+                    nombre_perfume = producto.receta.nombre_perfume if producto.receta else item['nombre']
+                    presentacion = f"{producto.presentacion.nombre} {producto.presentacion.mililitros}ml" if producto.presentacion else ""
+                    resumen_venta.append(f"{cantidad_vendida}x {nombre_perfume} {presentacion}")
                 else:
                     db.session.rollback()
                     flash(f'Error: Stock insuficiente para {item["nombre"]}.', 'error')
                     return redirect(url_for('pos.pos'))
+
+            texto_resumen = ", ".join(resumen_venta)
+            registrar_log(
+                accion="SALIDA",
+                tabla="productos_terminados",
+                registro_id=nueva_venta.id,
+                detalle=f"Venta mostrador #{nueva_venta.id}: [ {texto_resumen} ]"
+            )
 
             db.session.commit()
             
@@ -171,6 +184,19 @@ def registrar_merma_pos():
             )
             
             db.session.add(nueva_merma)
+            db.session.flush() # Flush para obtener el ID de nueva_merma
+            
+            # 3. REGISTRO DE BITÁCORA: MERMA
+            nombre_perfume = producto.receta.nombre_perfume if producto.receta else "Producto Desconocido"
+            presentacion = f"{producto.presentacion.nombre} {producto.presentacion.mililitros}ml" if producto.presentacion else ""
+            
+            registrar_log(
+                accion="MERMA",
+                tabla="merma_inventario",
+                registro_id=nueva_merma.id,
+                detalle=f"Merma en Mostrador: -{cantidad} {nombre_perfume} {presentacion}. Razón: {motivo}"
+            )
+            
             db.session.commit()
             
             flash('Incidente registrado. El stock ha sido actualizado.', 'success')
