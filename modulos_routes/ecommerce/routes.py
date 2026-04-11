@@ -12,12 +12,13 @@ ecommerce_bp=Blueprint('ecommerce',__name__)
 
 @ecommerce_bp.route("/", methods=["GET", "POST"])
 def ecommerce():
-    recetas = Receta.query.all()
+    recetas = Receta.query.filter_by(activo='1').all()
     nuevas = recetas[-4:] if len(recetas) >= 4 else recetas
 
     vendidos = db.session.query(Receta)\
         .join(ProductoTerminado)\
         .join(DetalleVenta)\
+        .filter(Receta.activo == '1')\
         .group_by(Receta.id)\
         .order_by(func.sum(DetalleVenta.cantidad).desc())\
         .limit(4).all()

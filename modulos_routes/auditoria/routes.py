@@ -91,7 +91,7 @@ def formulas():
 
     stats = {
         'formulas_creadas': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='CREATE').count(),
-        'formulas_eliminadas': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='DELETE_LOGICO').count(),
+        'formulas_eliminadas': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='DELETE').count(),
         'modificaciones': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='UPDATE').count(),
             
     }

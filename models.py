@@ -194,6 +194,7 @@ class Receta(db.Model):
     familia_olfativa = db.Column(db.String(50))
 
     productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
+    activo = db.Column(db.Boolean, default=True)
 
     detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
 

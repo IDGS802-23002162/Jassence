@@ -3,6 +3,7 @@ from . import formulas_bp
 from flask import render_template, request, redirect, url_for, flash
 from flask_security import roles_accepted
 from modulos_routes.auditoria.utils import registrar_log, generar_detalle_cambios_formula
+from sqlalchemy.exc import IntegrityError 
 
 
 
@@ -129,7 +130,7 @@ def nueva_formula():
 
             registrar_log(
                 accion="CREATE",
-                tabla="Recetas",
+                tabla="recetas",
                 registro_id=nueva.id,
                 detalle=f"Nueva fórmula creada: {nombre}"
             )
@@ -191,15 +192,21 @@ def modificar_formula(id):
     detalles = DetalleReceta.query.filter_by(receta_id=id).all()
 
     if request.method == 'POST':
-        receta.nombre_perfume = request.form.get('nombre_perfume')
-        receta.inspiracion = request.form.get('inspiracion')
-        receta.descripcion = request.form.get('descripcion')
-        receta.genero = request.form.get('genero')
-        receta.ocasion = request.form.get('ocasion')
-        receta.familia_olfativa = request.form.get('familia_olfativa')
+        # 🔥 LOG DINÁMICO: Inicializar lista de cambios y comparar campos generales
+        cambios = []
+        campos_texto = ['nombre_perfume', 'inspiracion', 'descripcion', 'genero', 'ocasion', 'familia_olfativa']
+        
+        for campo in campos_texto:
+            valor_viejo = str(getattr(receta, campo) or '').strip()
+            valor_nuevo = str(request.form.get(campo) or '').strip()
+            
+            if valor_viejo != valor_nuevo:
+                cambios.append(f"{campo.replace('_', ' ').capitalize()}: '{valor_viejo}' -> '{valor_nuevo}'")
+            
+            setattr(receta, campo, request.form.get(campo))
 
         try:
-            # 🔥 IMAGEN
+            # IMAGEN
             file = request.files.get('imagen')  
             if file and file.filename.strip() != "":
                 from werkzeug.utils import secure_filename
@@ -213,6 +220,7 @@ def modificar_formula(id):
                 try:
                     file.save(ruta)
                     receta.imagen_url = filename
+                    cambios.append("Imagen actualizada") # 🔥 LOG DINÁMICO
                     print(f"[INFO] Imagen guardada correctamente en: {ruta}")
                 except Exception as e:
                     flash(f"Error al guardar imagen: {str(e)}", "error")
@@ -246,6 +254,25 @@ def modificar_formula(id):
                 flash(f"Error: La suma es {suma_total}%. Debe ser 100%.", "error")
                 return redirect(url_for('formulas.modificar_formula', id=id))
 
+            # 🔥 LOG DINÁMICO: Comparar Ingredientes (Detalles) antes de borrarlos
+            detalles_viejos = {d.materia_prima_id: d.porcentaje for d in detalles}
+            
+            detalles_nuevos = {}
+            if esencia_id: detalles_nuevos[esencia_id] = esencia_base
+            if alcohol_id: detalles_nuevos[alcohol_id] = alcohol
+            if fijador_id: detalles_nuevos[fijador_id] = fijador
+            for ex in extras_lista: detalles_nuevos[ex['id']] = ex['porcentaje']
+
+            for mp_id, porc_nuevo in detalles_nuevos.items():
+                if mp_id not in detalles_viejos:
+                    cambios.append(f"Agregó MP {mp_id} ({porc_nuevo}%)")
+                elif float(detalles_viejos[mp_id]) != float(porc_nuevo):
+                    cambios.append(f"Modificó % MP {mp_id}: {detalles_viejos[mp_id]}% -> {porc_nuevo}%")
+            
+            for mp_id in detalles_viejos:
+                if mp_id not in detalles_nuevos:
+                    cambios.append(f"Eliminó MP {mp_id}")
+
             # Eliminar detalles existentes
             DetalleReceta.query.filter_by(receta_id=id).delete()
 
@@ -274,14 +301,40 @@ def modificar_formula(id):
                         tipo_componente=mp.tipo 
                     ))
 
+            # =======================================================
+            # 🔥 ACTUALIZACIÓN DE PRECIOS Y LOG DINÁMICO
+            # =======================================================
+            productos_existentes = ProductoTerminado.query.filter_by(receta_id=id).all()
+
+            for producto in productos_existentes:
+                pres_id = producto.presentacion_id
+                precio_input = request.form.get(f'precio_presentacion_{pres_id}')
+                
+                if precio_input and precio_input.strip() != "":
+                    nuevo_precio = float(precio_input)
+                    precio_actual = float(producto.precio_venta or 0)
+                    
+                    if precio_actual != nuevo_precio:
+                        cambios.append(f"Precio (Pres. {pres_id}): ${precio_actual} -> ${nuevo_precio}")
+                        producto.precio_venta = nuevo_precio
+            # =======================================================
+
+            # 🔥 LOG DINÁMICO: Consolidar y registrar el Log
+            if cambios:
+                texto_cambios = " | ".join(cambios)
+                detalle_log = f"Modificaciones: {texto_cambios}"
+            else:
+                detalle_log = f"Fórmula guardada sin cambios detectados."
+
             registrar_log(
                 accion="UPDATE",
-                tabla="Recetas",
+                tabla="recetas",
                 registro_id=id,
-                detalle=f"Fórmula actualizada: {receta.nombre_perfume}"
+                detalle=detalle_log
             )
+
             db.session.commit()
-            flash("Fórmula actualizada correctamente", "success")
+            flash("Fórmula y precios actualizados correctamente", "success")
             return redirect(url_for('formulas.index_formulas'))
 
         except Exception as e:
@@ -310,6 +363,7 @@ def modificar_formula(id):
     esencia_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='esencia'), None)
     alcohol_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='alcohol'), None)
     fijador_det = next((d for d in detalles if d.id in ids_fijos and d.tipo_componente=='fijador'), None)
+    precios_actuales = {prod.presentacion_id: prod.precio_venta for prod in receta.productos_terminados}
 
     return render_template(
         'modulos_front/formulas/modificar.html',
@@ -323,31 +377,54 @@ def modificar_formula(id):
         detalles_dinamicos=detalles_dinamicos,
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
         alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
-        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all()
-    )       
+        fijadores=MateriaPrima.query.filter_by(tipo='fijador').all(),
+        presentaciones=Presentacion.query.all(),
+        precios_actuales=precios_actuales
+    ) 
+
 
 # ==========================================
-# ELIMINAR (SEGURO)
+# ACTIVAR / DESACTIVAR FÓRMULA (BAJA LÓGICA)
 # ==========================================
-@formulas_bp.route('/formulas/eliminar/<int:id>', methods=['POST'])
+@formulas_bp.route('/formulas/toggle_estado/<int:id>', methods=['POST'])
 @roles_accepted('admin', 'produccion')
-def eliminar_formula(id):
+def toggle_estado_formula(id):
     receta = Receta.query.get_or_404(id)
-    nombre_borrado = receta.nombre_perfume
+    nombre_perfume = receta.nombre_perfume
 
-    DetalleReceta.query.filter_by(receta_id=id).delete()
-    db.session.delete(receta)
+    try:
+        if receta.activo:
+            # Si está activa -> LA DESACTIVAMOS
+            receta.activo = False
+            for producto in receta.productos_terminados:
+                producto.estado = 'Inactivo'
+                
+            accion_log = "DELETE"
+            detalle_log = f"Fórmula inhabilitada (Baja Lógica): {nombre_perfume} (ID: {id})"
+            mensaje_flash = "Fórmula desactivada correctamente."
+        else:
+            # Si está inactiva -> LA REACTIVAMOS
+            receta.activo = True
+            for producto in receta.productos_terminados:
+                producto.estado = 'Activo'
+                
+            accion_log = "UPDATE"
+            detalle_log = f"Fórmula reactivada: {nombre_perfume} (ID: {id})"
+            mensaje_flash = "Fórmula reactivada y lista para usarse."
 
-    registrar_log(
-        accion="DELETE",
-        tabla="Recetas",
-        registro_id=id,
-        detalle=f"Receta eliminada: {nombre_borrado} (ID: {id})"
-    )
+        registrar_log(
+            accion=accion_log,
+            tabla="recetas",
+            registro_id=id,
+            detalle=detalle_log
+        )
 
-    db.session.commit()
+        db.session.commit()
+        flash(mensaje_flash, "success")
 
-    flash("Fórmula eliminada", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Ocurrió un error inesperado al cambiar el estado: {str(e)}", "error")
+
     return redirect(url_for('formulas.index_formulas'))
-
     
