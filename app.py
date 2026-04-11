@@ -65,11 +65,9 @@ def page_not_found(e):
 def page_not_authorized(e):
     if current_user.is_authenticated:
         if current_user.has_role('empleado'):
-            flash("No tienes permisos para esta sección.", "error")
             return redirect('/inicio')
 
         elif current_user.has_role('cliente'):
-            flash("Acceso restringido.", "error")
             return redirect('/')
 
     return redirect('/')

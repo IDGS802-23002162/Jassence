@@ -79,7 +79,7 @@ def index_dashboard():
     total_bruto = q_ventas.with_entities(func.sum(Venta.total_venta)).scalar() or 0.0
     total_neto = total_bruto / 1.16
     gastos_insumos = q_compras.with_entities(func.sum(Compra.total)).scalar() or 0.0
-    utilidad_neta = total_neto - gastos_insumos
+    utilidad_neta = max(0.0, total_neto - gastos_insumos)
 
     # ========================================================
     # 2. META MENSUAL (Basada en Ventas Totales)

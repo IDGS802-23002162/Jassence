@@ -1,4 +1,4 @@
-from models import db, LogAuditoria, MermaInventario, ProductoTerminado, OrdenProduccion
+from models import db, LogAuditoria, MermaInventario, ProductoTerminado, OrdenProduccion, Receta
 from . import inventarioP_bp
 from flask import render_template, request, redirect, url_for
 from flask_security import roles_accepted, current_user
@@ -12,7 +12,10 @@ from modulos_routes.auditoria.utils import registrar_log
 @inventarioP_bp.route('/inventario_P')
 @roles_accepted('admin','inventario','produccion')
 def inventario_P():
-    productos = ProductoTerminado.query.all()
+    productos = ProductoTerminado.query\
+        .join(Receta)\
+        .filter(Receta.activo == True)\
+        .all()
 
     return render_template(
         'modulos_front/inv_productos/inv_P.html',

@@ -26,10 +26,14 @@ def index_solicitudes():
         s.presentacion_nombre = presentaciones.get(s.presentacion_id, "N/A")  
         s.estado = "pendiente"
 
+    # Consultamos SOLO las recetas activas para el formulario de registro
+    # Asegúrate de cambiar 'activo == True' por el nombre real de tu columna (ej. estatus == 1)
+    recetas_activas = Receta.query.filter(Receta.activo == True).all()
+
     return render_template(
         'modulos_front/produccion/solicitudes.html',
         solicitudes=solicitudes,
-        recetas=Receta.query.all(),
+        recetas=recetas_activas, 
         presentaciones=Presentacion.query.all()
     )
 

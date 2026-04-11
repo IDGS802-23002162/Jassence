@@ -62,9 +62,9 @@
 
                 <div>
                     <label class="block mb-2 text-sm font-medium text-gray-800">Cantidad a producir</label>
-                    <input type="number" name="cantidad" value="" min="1"
+                    <input type="number" name="cantidad" value="" min="1" max="150"
                         class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:ring-black focus:border-black shadow-sm"
-                        required>
+                        required oninput="validarLimiteProduccion(this)">
                 </div>
 
                 <div>
@@ -137,4 +137,24 @@
 
     
 </div>{% include "modulos_front/produccion/modal_confirmacion.html" %}
+
+<script>
+function validarLimiteProduccion(input) {
+    // Usamos parseInt porque la producción de perfumes se mide en unidades enteras
+    let cantidad = parseInt(input.value) || 0;
+
+    if (cantidad > 150) {
+        // Llama a tu función de notificación
+        notificar('El límite de producción diaria es de 150 unidades', 'error');
+        
+        // Borra el último dígito tecleado
+        input.value = input.value.slice(0, -1);
+        
+        // Medida de seguridad por si pegan un número grande
+        if (parseInt(input.value) > 150) {
+            input.value = 150;
+        }
+    }
+}
+</script>
 {% endblock %}
