@@ -26,8 +26,6 @@ def index_solicitudes():
         s.presentacion_nombre = presentaciones.get(s.presentacion_id, "N/A")  
         s.estado = "pendiente"
 
-    # Consultamos SOLO las recetas activas para el formulario de registro
-    # Asegúrate de cambiar 'activo == True' por el nombre real de tu columna (ej. estatus == 1)
     recetas_activas = Receta.query.filter(Receta.activo == True).all()
 
     return render_template(
@@ -131,18 +129,13 @@ def crear_orden():
             }
         )
         
-        # 2. Rescatamos el valor que nos escupió MySQL en la variable @mensaje
         resultado = db.session.execute(text("SELECT @mensaje")).scalar()
         
-        # 3. Evaluamos la respuesta para hacer el commit o el rollback manual en Flask
         if resultado == 'EXITO':
-            # Solo hacemos commit si MySQL nos dijo que todo salió bien
             db.session.commit()
             flash("¡Orden de producción generada correctamente!", "produccion_success")
         else:
-            # Si MySQL nos devolvió un texto de error (los faltantes), hacemos rollback por precaución
             db.session.rollback()
-            # Mostramos el mensaje exacto que vino desde la Base de Datos
             flash(f"{resultado}", "produccion_error")
 
     except Exception as e:
@@ -194,9 +187,12 @@ def seguimiento_sin_iniciar():
 
                 if materia:
                     cantidad_producida = o.cantidad_producir or 0  # <--- evitar None
-                    cantidad_usada = (detalle.porcentaje / 100) * cantidad_producida
+                    ml = o.producto_terminado.presentacion.mililitros if o.producto_terminado else 0
+                    cantidad_usada = (detalle.porcentaje / 100) * (cantidad_producida * ml)
 
-                    if materia.cantidad_disponible < cantidad_usada:
+                    stock_real = materia.cantidad_disponible - (materia.stock_apartado or 0)
+
+                    if stock_real < cantidad_usada:
                         o.puede_iniciar = False
                         o.mensaje_stock = f"Falta {materia.nombre}"
                         break
@@ -211,18 +207,21 @@ def seguimiento_sin_iniciar():
 @produccion_bp.route('/produccion/ordenes/cancelar/<int:id>', methods=['POST'])
 @roles_accepted('admin','produccion') 
 def cancelar_orden(id):
-    orden = OrdenProduccion.query.get_or_404(id)
-
-    if orden.estado != "pendiente":
-        flash("Solo se pueden cancelar órdenes pendientes", "error")
-        return redirect('/produccion/seguimiento/sin-iniciar')
-
     try:
-        orden.estado = "cancelado"
-        orden.fecha_fin = datetime.now()
+        orden = OrdenProduccion.query.get_or_404(id)
+
+        if orden.estado == "terminado":
+            flash("No puedes cancelar una orden terminada", "error")
+            return redirect('/produccion/seguimiento/sin-iniciar')
+
+        db.session.execute(
+            text("CALL sp_cancelar_orden(:id)"),
+            {"id": id}
+        )
 
         db.session.commit()
-        flash(f"Orden cancelada correctamente. Cantidad planeada: {orden.cantidad_producir}", "success")
+
+        flash("Orden cancelada correctamente", "success")
 
     except Exception as e:
         db.session.rollback()
@@ -236,12 +235,30 @@ def cancelar_orden(id):
 
 @produccion_bp.route('/produccion/ordenes/iniciar/<int:id>', methods=['POST'])
 def iniciar(id):
+    try:
+        # 👇 VALIDACIÓN AQUÍ
+        estado_actual = db.session.execute(
+            text("SELECT estado FROM ordenes_produccion WHERE id = :id"),
+            {"id": id}
+        ).scalar()
 
-    db.session.execute(
-        text("CALL sp_iniciar_produccion(:id)"),
-        {"id": id}
-    )
-    db.session.commit()
+        if estado_actual != "pendiente":
+            flash("La orden ya fue iniciada o no es válida", "error")
+            return redirect('/produccion/seguimiento/sin-iniciar')
+
+        # 👇 TU SP
+        db.session.execute(
+            text("CALL sp_iniciar_produccion(:id)"),
+            {"id": id}
+        )
+
+        db.session.commit()
+        flash("Producción iniciada correctamente", "success")
+
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        flash("Error al iniciar producción", "error")
 
     return redirect('/produccion/seguimiento/sin-iniciar')
 
