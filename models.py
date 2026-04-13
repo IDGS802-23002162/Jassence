@@ -402,9 +402,11 @@ class ProduccionTemporal(db.Model):
     __tablename__ = 'produccion_temporal'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer)
+    venta_id = db.Column(db.Integer, db.ForeignKey('ventas.id'), nullable=True)
     cantidad = db.Column(db.Integer)
     creado_por = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    
 
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
     estatus = db.Column(db.String(20), default='pendiente')

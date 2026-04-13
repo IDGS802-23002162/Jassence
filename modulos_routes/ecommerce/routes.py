@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from sqlalchemy import extract, func
 from flask_security import login_required, current_user
-from models import db, Receta, ProductoTerminado, Carrito, CarritoItem, Venta, DetalleVenta, OrdenProduccion, DetalleReceta, MateriaPrima, Cliente, DireccionEntrega, MetodoPagoCliente
+from models import db, Receta, ProductoTerminado, Carrito, CarritoItem, Venta, DetalleVenta, OrdenProduccion, DetalleReceta, MateriaPrima, Cliente, DireccionEntrega, MetodoPagoCliente, ProduccionTemporal
 import re, uuid
 from flask_login.signals import user_logged_in
 from forms import PerfilValidacionForm
@@ -197,24 +197,25 @@ def pagar():
             if not hay_materia:
                 requiere_produccion_lenta = True
 
-            # 🔹 Crear orden de producción SIEMPRE
-            orden = OrdenProduccion(
-                receta_id=prod.receta.id,
+            # 🔹 Crear SOLICITUD de producción SIEMPRE
+            solicitud_temporal = ProduccionTemporal(
+                receta_id=prod.receta_id,
                 venta_id=nueva_venta.id,
-                producto_terminado_id=prod.id,
-                cantidad_producir=item.cantidad,
-                estado = 'pendiente'
+                cantidad=item.cantidad,
+                creado_por=cliente_id,
+                presentacion_id=prod.presentacion_id,
+                estatus='pendiente'
             )
-            db.session.add(orden)
+            db.session.add(solicitud_temporal)
 
             # 🔹 Limpiar carrito
             db.session.delete(item)
 
         # 3. Definir estado final de la venta
         if requiere_produccion_lenta:
-            nueva_venta.estado_pedido = 'Pagado - Producción Pendiente (10-15 días)'
+            nueva_venta.estado_pedido = 'Pagado - (10-15 días)'
         else:
-            nueva_venta.estado_pedido = 'Pagado - En Producción (Envío rápido)'
+            nueva_venta.estado_pedido = 'Pagado - (Envío rápido)'
 
         db.session.commit()
 

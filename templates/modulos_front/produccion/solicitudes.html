@@ -104,31 +104,38 @@
                             <th scope="col" class="px-6 py-4 text-center">Fecha</th>
                             <th scope="col" class="px-6 py-4 text-center">Estado</th>
                             <th scope="col" class="px-6 py-4 text-center">Acciones</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
-                        {% for s in solicitudes %}
+                    {% for s in solicitudes %}
+                        {# Solo mostramos la fila si NO tiene un venta_id asociado (es decir, es Local) #}
+                        {% if not s.venta_id %}
                         <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors h-16">
                             <td class="px-6 py-4">{{ s.receta_nombre }}</td>
                             <td class="px-6 py-4 text-center">{{ s.cantidad }}</td>
                             <td class="px-6 py-4 text-center">{{ s.presentacion.mililitros }} ml.</td>
-                            <td class="px-6 py-4 text-center">{{ s.fecha.strftime('%Y-%m-%d') if s.fecha else 'No
-                                asignada' }}</td>
-                            <td class="px-6 py-4 text-center border-l border-table-dark">
-                                <span
-                                    class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded-full">Pendiente</span>
-                            </td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" data-modal-target="modal-confirmar-estado" data-modal-toggle="modal-confirmar-estado"
+                                {{ s.fecha.strftime('%Y-%m-%d') if s.fecha else 'No asignada' }}
+                            </td>
+                            <td class="px-6 py-4 text-center border-l border-table-dark">
+                                <span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    Pendiente
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center border-l border-table-dark">
+                                <button type="button" 
+                                    data-modal-target="modal-confirmar-estado" 
+                                    data-modal-toggle="modal-confirmar-estado"
                                     onclick="prepararCambioEstado({{ s.id }}, 'cancelar_solicitud')"
                                     class="text-red-500 hover:text-red-700 focus:outline-none">
                                     Cancelar
                                 </button>
                             </td>
                         </tr>
-
-                        {% endfor %}
-                    </tbody>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
                 </table>
             </div>
         </div>

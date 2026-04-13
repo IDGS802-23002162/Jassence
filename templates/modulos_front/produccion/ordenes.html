@@ -15,7 +15,7 @@
             class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Seguimiento</a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div class="flex flex-col md:flex-row gap-10">
 
         <div>
              {% with messages = get_flashed_messages(with_categories=true, category_filter=['produccion_error', 'produccion_success']) %}
@@ -48,7 +48,10 @@
                         <option value="" disabled selected>Seleccionar Solicitud</option>
                         {% for s in solicitudes %}
                         {% if s.estado == "pendiente" %}
-                        <option value="{{ s.id }}">{{ s.receta_nombre }} - Cant: {{ s.cantidad }}</option>
+                        <option value="{{ s.id }}">
+                            {{ s.receta_nombre }} - Cant: {{ s.cantidad }}
+                            {{ "- ONLINE #" if s.venta_id }}{{s.venta_id if s.venta_id}}
+                        </option>
                         {% endif %}
                         {% endfor %}
                     </select>
@@ -96,52 +99,55 @@
         </div>
 
         <div class="flex flex-col h-full">
-            <div class="w-full flex justify-start mb-6">
-                <span
-                    class="px-8 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-bold bg-white shadow-sm">
-                    Historial de Solicitudes
-                </span>
-            </div>
+    <div class="w-full flex justify-start mb-6">
+        <span class="px-8 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-bold bg-white shadow-sm">
+            Historial de Solicitudes
+        </span>
+    </div>
 
-            <div class="relative flex-grow shadow-xl rounded-lg border border-gray-800 bg-[#3B3B3B] overflow-hidden">
-                <div class="overflow-y-auto max-h-[650px]">
-                    <table class="w-full text-sm text-left text-gray-300">
-                        <thead class="text-xs text-white bg-[#2D2D2D] border-b border-gray-700 sticky top-0 z-10">
-                            <tr>
-                                <th scope="col" class="px-6 py-4">Producto</th>
-                                <th scope="col" class="px-6 py-4 text-center">Cant.</th>
-                                <th scope="col" class="px-6 py-4 text-center">Presentación</th>
-                                <th scope="col" class="px-6 py-4">Fecha</th>
-                                <th scope="col" class="px-6 py-4">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-700">
-                            {% for s in solicitudes %}
-                            <tr class="hover:bg-[#4a4a4a] transition-colors h-12">
-                                <td class="px-6 py-4 font-medium text-white">{{ s.receta_nombre }}</td>
-                                <td class="px-6 py-4 text-center">{{ s.cantidad }}</td>
-                                <td class="px-6 py-4 text-center">{{ s.presentacion.mililitros }} ml.</td>
-                                <td class="px-6 py-4">{{ s.fecha.strftime('%Y-%m-%d') }}</td>
-                                <td class="px-6 py-4">
-                                    {% if s.estado == 'pendiente' %}
-                                    <span
-                                        class="bg-yellow-900/50 text-yellow-300 border border-yellow-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Pendiente</span>
-                                    {% elif s.estado == 'en_proceso' %}
-                                    <span
-                                        class="bg-blue-900/50 text-blue-300 border border-blue-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">En
-                                        proceso</span>
-                                    {% elif s.estado == 'terminado' %}
-                                    <span
-                                        class="bg-green-900/50 text-green-300 border border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Finalizado</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="relative flex-grow shadow-xl rounded-lg border border-gray-800 bg-[#3B3B3B] overflow-x-auto">
+        <div class="overflow-y-auto max-h-[650px]">
+            <table class="w-full min-w-full text-sm text-left text-gray-300">
+                <thead class="text-xs text-white bg-[#2D2D2D] border-b border-gray-700 sticky top-0 z-10">
+                    <tr>
+                        <th scope="col" class="px-6 py-4 w-1/3">Producto</th>
+                        <th scope="col" class="px-6 py-4 text-center">Cant.</th>
+                        <th scope="col" class="px-6 py-4 text-center">Presentación</th>
+                        <th scope="col" class="px-6 py-4">Fecha</th>
+                        <th scope="col" class="px-6 py-4 text-center">Origen</th>
+                        <th scope="col" class="px-6 py-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    {% for s in solicitudes %}
+                    <tr class="hover:bg-[#4a4a4a] transition-colors h-12">
+                        <td class="px-6 py-4 font-medium text-white break-words">{{ s.receta_nombre }}</td>
+                        <td class="px-6 py-4 text-center">{{ s.cantidad }}</td>
+                        <td class="px-6 py-4 text-center whitespace-nowrap">{{ s.presentacion.mililitros }} ml.</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ s.fecha.strftime('%Y-%m-%d') }}</td>
+                        <td class="px-6 py-4 text-center">
+                            {% if s.venta_id %}
+                                <span class="bg-blue-900 text-blue-300 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap">ONLINE #{{s.venta_id}}</span>
+                            {% else %}
+                                <span class="bg-purple-900 text-purple-300 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">Local</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if s.estado == 'pendiente' %}
+                                <span class="bg-yellow-900/50 text-yellow-300 border border-yellow-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Pendiente</span>
+                            {% elif s.estado == 'en_proceso' %}
+                                <span class="bg-blue-900/50 text-blue-300 border border-blue-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">En proceso</span>
+                            {% elif s.estado == 'terminado' %}
+                                <span class="bg-green-900/50 text-green-300 border border-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Finalizado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
 
     </div>
 </div>

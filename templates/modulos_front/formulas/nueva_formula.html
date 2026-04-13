@@ -116,6 +116,9 @@
                         <label class="text-[11px] text-gray-600 uppercase font-bold mb-3 block">
                             {{ pres.nombre }} <span class="text-gray-400 font-normal">({{ pres.mililitros }} ml)</span>
                         </label>
+                        <span id="label_costo_{{ pres.id }}" class="text-[10px] text-blue-600 font-bold bg-blue-50/50 px-2 py-0.5 rounded border border-blue-100">
+                            Costo: $0.00
+                        </span>
                         <div class="relative w-full">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <span class="text-gray-500 sm:text-sm">$</span>
@@ -138,7 +141,60 @@
 </div>
 
 <script>
+// Variables de Jinja a JS
 const esenciasDisponibles = [{% for mp in esencias %}{id: {{ mp.id }}, nombre: "{{ mp.nombre }}"},{% endfor %}];
+// Variables de costos (Asegúrate de mandarlas desde tu ruta en Python)
+const COSTOS_MP = JSON.parse('{{ costos_mp_json | default("{}") | safe }}');
+const COSTOS_ENVASES = JSON.parse('{{ costos_envases_json | default("{}") | safe }}');
+const INFO_PRESENTACIONES = JSON.parse('{{ info_presentaciones_json | default("{}") | safe }}');
+
+function calcularCostosEnVivo() {
+    let costoLiquidoPor100ml = 0;
+
+    // Función auxiliar
+    const sumarIngrediente = (idInputName, porcInputName) => {
+        let selectElement = document.querySelector(`[name="${idInputName}"]`);
+        let inputPorc = document.querySelector(`[name="${porcInputName}"]`);
+        if (selectElement && inputPorc) {
+            let idMp = selectElement.value;
+            let porcentaje = parseFloat(inputPorc.value) || 0;
+            if (idMp && COSTOS_MP[idMp] !== undefined) {
+                costoLiquidoPor100ml += (porcentaje * COSTOS_MP[idMp]);
+            }
+        }
+    };
+
+    // Sumar principales
+    sumarIngrediente('esencia_base_nombre', 'esencia_base');
+    sumarIngrediente('alcohol_nombre', 'alcohol');
+    sumarIngrediente('fijador_nombre', 'fijador');
+
+    // Sumar matices extra
+    let selectsExtras = document.querySelectorAll('[name="nombres_esencias[]"]');
+    let inputsExtras = document.querySelectorAll('[name="porcentajes_esencias[]"]');
+    selectsExtras.forEach((select, index) => {
+        let idMp = select.value;
+        let inputPorc = inputsExtras[index];
+        if (inputPorc) {
+            let porcentaje = parseFloat(inputPorc.value) || 0;
+            if (idMp && COSTOS_MP[idMp] !== undefined) {
+                costoLiquidoPor100ml += (porcentaje * COSTOS_MP[idMp]);
+            }
+        }
+    });
+
+    // Calcular por cada presentación y actualizar la etiqueta
+    for (const [presId, ml] of Object.entries(INFO_PRESENTACIONES)) {
+        let costoLiquidoReal = (costoLiquidoPor100ml / 100) * ml;
+        let costoEnvase = COSTOS_ENVASES[presId] || 0;
+        let costoTotal = costoLiquidoReal + costoEnvase;
+
+        let etiqueta = document.getElementById(`label_costo_${presId}`);
+        if (etiqueta) {
+            etiqueta.innerHTML = `Costo prod: $${costoTotal.toFixed(2)}`;
+        }
+    }
+}
 
 function calcularTotal() {
     const btnGuardar = document.getElementById('btn-guardar');
@@ -147,9 +203,7 @@ function calcularTotal() {
     const mensaje = document.getElementById('mensaje-validacion');
     let total = 0;
     
-    // Iteramos sobre los inputs numéricos, pero filtramos los de precios
     document.querySelectorAll('input[type=number]').forEach(i => {
-        // Solo sumamos si el atributo 'name' NO contiene la palabra 'precio'
         if (!i.name.includes('precio')) {
             total += parseFloat(i.value) || 0;
         }
@@ -168,6 +222,9 @@ function calcularTotal() {
         btnGuardar.disabled = true;
         btnGuardar.classList.add('opacity-20', 'grayscale', 'cursor-not-allowed');
     }
+
+    // 🔥 Llamamos al calculador de costos cada vez que cambia el porcentaje
+    calcularCostosEnVivo();
 }
 
 function agregarEsencia() {
@@ -191,7 +248,10 @@ function validarEnvio(e){
     }
 }
 
+// Event Listeners
 document.addEventListener('input', calcularTotal);
+document.addEventListener('change', calcularTotal); // Para capturar los cambios en los selects
 document.addEventListener('DOMContentLoaded', calcularTotal);
 </script>
+
 {% endblock %}

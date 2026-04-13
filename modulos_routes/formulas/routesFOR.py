@@ -4,6 +4,8 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_security import roles_accepted
 from modulos_routes.auditoria.utils import registrar_log, generar_detalle_cambios_formula
 from sqlalchemy.exc import IntegrityError 
+import json
+from modulos_routes.formulas.costos_utils import obtener_costo_promedio_insumo
 
 
 
@@ -143,12 +145,30 @@ def nueva_formula():
             flash(f"Error al guardar la fórmula: {str(e)}", "error")
             return redirect(url_for('formulas.nueva_formula'))
 
+    # 1. Generar diccionario de costos de materias primas {id: costo_por_ml}
+    materias_primas = MateriaPrima.query.all()
+    costos_mp = {}
+    for mp in materias_primas:
+        costos_mp[mp.id] = obtener_costo_promedio_insumo(mp.id, tipo_item='materia')
+
+    # 2. Generar diccionario de costos de envases {id: costo_envase}
+    presentaciones_bd = Presentacion.query.all()
+    costos_envases = {}
+    info_presentaciones = {} # Para saber los ml de cada una en JS
+    for p in presentaciones_bd:
+        costos_envases[p.id] = obtener_costo_promedio_insumo(p.id, tipo_item='presentacion')
+        info_presentaciones[p.id] = p.mililitros
+
     return render_template(
         'modulos_front/formulas/nueva_formula.html',
         esencias=MateriaPrima.query.filter_by(tipo='esencia').all(),
         alcohol_lista=MateriaPrima.query.filter_by(tipo='alcohol').all(),
         fijadores=MateriaPrima.query.filter_by(tipo='fijador').all(),
-        presentaciones=Presentacion.query.all()
+        presentaciones=Presentacion.query.all(),
+
+        costos_mp_json=json.dumps(costos_mp),
+        costos_envases_json=json.dumps(costos_envases),
+        info_presentaciones_json=json.dumps(info_presentaciones)
     )
 
 # ==========================================
