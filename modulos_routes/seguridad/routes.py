@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from sqlalchemy import extract, func
 from flask_security import current_user, login_required
-from models import db, Rol, Usuario
+from models import db, Rol, Usuario, Cliente
 from flask_security.utils import verify_password
 from flask_security.signals import user_registered
 from flask_login.signals import user_logged_out, user_logged_in
@@ -21,6 +21,14 @@ def configurar_2fa_automatico(sender, user, **kwargs):
         user.roles.append(rol_cliente) 
     else:
         print("ADVERTENCIA: El rol 'cliente' no existe. Ejecuta inicializar_roles().")
+
+    cliente_existente = Cliente.query.get(user.id)
+
+    if not cliente_existente:
+        nuevo_cliente = Cliente(
+            id=user.id, 
+        )
+        db.session.add(nuevo_cliente)
 
     db.session.commit()
     print(f"ÉXITO: 2FA por correo activado automáticamente para {user.email}")

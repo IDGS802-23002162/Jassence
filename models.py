@@ -120,9 +120,10 @@ class MateriaPrima(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
     cantidad_disponible = db.Column(db.Float)
+    stock_apartado = db.Column(db.Float, default=0)  # 👈 NUEVO
     unidad_medida = db.Column(db.String(50))    
     stock_minimo = db.Column(db.Float)
-    tipo = db.Column(db.String(30)) 
+    tipo = db.Column(db.String(50)) 
 
 
 class Proveedor(db.Model):
@@ -132,6 +133,9 @@ class Proveedor(db.Model):
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.Text)
     tipo_insumos = db.Column(db.String(100))
+
+    activo = db.Column(db.Boolean, default=True)
+    compras = db.relationship('Compra', backref='proveedor', lazy=True)
 
 
 class Compra(db.Model):
@@ -151,14 +155,22 @@ class Compra(db.Model):
 
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'
-    compra_id = db.Column(db.Integer, db.ForeignKey('compras.id'), primary_key=True)
-    materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), primary_key=True)
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    compra_id = db.Column(db.Integer, db.ForeignKey('compras.id'))
+    materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), nullable=True)
+    presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'), nullable=True)
+    tipo_item = db.Column(db.String(20), default='materia') 
+
     cantidad_comprada = db.Column(db.Float)
     unidad_compra = db.Column(db.String(50))
-    cantidad_convertida = db.Column(db.Float)
     precio_unitario = db.Column(db.Float)
-
-
+    multiplicador = db.Column(db.Float, default=1.0)
+    subtotal = db.Column(db.Float)
+    
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_compra', lazy=True)
+    presentacion = db.relationship('Presentacion', backref='detalles_compra', lazy=True)
+    
 # ///////////////////////////////////////
 # PRODUCCION 
 # ///////////////////////////////////////
@@ -175,7 +187,9 @@ class Receta(db.Model):
     familia_olfativa = db.Column(db.String(50))
 
     productos_terminados = db.relationship('ProductoTerminado', backref='receta', lazy=True)
+    activo = db.Column(db.Boolean, default=True)
 
+    detalles = db.relationship('DetalleReceta', backref='receta', lazy=True, cascade="all, delete-orphan")
 
 
 class DetalleReceta(db.Model):
@@ -186,15 +200,22 @@ class DetalleReceta(db.Model):
     porcentaje = db.Column(db.Float)
     tipo_componente = db.Column(db.String(50))
 
+    materia_prima = db.relationship('MateriaPrima', backref='detalles_receta')
+
 
 class Presentacion(db.Model):
     __tablename__ = 'presentaciones'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
+    stock_botes = db.Column(db.Integer, default=0)
+    stock_botes_apartado = db.Column(db.Integer, default=0)  # 👈 NUEVO
+    productos_terminados = db.relationship('ProductoTerminado', back_populates='presentacion', lazy=True)
+
 
 class ProductoTerminado(db.Model):
     __tablename__= 'productos_terminados'
+    __table_args__= (db.UniqueConstraint('receta_id', 'presentacion_id', name='unique_producto'),)
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'))
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
@@ -203,7 +224,8 @@ class ProductoTerminado(db.Model):
     precio_venta = db.Column(db.Float)
     estado = db.Column(db.String(50))
     stock_comprometido = db.Column(db.Integer)
-    presentacion = db.relationship('Presentacion')
+    
+    presentacion = db.relationship('Presentacion', back_populates='productos_terminados')
 
 
 class OrdenProduccion(db.Model):
@@ -220,7 +242,11 @@ class OrdenProduccion(db.Model):
     fecha_inicio = db.Column(db.DateTime)
     fecha_fin = db.Column(db.DateTime)
 
-    estado = db.Column(db.String(50))  # pendiente, en_proceso, terminado, cancelado
+    estado = db.Column(db.String(50))
+
+    receta = db.relationship('Receta')
+    producto_terminado = db.relationship('ProductoTerminado')
+    responsable = db.relationship('Usuario')
 
 
 # ///////////////////////////////////////
@@ -235,10 +261,8 @@ class MermaInventario(db.Model):
     item_id = db.Column(db.Integer)
     etapa = db.Column(db.String(50))  # produccion, almacen, etc
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-
     cantidad_perdida = db.Column(db.Float)
     unidad_medida = db.Column(db.String(50))
-
     motivo = db.Column(db.String(100))
     descripcion = db.Column(db.Text)
 
@@ -257,6 +281,7 @@ class Venta(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
     direccion_envio_id = db.Column(db.Integer, db.ForeignKey('direcciones_entrega.id'))
+    pasarela_online = db.Column(db.String(30))
     metodo_pago_id = db.Column(db.Integer, db.ForeignKey('metodos_pago_cliente.id'))
 
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
@@ -265,7 +290,9 @@ class Venta(db.Model):
     total_venta = db.Column(db.Float)
     metodo_pago_fisico = db.Column(db.String(50))
 
-    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True)
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
+    usuario = db.relationship('Usuario', backref='ventas_realizadas')
+    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")
 
 
 class DetalleVenta(db.Model):
@@ -275,9 +302,7 @@ class DetalleVenta(db.Model):
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
 
-    producto_terminado = db.relationship('ProductoTerminado')
-
-    
+    producto_terminado = db.relationship('ProductoTerminado', backref='detalles_venta', lazy=True)
 
 
 # ///////////////////////////////////////
@@ -299,7 +324,20 @@ class CorteCaja(db.Model):
     efectivo_esperado = db.Column(db.Float)
     efectivo_real = db.Column(db.Float)
     diferencia = db.Column(db.Float)
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
 
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'), nullable=True)
+
+
+class EgresoCaja(db.Model):
+    __tablename__ = 'egresos_caja'
+    id = db.Column(db.Integer, primary_key=True)
+    sesion_id = db.Column(db.Integer, db.ForeignKey('pos_sesion.id'))
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    
+    monto = db.Column(db.Float, nullable=False)
+    motivo = db.Column(db.String(200), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
 
 # ///////////////////////////////////////
 # TABLAS TEMPORALES 
@@ -332,7 +370,16 @@ class POSSesion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer)
     abierta_en = db.Column(db.DateTime, default=datetime.utcnow)
-    estado = db.Column(db.String(50))  # abierta, cerrada
+    estado = db.Column(db.String(50))
+    monto_apertura = db.Column(db.Float, default=0.0)
+    cerrada_en = db.Column(db.DateTime, nullable=True)
+    
+    ventas = db.relationship('Venta', backref='sesion_caja', lazy=True)
+    egresos = db.relationship('EgresoCaja', backref='sesion_caja', lazy=True)
+    cortes = db.relationship('CorteCaja', backref='sesion_caja', lazy=True)  # abierta, cerrada
+
+    monto_apertura = db.Column(db.Float, default=0.0)
+    cerrada_en = db.Column(db.DateTime, nullable=True)
 
 
 class POSItem(db.Model):
@@ -349,6 +396,14 @@ class ProduccionTemporal(db.Model):
     __tablename__ = 'produccion_temporal'
     id = db.Column(db.Integer, primary_key=True)
     receta_id = db.Column(db.Integer)
+    venta_id = db.Column(db.Integer, db.ForeignKey('ventas.id'), nullable=True)
     cantidad = db.Column(db.Integer)
     creado_por = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    
+
+    presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'))
+    estatus = db.Column(db.String(20), default='pendiente')
+    presentacion = db.relationship('Presentacion')
+
+

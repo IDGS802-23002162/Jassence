@@ -11,25 +11,19 @@
                     <svg class="w-6 h-6 text-red-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                 </div>
                 
-                <h3 class="mb-2 text-xl font-elegant text-gray-900">¿Eliminar fórmula?</h3>
-                <p class="mb-6 text-sm text-gray-500">Estás a punto de eliminar la fórmula de <strong id="nombre-formula-a-eliminar" class="text-black"></strong>. Esta acción no se puede deshacer.</p>
+                <h3 class="mb-2 text-xl font-elegant text-gray-900">¿Desactivar fórmula?</h3>
+                <p class="mb-6 text-sm text-gray-500">Estás a punto de ocultar la fórmula de <strong id="nombre-formula-a-eliminar" class="text-black"></strong>. Podrás reactivarla más adelante si lo necesitas.</p>
                 
                 <form id="form-eliminar-formula" action="#" method="POST" class="flex justify-center gap-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button data-modal-hide="modal-eliminar-formula" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
                         Cancelar
                     </button>
                     <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors">
-                        Sí, eliminar
+                        Sí, desactivar
                     </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    function prepararEliminarFormula(id, nombre) {
-        document.getElementById('form-eliminar-formula').action = '/formulas/eliminar/' + id;
-        document.getElementById('nombre-formula-a-eliminar').textContent = nombre;
-    }
-</script>

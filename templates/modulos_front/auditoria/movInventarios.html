@@ -6,6 +6,8 @@
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
         <h1 class="font-elegant text-6xl text-black cursor-default">Inventarios</h1>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('auditorias.formulas') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Formulas</a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('auditorias.accesos') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Accesos</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('auditorias.usuarios') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Usuarios</a>
@@ -78,7 +80,7 @@
             <tbody>
                 {% for log in logs %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{{ log.usuario.username if log.usuario else 'Sistema' }}</td>
+                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{{ log.usuario.nombre if log.usuario else 'Sistema' }} {{ log.usuario.apellidos}}</td>
                     <td class="px-6 py-4 border-l border-table-dark">{{ log.tabla_afectada }}</td>
                     <td class="px-6 py-4 border-l border-table-dark">
                         <span class="{% if log.accion == 'DELETE' or log.accion == 'MERMA' %}text-red-400{% else %}text-green-400{% endif %} font-bold">{{ log.accion }}</span>

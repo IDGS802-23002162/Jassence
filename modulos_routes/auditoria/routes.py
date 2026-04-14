@@ -11,14 +11,14 @@ auditorias_bp = Blueprint('auditorias', __name__)
 @auditorias_bp.route("/auditoria", methods=['GET'])
 @roles_required('admin') 
 def auditoria():
-    tablas_inventario = ['materias_primas', 'productos_terminados', 'MermaInventario']
+    tablas_inventario = ['materias_primas', 'productos_terminados', 'merma_inventario(PRODUCTO)', 'merma_inventario(MP)']
     logs = LogAuditoria.query.filter(LogAuditoria.tabla_afectada.in_(tablas_inventario))\
                              .order_by(LogAuditoria.fecha.desc()).all()
 
     stats = {
-        'productos': LogAuditoria.query.filter_by(tabla_afectada='productos_terminados').count(),
-        'materia_prima': LogAuditoria.query.filter_by(tabla_afectada='materias_primas').count(),
-        'mermas': LogAuditoria.query.filter_by(tabla_afectada='MermaInventario').count()
+        'productos': LogAuditoria.query.filter_by(tabla_afectada='productos_terminados', accion='ENTRADA').count(),
+        'materia_prima': LogAuditoria.query.filter_by(tabla_afectada='materias_primas', accion='ENTRADA').count(),
+        'mermas': LogAuditoria.query.filter_by(tabla_afectada='merma_inventario(MP)').count() + LogAuditoria.query.filter_by(tabla_afectada='merma_inventario(Producto)').count()
     }
     
     return render_template("modulos_front/auditoria/movInventarios.html", logs=logs, stats=stats)
@@ -78,3 +78,23 @@ def usuarios():
     }
 
     return render_template("modulos_front/auditoria/movUsuarios.html", logs=logs, stats=stats)
+
+# ==========================================
+# RUTA 1: AUDITORÍA DE INVENTARIOS
+# ==========================================
+@auditorias_bp.route("/auditoria/formulas", methods=['GET'])
+@roles_required('admin') 
+def formulas():
+    tablas_formulas = ['recetas']
+    logs = LogAuditoria.query.filter(LogAuditoria.tabla_afectada.in_(tablas_formulas))\
+                             .order_by(LogAuditoria.fecha.desc()).all()
+
+    stats = {
+        'formulas_creadas': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='CREATE').count(),
+        'formulas_eliminadas': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='DELETE').count(),
+        'modificaciones': LogAuditoria.query.filter_by(tabla_afectada='recetas', accion='UPDATE').count(),
+            
+    }
+    
+    return render_template("modulos_front/auditoria/movFormulas.html", logs=logs, stats=stats)
+

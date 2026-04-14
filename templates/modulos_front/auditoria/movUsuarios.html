@@ -6,6 +6,8 @@
     <div class="flex items-end mb-8 border-b border-gray-300 pb-4">
         <a href="{{ url_for('auditorias.auditoria') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Inventario</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
+        <a href="{{ url_for('auditorias.formulas') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Formulas</a>
+        <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <a href="{{ url_for('auditorias.accesos') }}" class="font-elegant text-3xl text-gray-400 hover:text-gray-600 transition-colors duration-300 mb-1">Accesos</a>
         <div class="w-px h-10 bg-gray-400 mx-6 mb-2"></div>
         <h1 class="font-elegant text-6xl text-black cursor-default">Usuarios</h1>
@@ -62,7 +64,7 @@
             <tbody>
                 {% for log in logs %}
                 <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545]">
-                    <td class="px-6 py-4 font-medium text-white">{{ log.usuario.nombre }}</td>
+                    <td class="px-6 py-4 font-medium text-white">{{ log.usuario.nombre }} {{ log.usuario.apellidos}}</td>
                     <td class="px-6 py-4 border-l border-table-dark text-xs">REF #{{ log.registro_id }}</td>
                     <td class="px-6 py-4 border-l border-table-dark font-bold {% if 'DELETE' in log.accion %}text-red-400{% else %}text-blue-300{% endif %} ">{{ log.accion }}</td>
                     <td class="px-6 py-4 border-l border-table-dark italic text-gray-400">{{ log.detalle }}</td>

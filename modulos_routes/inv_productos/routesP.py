@@ -1,14 +1,8 @@
-from models import db, LogAuditoria, MermaInventario, ProductoTerminado, OrdenProduccion
+from models import db, LogAuditoria, MermaInventario, ProductoTerminado, OrdenProduccion, Receta
 from . import inventarioP_bp
 from flask import render_template, request, redirect, url_for
-from flask_security import roles_required, current_user
+from flask_security import roles_accepted, current_user
 from modulos_routes.auditoria.utils import registrar_log
-
-class Usuario:
-    def __init__(self, nombre, rol):
-        self.nombre = nombre
-        self.rol = rol
-
 
 # ==========================================
 # INVENTARIO PRODUCTOS TERMINADOS
@@ -16,9 +10,12 @@ class Usuario:
 
 
 @inventarioP_bp.route('/inventario_P')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def inventario_P():
-    productos = ProductoTerminado.query.all()
+    productos = ProductoTerminado.query\
+        .join(Receta)\
+        .filter(Receta.activo == True)\
+        .all()
 
     return render_template(
         'modulos_front/inv_productos/inv_P.html',
@@ -28,7 +25,7 @@ def inventario_P():
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_P/<int:id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def detalle_P(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
@@ -46,12 +43,13 @@ def detalle_P(id):
 # ------------------------------------------
 
 @inventarioP_bp.route('/merma_Pmodel/<int:id>', methods=['POST'])
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def merma_Pmodel(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
 
     cantidad = int(request.form['cantidad_perdida'])
+    motivo = request.form['motivo']
 
     if cantidad > producto.stock_disponible_venta:
         cantidad = producto.stock_disponible_venta
@@ -64,19 +62,22 @@ def merma_Pmodel(id):
         etapa=request.form['etapa'],
         cantidad_perdida=cantidad,
         unidad_medida="unidad",  # Ajusta si manejas otra lógica
-        motivo=request.form['motivo'],
+        motivo=motivo,
         descripcion=request.form['descripcion'],
         orden_produccion_id=request.form.get('orden_produccion_id')
     )
 
     db.session.add(nueva_merma)
+    db.session.flush()
+
+    nombre_perfume = producto.receta.nombre_perfume if producto.receta else "Producto Desconocido"
+    presentacion = f"{producto.presentacion.nombre} {producto.presentacion.mililitros}ml" if producto.presentacion else ""
 
     registrar_log(
-        usuario_id=current_user.id,
-        accion="CREATE",
-        tabla="MermaInventario",
-        registro_id=id,
-        detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
+        accion="MERMA",
+        tabla="merma_inventario(PRODUCTO)", 
+        registro_id=nueva_merma.id,
+        detalle=f"Merma en Almacén: -{cantidad} {nombre_perfume} {presentacion}. Razón: {motivo}"
     )
 
     db.session.commit()
@@ -84,7 +85,7 @@ def merma_Pmodel(id):
     return redirect(url_for('inventarioP.inventario_P'))
 
 @inventarioP_bp.route('/ordenes_por_producto/<int:producto_id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def ordenes_por_producto(producto_id):
     ordenes = OrdenProduccion.query.filter_by(
         producto_terminado_id=producto_id
@@ -103,14 +104,13 @@ def ordenes_por_producto(producto_id):
 # ------------------------------------------
 
 @inventarioP_bp.route('/eliminar_P/<int:id>', methods=['POST'])
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def eliminar_P(id):
     producto = ProductoTerminado.query.get_or_404(id)
 
     db.session.delete(producto)
 
     registrar_log(
-        usuario_id=current_user.id,
         accion="DELETE",
         tabla="productos_terminados",
         registro_id=id,
@@ -126,7 +126,7 @@ def eliminar_P(id):
 # ==========================================
 
 @inventarioP_bp.route('/inventario_PM')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def inventario_PM():
     mermas = MermaInventario.query.all()
 
@@ -138,7 +138,7 @@ def inventario_PM():
 # ------------------------------------------
 
 @inventarioP_bp.route('/registrar_PM', methods=['GET', 'POST'])
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def registrar_PM():
     if request.method == 'POST':
         item_id = request.form.get('item_id')
@@ -148,6 +148,7 @@ def registrar_PM():
 
         producto = ProductoTerminado.query.get_or_404(item_id)
         cantidad = int(request.form.get('cantidad_perdida'))
+        motivo = request.form.get('motivo')
 
         if producto.stock_disponible_venta < cantidad:
             return "Cantidad de merma excede el stock disponible", 400
@@ -160,20 +161,23 @@ def registrar_PM():
             etapa=request.form.get('etapa'),
             cantidad_perdida=cantidad,
             unidad_medida="unidad",
-            motivo=request.form.get('motivo'),
+            motivo=motivo,
             descripcion=request.form.get('descripcion'),
             orden_produccion_id=request.form.get('orden_produccion_id')
         )
 
-        registrar_log(
-        usuario_id=current_user.id,
-        accion="CREATE",
-        tabla="MermaInventario",
-        registro_id=id,
-        detalle=f"Merma registrada: {cantidad} unidades en etapa {request.form['etapa']}"
-        )
-
         db.session.add(nueva_merma)
+        db.session.flush()
+
+        nombre_perfume = producto.receta.nombre_perfume if producto.receta else "Producto Desconocido"
+        presentacion = f"{producto.presentacion.nombre} {producto.presentacion.mililitros}ml" if producto.presentacion else ""
+
+        registrar_log(
+            accion="MERMA",
+            tabla="merma_inventario(PRODUCTO)",
+            registro_id=nueva_merma.id, # <--- Corregido: antes tenías 'id' que no existía aquí
+            detalle=f"Merma en Almacén: -{cantidad} {nombre_perfume} {presentacion}. Razón: {motivo}"
+        )
         db.session.commit()
 
         return redirect(url_for('inventarioP.inventario_PM'))
@@ -188,7 +192,7 @@ def registrar_PM():
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_Pmerma/<int:id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def detalle_Pmerma(id):
     merma = MermaInventario.query.get_or_404(id)
 
@@ -202,7 +206,7 @@ def detalle_Pmerma(id):
 # ==========================================
 
 @inventarioP_bp.route('/historial_P')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def historial_P():
     historial = LogAuditoria.query\
         .filter_by(tabla_afectada='productos_terminados')\
@@ -218,7 +222,7 @@ def historial_P():
 # ------------------------------------------
 
 @inventarioP_bp.route('/detalle_PH/<int:id>')
-@roles_required('admin','inventario','produccion')
+@roles_accepted('admin','inventario','produccion')
 def detalle_PH(id):
     historial = LogAuditoria.query.get_or_404(id)
 

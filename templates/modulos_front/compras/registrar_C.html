@@ -1,4 +1,3 @@
-<!-- registrar_C.html -->
 {% extends "layout_sistema.html" %}
 
 {% block title %}Registrar Compra - EcoDev{% endblock %}
@@ -18,16 +17,18 @@
     </div>
 
     <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
-        <form class="space-y-8" action="#" method="POST" enctype="multipart/form-data">
+        <form class="space-y-8" action="{{ url_for('compras.registrar_C') }}" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                 <div class="relative z-0 w-full group">
+                    <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-100 top-3 -z-10 origin-[0]">Proveedor</label>
                     <select name="proveedor_id" id="proveedor_id" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-                        <option value="" disabled selected></option>
-                        <option value="1">Envases de Vidrio S.A.</option>
+                        <option value="" disabled selected>Selecciona un proveedor...</option>
+                        {% for proveedor in proveedores %}
+                            <option value="{{ proveedor.id }}">{{ proveedor.nombre_empresa }}</option>
+                        {% endfor %}
                     </select>
-                    <label for="proveedor_id" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-black">Proveedor</label>
                 </div>
 
                 <div class="relative w-full group">
@@ -37,44 +38,64 @@
             </div>
 
             <div class="mt-8 pt-6 border-t border-gray-100">
-                <h3 class="font-elegant text-2xl text-black mb-4 flex items-center gap-2">
-                    Detalle de Insumos
-                </h3>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-elegant text-2xl text-black flex items-center gap-2">
+                        Detalle de Insumos
+                    </h3>
+                    <button type="button" onclick="document.getElementById('modal-materia').classList.remove('hidden')" class="bg-black hover:bg-gray-800 text-white text-xs font-bold py-2 px-4 rounded-md transition-colors flex items-center gap-2 shadow-sm active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Nueva Materia Prima
+                    </button>
+                </div>
                 
                 <div id="contenedor-insumos" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="fila-insumo grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200 relative group/fila">
                         
                         <div class="relative z-0 w-full group">
-                            <select name="materia_prima_id[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-                                <option value="" disabled selected>Selecciona insumo...</option>
-                                <option value="1">Esencia Cítrica</option>
+                            <select name="item_comprado[]" onchange="ajustarUnidades(this)" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
+                                <option value="" disabled selected>Selecciona...</option>
+                                
+                                <optgroup label="Materias Primas (Líquidos)">
+                                    {% for mp in materias_primas %}
+                                        <option value="MP_{{ mp.id }}" data-unidad="{{ mp.unidad_medida }}">{{ mp.nombre }} ({{ mp.unidad_medida }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                                
+                                <optgroup label="Envases y Contenedores">
+                                    {% for pres in presentaciones %}
+                                        <option value="PRES_{{ pres.id }}" data-unidad="Piezas">Envase {{ pres.nombre }} ({{ pres.mililitros }} ml)</option>
+                                    {% endfor %}
+                                </optgroup>
                             </select>
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Materia Prima</label>
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Artículo a Comprar</label>
                         </div>
 
                         <div class="relative z-0 w-full group">
                             <input type="number" step="0.01" name="cantidad_comprada[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Cantidad (Ej. 2)</label>
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Cantidad</label>
                         </div>
 
                         <div class="relative z-0 w-full group">
-                            <select name="unidad_compra[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
-                                <option value="Bultos">Bultos</option>
-                                <option value="Cajas">Cajas</option>
-                                <option value="Litros">Litros</option>
-                                <option value="Gramos">Gramos</option>
+                            <select name="unidad_compra[]" class="select-unidad block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer cursor-pointer" required>
+                                <option value="" disabled selected>Elige insumo...</option>
                             </select>
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Unidad Compra</label>
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0]">Unidad Compra</label>
+                        </div>
+
+                        <div class="relative z-0 w-full group">
+                            <input type="number" step="0.01" name="multiplicador[]" value="1" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Uds. por Caja/Lote</label>
                         </div>
 
                         <div class="relative z-0 w-full group">
                             <input type="number" step="0.01" name="precio_unitario[]" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer" placeholder=" " required />
-                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Precio Unitario ($)</label>
+                            <label class="peer-focus:font-medium absolute text-xs text-gray-500 duration-300 transform -translate-y-6 scale-90 top-3 -z-10 origin-[0] peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6">Precio Unit. ($)</label>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" class="mt-4 text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-black transition-colors flex items-center gap-1">
+                <button type="button" onclick="agregarFilaInsumo()" class="mt-4 text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-black transition-colors flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     Añadir otro insumo
                 </button>
@@ -82,12 +103,12 @@
 
             <div class="bg-blue-50 rounded-lg p-4 border border-blue-100 mt-4">
                 <p class="text-blue-800 text-xs leading-relaxed italic">
-                    * Nota: El sistema realizará la conversión automática de unidades (ej. Bultos a Gramos) y sumará al stock de Materias Primas al guardar. Esta transacción generará un registro en el log de auditoría.
+                    * Nota: El sistema realizará la suma automática al stock correspondiente, una vez que se confirme de recibido con el proveedor.
                 </p>
             </div>
 
             <div class="flex justify-end gap-4 pt-6 border-t border-gray-100">
-                <a href="{{ url_for('compras.proveedores') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
+                <a href="{{ url_for('compras.compras') }}" class="py-2.5 px-6 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
                     Cancelar
                 </a>
                 <button type="submit" class="text-white bg-black hover:bg-gray-800 font-medium rounded-lg text-sm px-8 py-2.5 transition-colors shadow-lg">
@@ -97,4 +118,179 @@
         </form>
     </div>
 </div>
+
+<div id="modal-materia" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 transition-opacity">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+            <h2 class="text-2xl font-elegant text-gray-800">Nueva Materia Prima</h2>
+            <button onclick="document.getElementById('modal-materia').classList.add('hidden')" class="text-gray-400 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-1.5 rounded-full">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <form id="form-nueva-materia" action="{{ url_for('compras.agregar_materia_rapida') }}" method="POST" class="space-y-5">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Nombre del Insumo</label>
+                <input type="text" name="nombre" required placeholder="Ej. Esencia de Vainilla" class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Tipo</label>
+                    <select name="tipo" id="tipo_materia" onchange="ajustarUnidadMateria()" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
+                        <option value="" disabled selected>Seleccione...</option>
+                        <option value="esencia">Esencia</option>
+                        <option value="alcohol">Alcohol</option>
+                        <option value="fijador">Fijador</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Unidad M.</label>
+                    <select name="unidad_medida" id="unidad_medida_materia" required class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
+                        <option value="" disabled selected>Elige tipo...</option>
+                    </select>
+                </div>  
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Stock Mínimo (Alerta)</label>
+                <input type="number" step="0.01" name="stock_minimo" required placeholder="Ej. 10.00" class="block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-colors">
+            </div>
+            
+            <div class="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-2">
+                <button type="button" onclick="document.getElementById('modal-materia').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-black text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-md">
+                    Guardar Insumo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function agregarFilaInsumo() {
+        const contenedor = document.getElementById('contenedor-insumos');
+        const primeraFila = contenedor.querySelector('.fila-insumo');
+        const nuevaFila = primeraFila.cloneNode(true);
+
+        const inputs = nuevaFila.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.name === "multiplicador[]") {
+                input.value = '1';
+            } else {
+                input.value = '';
+            }
+        });
+
+        const selects = nuevaFila.querySelectorAll('select');
+        selects.forEach(select => select.selectedIndex = 0);
+
+        const divEliminar = document.createElement('div');
+        divEliminar.className = "md:col-span-5 flex justify-end mt-2";
+        divEliminar.innerHTML = `
+            <button type="button" onclick="this.closest('.fila-insumo').remove()" class="text-red-500 text-xs font-bold uppercase hover:text-red-700 flex items-center gap-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Quitar Insumo
+            </button>
+        `;
+
+        nuevaFila.appendChild(divEliminar);
+        contenedor.appendChild(nuevaFila);
+    }
+
+    function ajustarUnidades(selectMateria) {
+        const fila = selectMateria.closest('.fila-insumo');
+        const selectUnidad = fila.querySelector('.select-unidad');
+        const inputMultiplicador = fila.querySelector('input[name="multiplicador[]"]');
+        const contenedorMultiplicador = inputMultiplicador.closest('.group');
+        
+        const opcionSeleccionada = selectMateria.options[selectMateria.selectedIndex];
+        const unidadBase = opcionSeleccionada.getAttribute('data-unidad').toLowerCase(); 
+        
+        selectUnidad.innerHTML = '';
+        
+        if (unidadBase.includes('ml') || unidadBase.includes('mililitros') || unidadBase.includes('litros')) {
+            selectUnidad.innerHTML = `
+                <option value="Litros">Litros</option>
+                <option value="Galon Americano">Galón (Americano)</option>
+                <option value="Galon Imperial">Galón (Imperial)</option>
+            `;
+            contenedorMultiplicador.style.display = 'none';
+            inputMultiplicador.value = '1';
+        } else {
+            selectUnidad.innerHTML = `
+                <option value="Piezas">Piezas sueltas</option>
+                <option value="Cajas">Cajas</option>
+                <option value="Lotes">Lotes</option>
+            `;
+            contenedorMultiplicador.style.display = 'block';
+        }
+    }
+
+    function ajustarUnidadMateria() {
+        const tipoSelect = document.getElementById('tipo_materia');
+        const unidadSelect = document.getElementById('unidad_medida_materia');
+        const tipo = tipoSelect.value;
+
+        unidadSelect.innerHTML = ''; 
+
+        if (tipo === 'esencia' || tipo === 'alcohol') {
+            unidadSelect.innerHTML = '<option value="Mililitros" selected>Mililitros (ml)</option>';
+            unidadSelect.classList.add('bg-gray-200', 'pointer-events-none', 'text-gray-500');
+        } else if (tipo === 'fijador') {
+            unidadSelect.innerHTML = '<option value="Mililitros" selected>Mililitros (ml)</option>';
+            unidadSelect.classList.add('bg-gray-200', 'pointer-events-none', 'text-gray-500');
+        }
+    }
+
+    document.getElementById('form-nueva-materia').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                document.getElementById('modal-materia').classList.add('hidden');
+                form.reset();
+                document.getElementById('unidad_medida_materia').innerHTML = '<option value="" disabled selected>Elige tipo...</option>';
+
+                const selectsMaterias = document.querySelectorAll('select[name="item_comprado[]"]');
+                
+                selectsMaterias.forEach(select => {
+                    // Seleccionamos el optgroup de Materias Primas para agregar el nuevo item ahí
+                    const optGroupMaterias = select.querySelector('optgroup[label="Materias Primas (Líquidos)"]');
+                    const option = document.createElement('option');
+                    option.value = 'MP_' + data.id;
+                    option.setAttribute('data-unidad', data.unidad_medida);
+                    option.text = `${data.nombre} (${data.unidad_medida})`;
+                    
+                    if (optGroupMaterias) {
+                        optGroupMaterias.appendChild(option);
+                    } else {
+                        select.appendChild(option);
+                    }
+                });
+
+                if (selectsMaterias.length > 0) {
+                    selectsMaterias[selectsMaterias.length - 1].value = 'MP_' + data.id;
+                    ajustarUnidades(selectsMaterias[selectsMaterias.length - 1]);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Hubo un error al guardar la materia prima.");
+        });
+    });
+</script>
 {% endblock %}

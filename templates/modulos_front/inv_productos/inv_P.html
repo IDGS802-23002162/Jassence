@@ -60,7 +60,6 @@
                     <th scope="col" class="px-6 py-4">Estado</th>
                     <th scope="col" class="px-6 py-4 text-center">Detalles</th>
                     <th scope="col" class="px-6 py-4 text-center">Mermas</th>
-                    <th scope="col" class="px-6 py-4 text-center">Eliminar</th>
                 </tr>
             </thead>
 
@@ -101,13 +100,6 @@
                         </button>
                     </td>
 
-                    <td class="px-6 py-4 text-center border-l border-table-dark">
-                        <button type="button"
-                            onclick="abrirModalEliminar('{{ producto.id }}','{{ producto.receta.nombre_perfume }}')" 
-                            class="font-medium text-gray-300 hover:text-red-500 transition-colors focus:outline-none cursor-pointer">
-                            Eliminar
-                        </button>
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
