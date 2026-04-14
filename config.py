@@ -80,6 +80,6 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:3417@127.0.0.1/jassencebd'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://jassence_app:jassence_password_$@127.0.0.1/jassencebd'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # Operación diaria de Jassence: No usar root

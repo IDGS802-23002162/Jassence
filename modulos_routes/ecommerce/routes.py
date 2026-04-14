@@ -478,6 +478,41 @@ def sucursales():
     
     return redirect(url_google_maps)
 
+
+@ecommerce_bp.route("/pedidos/cancelar/<int:id>", methods=["POST"])
+@login_required
+def cancelar_pedido(id):
+    # 1. Obtenemos la venta
+    venta = Venta.query.get_or_404(id)
+    
+    # 2. Validamos por seguridad que la venta pertenezca al usuario logueado
+    if venta.cliente_id != current_user.id:
+        flash("No tienes permiso para cancelar este pedido.", "error")
+        return redirect(url_for('ecommerce.pedidos'))
+        
+    # 3. Validamos a nivel base de datos que NO exista una orden de producción ligada a esta venta
+    # (Por si el usuario intenta hacer una petición POST manual cuando ya está bloqueado en front)
+    orden_existente = OrdenProduccion.query.filter_by(venta_id=venta.id).first()
+    
+    if orden_existente:
+        flash("El pedido ya ingresó a producción y no puede ser cancelado.", "error")
+    else:
+        try:
+            # 4. Eliminamos la solicitud temporal
+            ProduccionTemporal.query.filter_by(venta_id=venta.id).delete()
+            
+            # 5. Cambiamos el estado de la venta
+            venta.estado_pedido = 'Cancelado'
+            
+            db.session.commit()
+            flash("Pedido cancelado exitosamente.", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Ocurrió un error al cancelar el pedido.", "error")
+            print(f"Error cancelando pedido: {e}")
+            
+    return redirect(url_for('ecommerce.pedidos'))
+
 #  UTILS
 
 
