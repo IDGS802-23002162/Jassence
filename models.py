@@ -120,6 +120,7 @@ class MateriaPrima(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
     cantidad_disponible = db.Column(db.Float)
+    stock_apartado = db.Column(db.Float, default=0)  # 👈 NUEVO
     unidad_medida = db.Column(db.String(50))    
     stock_minimo = db.Column(db.Float)
     tipo = db.Column(db.String(50)) 
@@ -155,20 +156,12 @@ class Compra(db.Model):
 class DetalleCompra(db.Model):
     __tablename__ = 'detalle_compras'
     
-    # 1. Agregamos un ID propio como Primary Key
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     compra_id = db.Column(db.Integer, db.ForeignKey('compras.id'))
-    
-    # 2. Hacemos que la materia prima sea opcional (nullable=True)
     materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), nullable=True)
-    
-    # 3. Agregamos la relación con la Presentación (nullable=True)
     presentacion_id = db.Column(db.Integer, db.ForeignKey('presentaciones.id'), nullable=True)
-    
-    # 4. Campo de control para saber si es líquido o envase
-    tipo_item = db.Column(db.String(20), default='materia') # 'materia' o 'presentacion'
+    tipo_item = db.Column(db.String(20), default='materia') 
 
-    # Los demás campos quedan igual
     cantidad_comprada = db.Column(db.Float)
     unidad_compra = db.Column(db.String(50))
     precio_unitario = db.Column(db.Float)
@@ -216,6 +209,7 @@ class Presentacion(db.Model):
     nombre = db.Column(db.String(50))
     mililitros = db.Column(db.Integer)
     stock_botes = db.Column(db.Integer, default=0)
+    stock_botes_apartado = db.Column(db.Integer, default=0)  # 👈 NUEVO
     productos_terminados = db.relationship('ProductoTerminado', back_populates='presentacion', lazy=True)
 
 
