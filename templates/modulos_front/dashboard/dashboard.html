@@ -63,8 +63,8 @@
                         </div>
                         
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
-                            <h3 class="text-sm font-medium text-gray-800 mb-2">Total Neto (Ingresos - Impuestos):</h3>
-                            <span class="font-elegant text-4xl text-black tracking-wide">$ {{ "{:,.2f}".format(total_neto) }}</span>
+                            <h3 class="text-sm font-medium text-gray-800 mb-2">Total de Egresos (Insumos):</h3>
+                            <span class="font-elegant text-4xl text-black tracking-wide">$ {{ "{:,.2f}".format(gastos_insumos) }}</span>
                         </div>
                         
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
@@ -116,9 +116,12 @@
             </button>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
         
-        <div class="space-y-10 flex flex-col">
+        <div class="space-y-10 flex flex-col w-full">
+            
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h3 class="text-sm font-medium text-gray-800 mb-4">Meta Mensual de Ventas: $ {{ "{:,.2f}".format(meta_ventas) }}</h3>
                 <div class="w-full bg-[#EDEDED] rounded-full h-8 relative overflow-hidden">
@@ -129,24 +132,63 @@
                     </span>
                 </div>
             </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                
+                <h3 class="text-sm font-medium text-gray-800 mb-6">Análisis de Rentabilidad</h3>
+                
+                
+                <div class="relative overflow-x-auto overflow-y-auto max-h-[450px] shadow-xl rounded-lg border border-table-dark flex-grow custom-scrollbar">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                            <tr>
+                                <th scope="col" class="px-4 py-4">Producto</th>
+                                <th scope="col" class="px-4 py-4 text-center">Costo Fab.</th>
+                                <th scope="col" class="px-4 py-4 text-center">Utilidad Unitaria</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in top_ganancia %}
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-4 py-4">
+                                    <div class="font-medium text-white">{{ producto.nombre_perfume }}</div>
+                                    <div class="text-[10px] text-gray-400">{{ producto.mililitros }}ml | {{ producto.total_cantidad|int }} vendidos</div>
+                                </td>
+                                <td class="px-4 py-4 text-center text-gray-300">
+                                    $ {{ "{:,.2f}".format(producto.costo_unitario) }}
+                                </td>
+                                <td class="px-4 py-4 text-center font-bold {% if producto.utilidad_unitaria < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                                    {% if producto.utilidad_unitaria < 0 %}
+                                        -$ {{ "{:,.2f}".format(producto.utilidad_unitaria|abs) }}
+                                    {% else %}
+                                        $ {{ "{:,.2f}".format(producto.utilidad_unitaria) }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="bg-table-dark"><td colspan="3" class="px-4 py-8 text-center text-gray-500 italic">No hay datos de rentabilidad.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <div class="space-y-10 flex flex-col w-full">
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full">
                 <h3 class="text-sm font-medium text-gray-800 mb-6">Tendencia Semanal de Ventas (Este Mes)</h3>
                 
                 <div class="space-y-4">
-                    <!-- Bucle para imprimir las 5 semanas -->
-                    {% for i in range(5) %}
+                    {% for i in range(4) %}
                     <div class="flex items-center gap-4">
                         <span class="w-20 text-xs text-gray-600 font-medium">Semana {{ i + 1 }}</span>
                         <div class="w-full bg-[#EDEDED] rounded-full h-4 relative group" title="Vendido: $ {{ '{:,.2f}'.format(ventas_semanas[i]) }}">
-                            <!-- Esta barra crece dinámicamente con Jinja -->
                             <div class="bg-black h-4 rounded-full transition-all duration-1000 ease-out hover:bg-gray-800 cursor-pointer" 
                                 style="width: {{ (ventas_semanas[i] / escala_maxima * 100) }}%;"></div>
                         </div>
                     </div>
                     {% endfor %}
 
-                    <!-- Etiquetas dinámicas del eje X -->
                     <div class="flex items-center gap-4 pt-2 mt-2 border-t border-gray-100">
                         <div class="w-20 flex-shrink-0"></div>
                         <div class="w-full flex justify-between text-[10px] sm:text-xs text-gray-500 font-medium">
@@ -157,61 +199,89 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
-            
-            <div class="flex items-center justify-between mb-6 pb-2">
-                <h3 class="text-sm font-medium text-gray-800">Productos Mas Vendidos</h3>
-                <select id="filtro-top-productos" onchange="cambiarFiltroProductos()" class="bg-[#EDEDED] text-black border-0 text-xs font-medium rounded-lg p-2 focus:ring-black focus:border-black cursor-pointer shadow-sm">
-                    <option value="" disabled selected>Seleccionar opcion</option>
-                    <option value="cantidad">   Cantidad   </option>
-                    <option value="ganancia">   Ganancia   </option>
-                </select>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-6 pb-2">
+                    <h3 class="text-sm font-medium text-gray-800">Productos Mas Vendidos</h3>
+                    <select id="filtro-top-productos" onchange="cambiarFiltroProductos()" class="bg-[#EDEDED] text-gray-700 border-0 text-xs rounded-lg p-2 pr-8 focus:ring-black focus:border-black cursor-pointer shadow-sm">
+                        <option value="cantidad" >   Cantidad   </option>
+                        <option value="bruto">   Total Bruto   </option> 
+                        <option value="ganancia" selected>   Ganancia   </option>
+                    </select>
+                </div>
+                
+                <div class="relative overflow-x-auto overflow-y-auto max-h-[450px] shadow-xl rounded-lg border border-table-dark flex-grow custom-scrollbar">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
+                            <tr>
+                                <th scope="col" class="px-4 py-4">Producto</th>
+                                <th scope="col" class="px-4 py-4 text-center">Cant</th>
+                                <th scope="col" class="px-4 py-4 text-center">Total Bruto</th>
+                                <th scope="col" class="px-4 py-4 text-center">Utilidad</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody id="tbody-cantidad" class="hidden">
+                            {% for producto in top_cantidad %}
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-4 py-4">{{ producto.nombre_perfume }} ({{ producto.mililitros }}ml)</td>
+                                <td class="px-4 py-4 text-center text-white font-bold">{{ producto.total_cantidad }}</td>
+                                <td class="px-4 py-4 text-center">$ {{ "{:,.2f}".format(producto.total_bruto) }}</td>
+                                <td class="px-4 py-4 text-center {% if producto.utilidad_real < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                                    {% if producto.utilidad_real < 0 %}
+                                        -$ {{ "{:,.2f}".format(producto.utilidad_real|abs) }}
+                                    {% else %}
+                                        $ {{ "{:,.2f}".format(producto.utilidad_real) }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="bg-table-dark"><td colspan="4" class="px-4 py-8 text-center text-gray-500 italic">No hay datos de cantidad.</td></tr>
+                            {% endfor %}
+                        </tbody>
+
+                        <tbody id="tbody-ganancia" >
+                            {% for producto in top_ganancia %}
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-4 py-4">{{ producto.nombre_perfume }} ({{ producto.mililitros }}ml)</td>
+                                <td class="px-4 py-4 text-center">{{ producto.total_cantidad }}</td>
+                                <td class="px-4 py-4 text-center text-white">$ {{ "{:,.2f}".format(producto.total_bruto) }}</td>
+                                <td class="px-4 py-4 text-center font-bold {% if producto.utilidad_real < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                                    {% if producto.utilidad_real < 0 %}
+                                        -$ {{ "{:,.2f}".format(producto.utilidad_real|abs) }}
+                                    {% else %}
+                                        $ {{ "{:,.2f}".format(producto.utilidad_real) }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="bg-table-dark"><td colspan="4" class="px-4 py-8 text-center text-gray-500 italic">No hay datos de ganancias.</td></tr>
+                            {% endfor %}
+                        </tbody>
+
+                        <tbody id="tbody-bruto" class="hidden">
+                            {% for producto in top_bruto %}
+                            <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
+                                <td class="px-4 py-4">{{ producto.nombre_perfume }} ({{ producto.mililitros }}ml)</td>
+                                <td class="px-4 py-4 text-center">{{ producto.total_cantidad }}</td>
+                                <td class="px-4 py-4 text-center text-white font-bold">$ {{ "{:,.2f}".format(producto.total_bruto) }}</td>
+                                <td class="px-4 py-4 text-center {% if producto.utilidad_real < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                                    {% if producto.utilidad_real < 0 %}
+                                        -$ {{ "{:,.2f}".format(producto.utilidad_real|abs) }}
+                                    {% else %}
+                                        $ {{ "{:,.2f}".format(producto.utilidad_real) }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="bg-table-dark"><td colspan="4" class="px-4 py-8 text-center text-gray-500 italic">No hay datos de venta bruta.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            
-            <div class="relative overflow-x-auto overflow-y-auto max-h-[450px] shadow-xl rounded-lg border border-table-dark flex-grow custom-scrollbar">
-                <table class="w-full text-sm text-left text-gray-300">
-                    <thead class="text-xs text-gray-200 uppercase bg-[#2A2A2A]">
-                        <tr>
-                            <th scope="col" class="px-4 py-4">Producto</th>
-                            <th scope="col" class="px-4 py-4 text-center">Cant</th>
-                            <th scope="col" class="px-4 py-4 text-center">Total Bruto</th>
-                            <th scope="col" class="px-4 py-4 text-center">Utilidad</th>
-                        </tr>
-                    </thead>
-                    
-                    <tbody id="tbody-cantidad">
-                        {% for producto in top_cantidad %}
-                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                            <td class="px-4 py-4">{{ producto.nombre_perfume }} ({{ producto.mililitros }}ml)</td>
-                            <td class="px-4 py-4 text-center text-white font-bold">{{ producto.total_cantidad }}</td>
-                            <td class="px-4 py-4 text-center">$ {{ "{:,.2f}".format(producto.total_bruto) }}</td>
-                            <td class="px-4 py-4 text-center text-green-400 font-medium">$ {{ "{:,.2f}".format(producto.total_bruto * 0.5) }}</td>
-                        </tr>
-                        {% else %}
-                        <tr class="bg-table-dark"><td colspan="4" class="px-4 py-8 text-center text-gray-500 italic">No hay datos de cantidad.</td></tr>
-                        {% endfor %}
-                    </tbody>
 
-                    <tbody id="tbody-ganancia" class="hidden">
-                        {% for producto in top_ganancia %}
-                        <tr class="bg-table-dark border-b border-table-dark hover:bg-[#454545] transition-colors">
-                            <td class="px-4 py-4">{{ producto.nombre_perfume }} ({{ producto.mililitros }}ml)</td>
-                            <td class="px-4 py-4 text-center">{{ producto.total_cantidad }}</td>
-                            <td class="px-4 py-4 text-center text-white font-bold">$ {{ "{:,.2f}".format(producto.total_bruto) }}</td>
-                            <td class="px-4 py-4 text-center text-green-400 font-bold">$ {{ "{:,.2f}".format(producto.total_bruto * 0.5) }}</td>
-                        </tr>
-                        {% else %}
-                        <tr class="bg-table-dark"><td colspan="4" class="px-4 py-8 text-center text-gray-500 italic">No hay datos de ganancias.</td></tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
-            </div>
-        </div>
-
-    </div>
+        </div> </div>
 
 </div> 
 
@@ -235,15 +305,17 @@
 
     function cambiarFiltroProductos() {
         const filtro = document.getElementById('filtro-top-productos').value;
-        const tbodyCantidad = document.getElementById('tbody-cantidad');
-        const tbodyGanancia = document.getElementById('tbody-ganancia');
+        
+        document.getElementById('tbody-cantidad').classList.add('hidden');
+        document.getElementById('tbody-ganancia').classList.add('hidden');
+        document.getElementById('tbody-bruto').classList.add('hidden');
 
         if (filtro === 'cantidad') {
-            tbodyGanancia.classList.add('hidden');
-            tbodyCantidad.classList.remove('hidden');
-        } else {
-            tbodyCantidad.classList.add('hidden');
-            tbodyGanancia.classList.remove('hidden');
+            document.getElementById('tbody-cantidad').classList.remove('hidden');
+        } else if (filtro === 'ganancia') {
+            document.getElementById('tbody-ganancia').classList.remove('hidden');
+        } else if (filtro === 'bruto') {
+            document.getElementById('tbody-bruto').classList.remove('hidden');
         }
     }
 
