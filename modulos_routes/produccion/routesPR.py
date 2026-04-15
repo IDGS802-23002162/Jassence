@@ -364,6 +364,13 @@ def seguimiento_F():
         else:
             o.estado_color = "bg-gray-500 text-gray-50"
 
+        # NUEVO: Inyectar el estado de la venta 
+        if o.venta_id:
+            venta = Venta.query.get(o.venta_id)
+            o.estado_venta = venta.estado_pedido if venta else None
+        else:
+            o.estado_venta = None
+
     return render_template(
         'modulos_front/produccion/seguimiento_F.html',
         ordenes=ordenes
@@ -380,3 +387,25 @@ def imprimir_guia(orden_id):
     direccion = DireccionEntrega.query.get(venta.direccion_envio_id)
     
     return render_template('modulos_front/produccion/guia_envio.html', orden=orden, venta=venta, direccion=direccion)
+
+# =========================================
+# ENVIAR PEDIDO (VENTAS ONLINE)
+# =========================================
+@produccion_bp.route('/produccion/enviar_pedido/<int:venta_id>', methods=['POST'])
+@roles_accepted('admin','produccion') 
+def enviar_pedido(venta_id):
+    try:
+        # Llamamos al procedimiento almacenado
+        db.session.execute(
+            text("CALL sp_enviar_pedido(:id)"),
+            {"id": venta_id}
+        )
+        db.session.commit()
+        flash("El pedido ha sido marcado como enviado y el stock actualizado.", "success")
+        
+    except Exception as e:
+        db.session.rollback()
+        flash("Ocurrió un error al procesar el envío.", "error")
+        print(f"Error al enviar pedido: {e}")
+            
+    return redirect(request.referrer)

@@ -148,14 +148,33 @@
                 </div>
 
                 
-                <div class="mt-6">
+                <div class="mt-6 flex gap-2">
                     {% if o.venta_id %}
                     <a href="/produccion/orden/{{ o.id }}/guia" target="_blank"
-                        class="w-full bg-[#2A2A2A] text-white py-2.5 p-2 rounded-lg mt-6 hover:bg-black transition-colors"
-                        >
-                        Imprimir Guía de Envío
+                        class="w-full text-center bg-[#2A2A2A] text-white py-2.5 p-2 rounded-lg hover:bg-black transition-colors">
+                        Imprimir Guía
                     </a>
-                    <!-- Aqui el logo de palomita si ya se le dio una vez a imprimir guia  -->
+                    
+                    <form action="/produccion/enviar_pedido/{{ o.venta_id }}" method="POST" class="w-full">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" 
+                            class="w-full py-2.5 p-2 rounded-lg font-bold transition-all flex justify-center items-center gap-2
+                            {% if o.estado_venta == 'Enviado' %} 
+                                bg-green-900 text-gray-400 cursor-not-allowed opacity-80 
+                            {% else %} 
+                                bg-green-600 hover:bg-green-500 text-white shadow-lg
+                            {% endif %}"
+                            {% if o.estado_venta == 'Enviado' %} disabled {% endif %}>
+                            
+                            {% if o.estado_venta == 'Enviado' %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Enviado
+                            {% else %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                Enviar
+                            {% endif %}
+                        </button>
+                    </form>
                     {% endif %}
                 </div>
             </div>
