@@ -394,18 +394,39 @@ def imprimir_guia(orden_id):
 @produccion_bp.route('/produccion/enviar_pedido/<int:venta_id>', methods=['POST'])
 @roles_accepted('admin','produccion') 
 def enviar_pedido(venta_id):
-    try:
-        # Llamamos al procedimiento almacenado
-        db.session.execute(
-            text("CALL sp_enviar_pedido(:id)"),
-            {"id": venta_id}
-        )
-        db.session.commit()
-        flash("El pedido ha sido marcado como enviado y el stock actualizado.", "success")
-        
-    except Exception as e:
-        db.session.rollback()
-        flash("Ocurrió un error al procesar el envío.", "error")
-        print(f"Error al enviar pedido: {e}")
+    venta = Venta.query.get_or_404(venta_id)
+    
+    # 1. Validar si hay órdenes de producción sin terminar
+    ordenes_pendientes = OrdenProduccion.query.filter(
+        OrdenProduccion.venta_id == venta_id,
+        OrdenProduccion.estado.in_(['pendiente', 'en_proceso'])
+    ).count()
+
+    # 2. NUEVO: Validar si hay solicitudes temporales que aún no se convierten en orden
+    solicitudes_pendientes = ProduccionTemporal.query.filter(
+        ProduccionTemporal.venta_id == venta_id,
+        ProduccionTemporal.estatus == 'pendiente'
+    ).count()
+
+    # 3. Evaluamos ambas condiciones
+    if ordenes_pendientes > 0 or solicitudes_pendientes > 0:
+        flash("No se puede enviar. Hay productos de esta venta en cola de solicitudes o en producción.", "error")
+        return redirect(request.referrer)
+
+    # 4. Si pasa la validación y no está enviado ya, ejecutamos el proceso
+    if venta.estado_pedido != 'Enviado':
+        try:
+            # Llamamos al Stored Procedure para descontar stock comprometido y cambiar estado
+            db.session.execute(
+                text("CALL sp_enviar_pedido(:id)"),
+                {"id": venta_id}
+            )
+            db.session.commit()
+            flash("El pedido ha sido marcado como enviado exitosamente.", "success")
+            
+        except Exception as e:
+            db.session.rollback()
+            flash("Ocurrió un error inesperado al procesar el envío en la base de datos.", "error")
+            print(f"Error al enviar pedido: {e}")
             
     return redirect(request.referrer)

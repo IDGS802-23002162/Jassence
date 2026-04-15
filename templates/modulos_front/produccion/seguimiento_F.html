@@ -182,6 +182,23 @@
         {% endfor %}
 
     </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            {% for category, message in messages %}
+                                
+                                // Asumiendo que tu función recibe (mensaje, tipo)
+                                // Puedes ajustar el orden de las variables si tu función las recibe distinto.
+                                // category será "success" o "error"
+                                notificar("{{ message }}", "{{ category }}");
+                                
+                            {% endfor %}
+                        });
+                    </script>
+                {% endif %}
+            {% endwith %}
 </div>
 
 <script>
