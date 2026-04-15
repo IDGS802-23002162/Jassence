@@ -24,6 +24,7 @@ from modulos_routes.compras import compras_bp
 from modulos_routes.inv_materias import invMP_bp
 from modulos_routes.ecommerce.routes import ecommerce_bp
 from modulos_routes.finanzas import finanzas_bp 
+from modulos_routes.respaldos import respaldos_bp
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -49,6 +50,7 @@ app.register_blueprint(compras_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(pos_bp)
 app.register_blueprint(finanzas_bp)
+app.register_blueprint(respaldos_bp)
 
 # Rutas principales
 @app.route('/inicio')
