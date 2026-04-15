@@ -46,6 +46,7 @@
         <option value="LOGIN">LOGIN</option>
         <option value="LOGOUT">LOGOUT</option>
         <option value="FALLIDO">LOGIN FALLIDO</option>
+        <option value="RESPALDOS">RESPALDOS</option>
     </select>
 
 </div>
@@ -112,6 +113,8 @@ function filtrarTabla() {
                 coincideEvento = evento.includes("LOGOUT");
             } else if (eventoFiltro === "FALLIDO") {
                 coincideEvento = resultado.includes("fallido");
+            } else if (eventoFiltro === "RESPALDOS") {
+                coincideEvento = resultado.includes("respaldos");
             }
 
             if (coincideBusqueda && coincideFecha && coincideEvento) {

@@ -4,3 +4,4 @@ static/dist/
 __pycache__/
 venv
 static/uploads/facturas
+backups_automatizados

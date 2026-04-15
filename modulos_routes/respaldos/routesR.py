@@ -14,6 +14,7 @@ from flask_security import roles_required, current_user
 from flask_mailman import EmailMessage
 from werkzeug.utils import secure_filename
 from apscheduler.schedulers.background import BackgroundScheduler
+from modulos_routes.auditoria.utils import registrar_log
 
 # Importamos el blueprint y la instancia de mail
 from . import respaldos_bp
@@ -59,6 +60,13 @@ def panel_respaldos():
         archivos = os.listdir(BACKUP_DIR)
         archivos_sql = [f for f in archivos if f.endswith('.sql')]
         archivos_sql.sort(reverse=True)
+
+    registrar_log(
+            accion='RESPALDOS',
+            tabla='accesos',
+            registro_id=current_user.id,
+            detalle='Accedio a respaldos'
+        )
         
     return render_template('modulos_front/respaldos/respaldos.html', backups_disponibles=archivos_sql)
 
@@ -74,6 +82,7 @@ def descargar_respaldo():
         db_name = current_app.config.get('MYSQL_DB', 'jassencebd')
 
         fd, temp_path = tempfile.mkstemp(suffix='.sql')
+        os.close(fd)
         
         ruta_mysqldump = r"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe"
         
@@ -91,12 +100,22 @@ def descargar_respaldo():
         
         with open(temp_path, 'w') as f:
             subprocess.run(comando, stdout=f, check=True)
+
+        fecha_actual = datetime.now().strftime('%d_%m_%Y_%H%M')
+        nombre_archivo = f"respaldo_jassence_{fecha_actual}.sql"
+
+        registrar_log(
+            accion='RESPALDOS',
+            tabla='accesos',
+            registro_id=current_user.id,
+            detalle='Genero un respaldo nuevo '
+        )
         
         fecha_actual = datetime.now().strftime('%d_%m_%Y_%H%M')
         return send_file(
             temp_path,
             as_attachment=True,
-            download_name=f"respaldo_jassence_{fecha_actual}.sql",
+            download_name=nombre_archivo,
             mimetype='application/sql'
         )
 
@@ -131,10 +150,25 @@ def restaurar_respaldo():
         
         subprocess.run(comando, shell=True, check=True)
         os.remove(temp_path)
+
+        registrar_log(
+            accion='RESPALDOS',
+            tabla='accesos',
+            registro_id=current_user.id,
+            detalle=f'Restauró la base de datos usando el archivo: {nombre_seguro}'
+        )
         
         return jsonify({"mensaje": "Base de datos restaurada con éxito"}), 200
 
     except Exception as e:
+
+        registrar_log(
+            accion='RESPALDOS',
+            tabla='accesos',
+            registro_id=current_user.id,
+            detalle=f'Error al intentar restaurar: {str(e)}'
+        )
+
         return jsonify({"error": f"Error en restauración: {str(e)}"}), 500
 
 
@@ -144,6 +178,14 @@ def restaurar_respaldo():
 def descargar_desde_servidor(nombre_archivo):
     try:
         nombre_seguro = secure_filename(nombre_archivo)
+
+        registrar_log(
+            accion='RESPALDOS',
+            tabla='accesos',
+            registro_id=current_user.id,
+            detalle=f'Descargó respaldo automático: {nombre_seguro}'
+        )
+
         return send_from_directory(
             directory=BACKUP_DIR,
             path=nombre_seguro,
@@ -245,6 +287,12 @@ def tarea_respaldo_diario():
     try:
         with open(filepath, 'w') as f:
             subprocess.run(comando, stdout=f, check=True)
+            registrar_log(
+                accion='RESPALDOS',
+                tabla='accesos',
+                registro_id=None,
+                detalle=f'SISTEMA: Respaldo automático diario generado con éxito -> {filename}'
+            )
         print(f"[{datetime.now()}] ÉXITO: Respaldo automático guardado -> {filename}")
     except Exception as e:
         print(f"[{datetime.now()}] ERROR: Falló el respaldo automático -> {str(e)}")
