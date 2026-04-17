@@ -278,12 +278,12 @@ def marcar_recibido(id):
             )
                 
             db.session.commit()
-            flash('¡Mercancía recibida físicamente! El stock ha sido sumado a sus respectivos inventarios.', 'success')
+            flash('¡Mercancía recibida físicamente! El stock ha sido sumado a sus respectivos inventarios.', 'compras_success')
         except Exception as e:
             db.session.rollback()
-            flash(f'Ocurrió un error al procesar la entrada: {str(e)}', 'error')
+            flash(f'Ocurrió un error al procesar la entrada: {str(e)}', 'compras_error')
     else:
-        flash('Esta compra ya fue procesada anteriormente o está cancelada.', 'warning')
+        flash('Esta compra ya fue procesada anteriormente o está cancelada.', 'compras_warning')
         
     return redirect(url_for('compras.compras'))
 

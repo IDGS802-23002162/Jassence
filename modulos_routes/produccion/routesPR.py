@@ -101,6 +101,7 @@ def index_ordenes():
     ordenes = OrdenProduccion.query.filter(OrdenProduccion.estado.in_(["pendiente", "en_proceso"])).all()
     responsables = Usuario.query.filter_by(active=True).all()
 
+    presentaciones = Presentacion.query.all()
     recetas_dict = {r.id: r.nombre_perfume for r in Receta.query.all()}
 
     for s in solicitudes:
@@ -112,7 +113,8 @@ def index_ordenes():
         'modulos_front/produccion/ordenes.html',
         solicitudes=solicitudes,
         responsables=responsables,
-        ordenes=ordenes
+        ordenes=ordenes,
+        presentaciones=presentaciones
     )
 
 # CREAR ORDEN ---------------------------------

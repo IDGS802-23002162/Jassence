@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 import random
 import threading
+import re
 from datetime import datetime
 from functools import wraps
 from flask import (
@@ -122,7 +123,6 @@ def descargar_respaldo():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @respaldos_bp.route('/api/admin/backup/restore', methods=['POST'])
 @roles_required('admin')
 @requiere_2fa_step_up
@@ -145,30 +145,70 @@ def restaurar_respaldo():
         temp_path = os.path.join(temp_dir, nombre_seguro)
         archivo.save(temp_path)
 
-        ruta_mysql = r"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
-        comando = f'"{ruta_mysql}" -h{db_host} -u{db_user} -p{db_pass} {db_name} < "{temp_path}"'
+        # ==========================================
+        # NUEVO: LIMPIEZA DE PRIVILEGIOS (DEFINER)
+        # ==========================================
+        import re  # (Preferiblemente mueve esto al inicio de tu app.py)
         
-        subprocess.run(comando, shell=True, check=True)
+        # 1. Leer el archivo que acabamos de guardar
+        with open(temp_path, 'r', encoding='utf-8') as f:
+            contenido_sql = f.read()
+
+        # 2. Eliminar cláusulas DEFINER (convierte a jassence_backup en el dueño)
+        contenido_sql = re.sub(r'DEFINER\s*=\s*`[^`]+`@`[^`]+`', '', contenido_sql)
+        contenido_sql = re.sub(r'/\*!50013 DEFINER\s*=\s*.*?\*/', '', contenido_sql)
+
+        # 3. Sobreescribir el archivo temporal ya limpio
+        with open(temp_path, 'w', encoding='utf-8') as f:
+            f.write(contenido_sql)
+        # ==========================================
+
+        ruta_mysql = r"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
+        
+        # 1. Definimos el comando como LISTA, SIN el símbolo "<"
+        comando = [
+            ruta_mysql,
+            f'-h{db_host}',
+            f'-u{db_user}',
+            f'-p{db_pass}',
+            db_name
+        ]
+
+        # 2. PREVENCIÓN DE DEADLOCK
+        from models import db 
+        db.session.remove()
+        db.engine.dispose()
+
+        # 3. Le damos el archivo a MySQL directamente desde Python
+        with open(temp_path, 'r', encoding='utf-8') as f:
+            resultado = subprocess.run(
+                comando,
+                stdin=f,             # Inyectamos el archivo limpio
+                capture_output=True, # Atrapamos cualquier error real
+                text=True,
+                check=False
+            )
+        
         os.remove(temp_path)
 
+        # 4. Revisamos si hubo algún error en MySQL (ignora el Warning de la contraseña)
+        if resultado.returncode != 0:
+            print("--- ERROR DE MYSQL ---")
+            print(resultado.stderr) 
+            return jsonify({"error": "Error interno en MySQL. Revisa la consola de Flask."}), 500
+
+        # Si llegamos aquí, ¡funcionó! Ya podemos guardar el log tranquilamente
         registrar_log(
-            accion='RESPALDOS',
-            tabla='accesos',
-            registro_id=current_user.id,
-            detalle=f'Restauró la base de datos usando el archivo: {nombre_seguro}'
+             accion='RESPALDOS',
+             tabla='accesos',
+             registro_id=current_user.id,
+             detalle=f'Restauró la base de datos usando el archivo: {nombre_seguro}'
         )
         
         return jsonify({"mensaje": "Base de datos restaurada con éxito"}), 200
 
     except Exception as e:
-
-        registrar_log(
-            accion='RESPALDOS',
-            tabla='accesos',
-            registro_id=current_user.id,
-            detalle=f'Error al intentar restaurar: {str(e)}'
-        )
-
+        print(f"Excepción: {str(e)}")
         return jsonify({"error": f"Error en restauración: {str(e)}"}), 500
 
 

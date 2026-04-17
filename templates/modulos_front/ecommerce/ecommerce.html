@@ -8,8 +8,8 @@
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-center space-x-8 h-10">
                 <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', '')" class="text-white font-medium text-sm hover:underline transition-colors">Categorias</a>
-                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'hombre')" class="text-white font-medium text-sm hover:underline transition-colors">Hombre</a>
-                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'mujer')" class="text-white font-medium text-sm hover:underline transition-colors">Mujer</a>
+                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'masculino')" class="text-white font-medium text-sm hover:underline transition-colors">Hombre</a>
+                <a href="#" onclick="navegarYFiltrar(event, 'tienda-seccion', 'femenino')" class="text-white font-medium text-sm hover:underline transition-colors">Mujer</a>
                 <a href="#" onclick="navegarYFiltrar(event, 'novedades-seccion', '')" class="text-white font-medium text-sm hover:underline transition-colors hidden sm:block">Novedades</a>
                 <a href="{{ url_for('ecommerce.sucursales') }}" target="_blank" class="text-white font-medium text-sm hover:underline transition-colors">Sucursales</a>
             </div>
@@ -17,7 +17,7 @@
     </div>
 
 <div id="default-carousel" class="relative w-full" data-carousel="slide">
-    <div class="relative h-[300px] sm:h-[400px] md:h-[800px] overflow-hidden">
+    <div class="relative h-[300px] sm:h-[400px] md:h-[600px] overflow-hidden">
         
         <div class="hidden duration-700 ease-in-out group" data-carousel-item>
             <img src="{{ url_for('static', filename='img/headerPerfume.png') }}" alt="Banner Jassence 1" 
